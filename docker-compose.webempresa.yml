@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  webempresa_postgres:
+    image: postgres:15
+    container_name: webempresa_postgres
+    environment:
+      POSTGRES_DB: webempresa_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - webempresa_postgres_data:/var/lib/postgresql/data
+      - ./init-webempresa-db.sql:/docker-entrypoint-initdb.d/init-webempresa-db.sql
+    networks:
+      - webempresa_network
+    restart: unless-stopped
+
+  webempresa_redis:
+    image: redis:7-alpine
+    container_name: webempresa_redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - webempresa_redis_data:/data
+    networks:
+      - webempresa_network
+    restart: unless-stopped
+
+volumes:
+  webempresa_postgres_data:
+  webempresa_redis_data:
+
+networks:
+  webempresa_network:
+    driver: bridge

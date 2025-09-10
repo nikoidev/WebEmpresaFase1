@@ -1,0 +1,298 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Importar fuente Inter de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+/* Variables CSS para temas */
+:root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 214, 219, 220;
+    --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --foreground-rgb: 255, 255, 255;
+        --background-start-rgb: 0, 0, 0;
+        --background-end-rgb: 0, 0, 0;
+    }
+}
+
+body {
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(to bottom,
+            transparent,
+            rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+    font-family: 'Inter', sans-serif;
+}
+
+/* Estilos personalizados para el dashboard */
+.dashboard-card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700;
+}
+
+.dashboard-stat {
+    @apply text-center;
+}
+
+.dashboard-stat-title {
+    @apply text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide;
+}
+
+.dashboard-stat-value {
+    @apply text-3xl font-bold text-gray-900 dark:text-white mt-2;
+}
+
+.dashboard-stat-change {
+    @apply text-sm font-medium mt-2;
+}
+
+.dashboard-stat-change.positive {
+    @apply text-green-600 dark:text-green-400;
+}
+
+.dashboard-stat-change.negative {
+    @apply text-red-600 dark:text-red-400;
+}
+
+/* Estilos para botones personalizados */
+.btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200;
+}
+
+.btn-secondary {
+    @apply bg-secondary-600 hover:bg-secondary-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200;
+}
+
+.btn-outline {
+    @apply border border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white font-medium py-2 px-4 rounded-md transition-colors duration-200;
+}
+
+/* Estilos para la navegación */
+.nav-link {
+    @apply text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white font-medium transition-colors duration-200;
+}
+
+.nav-link.active {
+    @apply text-primary-600 dark:text-primary-400;
+}
+
+/* Estilos para formularios */
+.form-input {
+    @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+}
+
+.form-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
+}
+
+/* Forzar colores del texto en modo claro */
+html,
+body,
+#__next {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(to bottom,
+            transparent,
+            rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+    font-family: 'Inter', sans-serif;
+}
+
+/* FORZAR que TODOS los inputs tengan texto negro visible */
+input,
+textarea,
+select {
+    color: #1f2937 !important;
+    /* Texto negro siempre */
+    background-color: white !important;
+    /* Fondo blanco siempre */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+    color: #1f2937 !important;
+    /* Texto negro */
+    background-color: white !important;
+    /* Fondo blanco */
+    -webkit-text-fill-color: #1f2937 !important;
+    /* Para Safari */
+}
+
+/* Forzar en todos los modos de color */
+@media (prefers-color-scheme: light) {
+
+    input,
+    textarea,
+    select {
+        color: #1f2937 !important;
+        background-color: white !important;
+        -webkit-text-fill-color: #1f2937 !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+
+    input,
+    textarea,
+    select {
+        color: #1f2937 !important;
+        background-color: white !important;
+        -webkit-text-fill-color: #1f2937 !important;
+    }
+}
+
+/* Placeholders también visibles */
+input::placeholder,
+textarea::placeholder {
+    color: #6b7280 !important;
+    opacity: 1 !important;
+}
+
+/* Estados de focus */
+input:focus,
+textarea:focus,
+select:focus {
+    color: #1f2937 !important;
+    background-color: white !important;
+    -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* Sobrescribir clases específicas de Tailwind */
+.border-gray-300,
+.focus\:ring-2,
+.focus\:ring-blue-500,
+.focus\:border-transparent {
+    color: #1f2937 !important;
+    background-color: white !important;
+    -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* Reglas muy específicas para formularios */
+form input,
+form textarea,
+form select,
+div input,
+div textarea,
+div select {
+    color: #1f2937 !important;
+    background-color: white !important;
+    -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* Para todos los inputs dentro de contenedores con clases específicas */
+.space-y-4 input,
+.space-y-4 textarea,
+.space-y-4 select,
+.grid input,
+.grid textarea,
+.grid select {
+    color: #1f2937 !important;
+    background-color: white !important;
+    -webkit-text-fill-color: #1f2937 !important;
+}
+
+/* LABELS y texto visible */
+label,
+.block,
+.text-sm,
+.font-medium,
+.text-gray-700 {
+    color: #1f2937 !important;
+}
+
+/* Checkboxes y radio buttons */
+input[type="checkbox"],
+input[type="radio"] {
+    background-color: white !important;
+    border-color: #d1d5db !important;
+}
+
+/* Texto junto a checkboxes */
+label span,
+label {
+    color: #1f2937 !important;
+}
+
+/* Forzar color en todos los elementos de texto */
+span,
+p,
+div {
+    color: inherit;
+}
+
+/* Específico para formularios modales */
+.fixed form label,
+.fixed form span,
+.fixed form p,
+.bg-white label,
+.bg-white span,
+.bg-white p {
+    color: #1f2937 !important;
+}
+
+/* Botones de formulario */
+button {
+    color: inherit !important;
+}
+
+/* ESPECÍFICO PARA MODALES - Forzar todo el texto visible */
+.fixed .bg-white,
+.fixed .bg-white * {
+    color: #1f2937 !important;
+}
+
+/* Labels de checkboxes específicamente */
+.flex.items-center label,
+.flex.items-center span,
+.flex.gap-4 label,
+.flex.gap-4 span {
+    color: #1f2937 !important;
+}
+
+/* Texto en modales */
+.modal label,
+.modal span,
+.modal p,
+.modal div,
+.rounded-lg label,
+.rounded-lg span,
+.rounded-lg p {
+    color: #1f2937 !important;
+}
+
+/* Asegurar que los checkbox labels sean visibles */
+input[type="checkbox"]+span,
+input[type="checkbox"]~span,
+label:has(input[type="checkbox"]),
+label:has(input[type="checkbox"]) span {
+    color: #1f2937 !important;
+}
+
+/* Asegurar que el layout admin use toda la altura */
+.admin-layout {
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Clases utilitarias para layout completo */
+.full-height {
+    height: 100vh;
+}
+
+.flex-fill {
+    flex: 1;
+    min-height: 0;
+}
