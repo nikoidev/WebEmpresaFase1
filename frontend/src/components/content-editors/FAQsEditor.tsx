@@ -1,347 +1,367 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Plus, ChevronDown, ChevronRight, HelpCircle, Eye, EyeOff } from 'lucide-react'
+import React, { useState } from 'react'
+import { Plus, HelpCircle, X } from 'lucide-react'
 
 interface FAQ {
-    id?: number
     question: string
     answer: string
-    category: string
-    order: number
-    is_active: boolean
+    tags: string[]
 }
 
-interface FAQsData {
+interface FAQCategory {
+    name: string
+    icon: string
     faqs: FAQ[]
-    categories: string[]
+}
+
+interface FAQsContent {
+    hero: {
+        title: string
+        subtitle: string
+        description: string
+    }
+    categories: FAQCategory[]
 }
 
 interface FAQsEditorProps {
-    data: FAQsData
-    onChange: (data: FAQsData) => void
+    data: FAQsContent
+    onChange: (data: FAQsContent) => void
 }
 
 export default function FAQsEditor({ data, onChange }: FAQsEditorProps) {
-    const [faqs, setFaqs] = useState<FAQ[]>(data.faqs || [])
-    const [categories, setCategories] = useState<string[]>(data.categories || ['General', 'Servicios', 'Precios', 'Soporte'])
-    const [editingIndex, setEditingIndex] = useState<number | null>(null)
-    const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
-    const [newCategory, setNewCategory] = useState('')
-    const [selectedCategory, setSelectedCategory] = useState('Todas')
+    const [formData, setFormData] = useState<FAQsContent>(data)
+    const [editingCategory, setEditingCategory] = useState<number | null>(null)
+    const [editingFAQ, setEditingFAQ] = useState<{ categoryIndex: number; faqIndex: number } | null>(null)
 
-    useEffect(() => {
-        onChange({ faqs, categories })
-    }, [faqs, categories, onChange])
+    const handleChange = (newData: FAQsContent) => {
+        setFormData(newData)
+        onChange(newData)
+    }
 
-    const addFAQ = () => {
-        const newFAQ: FAQ = {
-            question: '',
-            answer: '',
-            category: 'General',
-            order: faqs.length + 1,
-            is_active: true
+    const updateHero = (field: keyof typeof formData.hero, value: string) => {
+        const updatedData = {
+            ...formData,
+            hero: { ...formData.hero, [field]: value }
         }
-        setFaqs([...faqs, newFAQ])
-        setEditingIndex(faqs.length)
-    }
-
-    const updateFAQ = (index: number, field: keyof FAQ, value: any) => {
-        const updatedFaqs = [...faqs]
-        updatedFaqs[index] = { ...updatedFaqs[index], [field]: value }
-        setFaqs(updatedFaqs)
-    }
-
-    const deleteFAQ = (index: number) => {
-        const updatedFaqs = faqs.filter((_, i) => i !== index)
-        setFaqs(updatedFaqs)
-        setEditingIndex(null)
+        handleChange(updatedData)
     }
 
     const addCategory = () => {
-        if (!newCategory.trim() || categories.includes(newCategory.trim())) return
-        setCategories([...categories, newCategory.trim()])
-        setNewCategory('')
+        const newCategory: FAQCategory = {
+            name: 'Nueva Categoría',
+            icon: '❓',
+            faqs: []
+        }
+        const updatedData = {
+            ...formData,
+            categories: [...formData.categories, newCategory]
+        }
+        handleChange(updatedData)
+        setEditingCategory(formData.categories.length)
     }
 
-    const deleteCategory = (categoryToDelete: string) => {
-        if (categoryToDelete === 'General') return // No permitir eliminar la categoría General
-        setCategories(categories.filter(cat => cat !== categoryToDelete))
-        // Reasignar FAQs de esa categoría a 'General'
-        const updatedFaqs = faqs.map(faq => 
-            faq.category === categoryToDelete ? { ...faq, category: 'General' } : faq
-        )
-        setFaqs(updatedFaqs)
+    const updateCategory = (index: number, field: keyof FAQCategory, value: any) => {
+        const updatedCategories = [...formData.categories]
+        updatedCategories[index] = { ...updatedCategories[index], [field]: value }
+        const updatedData = { ...formData, categories: updatedCategories }
+        handleChange(updatedData)
     }
 
-    const moveFAQ = (index: number, direction: 'up' | 'down') => {
-        const newFaqs = [...faqs]
-        const targetIndex = direction === 'up' ? index - 1 : index + 1
-        
-        if (targetIndex < 0 || targetIndex >= faqs.length) return
-        
-        // Intercambiar elementos
-        [newFaqs[index], newFaqs[targetIndex]] = [newFaqs[targetIndex], newFaqs[index]]
-        
-        // Actualizar órdenes
-        newFaqs[index].order = index + 1
-        newFaqs[targetIndex].order = targetIndex + 1
-        
-        setFaqs(newFaqs)
-        setEditingIndex(targetIndex)
+    const deleteCategory = (index: number) => {
+        const updatedCategories = formData.categories.filter((_, i) => i !== index)
+        const updatedData = { ...formData, categories: updatedCategories }
+        handleChange(updatedData)
+        setEditingCategory(null)
     }
 
-    const filteredFaqs = selectedCategory === 'Todas' 
-        ? faqs 
-        : faqs.filter(faq => faq.category === selectedCategory)
+    const addFAQ = (categoryIndex: number) => {
+        const newFAQ: FAQ = {
+            question: '¿Nueva pregunta?',
+            answer: 'Nueva respuesta...',
+            tags: ['general']
+        }
+        const updatedCategories = [...formData.categories]
+        updatedCategories[categoryIndex].faqs.push(newFAQ)
+        const updatedData = { ...formData, categories: updatedCategories }
+        handleChange(updatedData)
+        setEditingFAQ({ categoryIndex, faqIndex: updatedCategories[categoryIndex].faqs.length - 1 })
+    }
+
+    const updateFAQ = (categoryIndex: number, faqIndex: number, field: keyof FAQ, value: any) => {
+        const updatedCategories = [...formData.categories]
+        updatedCategories[categoryIndex].faqs[faqIndex] = {
+            ...updatedCategories[categoryIndex].faqs[faqIndex],
+            [field]: value
+        }
+        const updatedData = { ...formData, categories: updatedCategories }
+        handleChange(updatedData)
+    }
+
+    const deleteFAQ = (categoryIndex: number, faqIndex: number) => {
+        const updatedCategories = [...formData.categories]
+        updatedCategories[categoryIndex].faqs.splice(faqIndex, 1)
+        const updatedData = { ...formData, categories: updatedCategories }
+        handleChange(updatedData)
+        setEditingFAQ(null)
+    }
+
+    const addTagToFAQ = (categoryIndex: number, faqIndex: number, tag: string) => {
+        if (tag.trim() && !formData.categories[categoryIndex].faqs[faqIndex].tags.includes(tag.trim())) {
+            const updatedCategories = [...formData.categories]
+            updatedCategories[categoryIndex].faqs[faqIndex].tags.push(tag.trim())
+            const updatedData = { ...formData, categories: updatedCategories }
+            handleChange(updatedData)
+        }
+    }
+
+    const removeTagFromFAQ = (categoryIndex: number, faqIndex: number, tagIndex: number) => {
+        const updatedCategories = [...formData.categories]
+        updatedCategories[categoryIndex].faqs[faqIndex].tags.splice(tagIndex, 1)
+        const updatedData = { ...formData, categories: updatedCategories }
+        handleChange(updatedData)
+    }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Gestión de FAQs</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Editor de FAQs</h3>
                 <button
-                    onClick={addFAQ}
+                    onClick={addCategory}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
                 >
                     <Plus className="h-4 w-4" />
-                    Agregar FAQ
+                    Agregar Categoría
                 </button>
             </div>
 
-            {/* Gestión de Categorías */}
+            {/* Sección Hero */}
             <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-3">Categorías</h4>
-                <div className="flex flex-wrap gap-2 mb-3">
-                    {categories.map((category) => (
-                        <span
-                            key={category}
-                            className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                        >
-                            {category}
-                            {category !== 'General' && (
-                                <button
-                                    onClick={() => deleteCategory(category)}
-                                    className="text-blue-600 hover:text-blue-800 ml-1"
-                                >
-                                    ×
-                                </button>
-                            )}
-                        </span>
-                    ))}
-                </div>
-                <div className="flex gap-2">
-                    <input
-                        type="text"
-                        value={newCategory}
-                        onChange={(e) => setNewCategory(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && addCategory()}
-                        className="flex-1 border border-gray-300 rounded-md px-3 py-2"
-                        placeholder="Nueva categoría"
-                    />
-                    <button
-                        onClick={addCategory}
-                        className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-                    >
-                        Agregar
-                    </button>
+                <h4 className="font-medium text-gray-900 mb-3">Contenido Principal</h4>
+                <div className="space-y-3">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Título
+                        </label>
+                        <input
+                            type="text"
+                            value={formData.hero.title}
+                            onChange={(e) => updateHero('title', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2"
+                            placeholder="Preguntas Frecuentes"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Subtítulo
+                        </label>
+                        <input
+                            type="text"
+                            value={formData.hero.subtitle}
+                            onChange={(e) => updateHero('subtitle', e.target.value)}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2"
+                            placeholder="Encuentra respuestas a las dudas más comunes"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Descripción
+                        </label>
+                        <textarea
+                            value={formData.hero.description}
+                            onChange={(e) => updateHero('description', e.target.value)}
+                            rows={3}
+                            className="w-full border border-gray-300 rounded-md px-3 py-2"
+                            placeholder="Resolvemos tus preguntas sobre nuestra plataforma..."
+                        />
+                    </div>
                 </div>
             </div>
 
-            {/* Filtro por Categoría */}
-            <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700">Filtrar por categoría:</label>
-                <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="border border-gray-300 rounded-md px-3 py-2"
-                >
-                    <option value="Todas">Todas las categorías</option>
-                    {categories.map((category) => (
-                        <option key={category} value={category}>
-                            {category}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            {filteredFaqs.length === 0 ? (
-                <div className="text-center py-12 bg-gray-50 rounded-lg">
-                    <HelpCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-500">
-                        {selectedCategory === 'Todas' 
-                            ? 'No hay FAQs. Haz clic en "Agregar FAQ" para empezar.'
-                            : `No hay FAQs en la categoría "${selectedCategory}".`
-                        }
-                    </p>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {filteredFaqs.map((faq, index) => {
-                        const originalIndex = faqs.findIndex(f => f === faq)
-                        return (
-                            <div key={originalIndex} className="border border-gray-200 rounded-lg p-4">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium text-gray-500">
-                                            FAQ #{originalIndex + 1}
-                                        </span>
-                                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                                            {faq.category}
-                                        </span>
-                                        {!faq.is_active && (
-                                            <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
-                                                Inactivo
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="flex gap-2">
-                                        {originalIndex > 0 && (
-                                            <button
-                                                onClick={() => moveFAQ(originalIndex, 'up')}
-                                                className="text-gray-600 hover:text-gray-700 text-sm"
-                                            >
-                                                ↑
-                                            </button>
-                                        )}
-                                        {originalIndex < faqs.length - 1 && (
-                                            <button
-                                                onClick={() => moveFAQ(originalIndex, 'down')}
-                                                className="text-gray-600 hover:text-gray-700 text-sm"
-                                            >
-                                                ↓
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() => setEditingIndex(editingIndex === originalIndex ? null : originalIndex)}
-                                            className="text-blue-600 hover:text-blue-700 text-sm"
-                                        >
-                                            {editingIndex === originalIndex ? 'Cerrar' : 'Editar'}
-                                        </button>
-                                        <button
-                                            onClick={() => deleteFAQ(originalIndex)}
-                                            className="text-red-600 hover:text-red-700 text-sm"
-                                        >
-                                            Eliminar
-                                        </button>
-                                    </div>
+            {/* Categorías */}
+            <div className="space-y-4">
+                <h4 className="font-medium text-gray-900">Categorías de FAQs</h4>
+                {formData.categories.length === 0 ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <HelpCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No hay categorías. Haz clic en "Agregar Categoría" para empezar.</p>
+                    </div>
+                ) : (
+                    formData.categories.map((category, categoryIndex) => (
+                        <div key={`category-${categoryIndex}`} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-2xl">{category.icon}</span>
+                                    <span className="text-sm font-medium text-gray-500">
+                                        Categoría #{categoryIndex + 1}: {category.name}
+                                    </span>
+                                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                                        {category.faqs.length} FAQs
+                                    </span>
                                 </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => addFAQ(categoryIndex)}
+                                        className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700"
+                                    >
+                                        + FAQ
+                                    </button>
+                                    <button
+                                        onClick={() => setEditingCategory(editingCategory === categoryIndex ? null : categoryIndex)}
+                                        className="text-blue-600 hover:text-blue-700 text-sm"
+                                    >
+                                        {editingCategory === categoryIndex ? 'Cerrar' : 'Editar'}
+                                    </button>
+                                    <button
+                                        onClick={() => deleteCategory(categoryIndex)}
+                                        className="text-red-600 hover:text-red-700 text-sm"
+                                    >
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
 
-                                {editingIndex === originalIndex ? (
-                                    <div className="space-y-4">
-                                        {/* Pregunta */}
+                            {editingCategory === categoryIndex && (
+                                <div className="mb-4 p-3 bg-gray-50 rounded">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Pregunta *
+                                                Nombre de Categoría
                                             </label>
                                             <input
                                                 type="text"
-                                                value={faq.question}
-                                                onChange={(e) => updateFAQ(originalIndex, 'question', e.target.value)}
+                                                value={category.name}
+                                                onChange={(e) => updateCategory(categoryIndex, 'name', e.target.value)}
                                                 className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                                placeholder="¿Cuál es tu pregunta?"
+                                                placeholder="General"
                                             />
                                         </div>
-
-                                        {/* Respuesta */}
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Respuesta *
+                                                Icono (emoji)
                                             </label>
-                                            <textarea
-                                                value={faq.answer}
-                                                onChange={(e) => updateFAQ(originalIndex, 'answer', e.target.value)}
-                                                rows={5}
+                                            <input
+                                                type="text"
+                                                value={category.icon}
+                                                onChange={(e) => updateCategory(categoryIndex, 'icon', e.target.value)}
                                                 className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                                placeholder="Escribe aquí la respuesta detallada..."
+                                                placeholder="❓"
                                             />
                                         </div>
+                                    </div>
+                                </div>
+                            )}
 
-                                        {/* Categoría y Orden */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                    Categoría
-                                                </label>
-                                                <select
-                                                    value={faq.category}
-                                                    onChange={(e) => updateFAQ(originalIndex, 'category', e.target.value)}
-                                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                                >
-                                                    {categories.map((category) => (
-                                                        <option key={category} value={category}>
-                                                            {category}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                    Orden
-                                                </label>
-                                                <input
-                                                    type="number"
-                                                    value={faq.order}
-                                                    onChange={(e) => updateFAQ(originalIndex, 'order', parseInt(e.target.value))}
-                                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                                    min="1"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Opciones */}
-                                        <div className="flex gap-4">
-                                            <label className="flex items-center gap-2">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={faq.is_active}
-                                                    onChange={(e) => updateFAQ(originalIndex, 'is_active', e.target.checked)}
-                                                    className="rounded"
-                                                />
-                                                <span className="text-sm text-gray-700">FAQ activo</span>
-                                            </label>
-                                        </div>
+                            {/* FAQs de la categoría */}
+                            <div className="space-y-3">
+                                {category.faqs.length === 0 ? (
+                                    <div className="text-center py-4 bg-gray-50 rounded">
+                                        <p className="text-gray-500 text-sm">No hay FAQs en esta categoría.</p>
                                     </div>
                                 ) : (
-                                    <div>
-                                        <button
-                                            onClick={() => setExpandedIndex(expandedIndex === originalIndex ? null : originalIndex)}
-                                            className="flex items-center gap-2 w-full text-left"
-                                        >
-                                            {expandedIndex === originalIndex ? (
-                                                <ChevronDown className="h-4 w-4 text-gray-500" />
-                                            ) : (
-                                                <ChevronRight className="h-4 w-4 text-gray-500" />
-                                            )}
-                                            <h4 className="font-medium text-gray-900">
-                                                {faq.question || 'Sin pregunta'}
-                                            </h4>
-                                        </button>
-                                        
-                                        {expandedIndex === originalIndex && (
-                                            <div className="mt-3 pl-6">
-                                                <p className="text-gray-700">
-                                                    {faq.answer || 'Sin respuesta'}
-                                                </p>
-                                                <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                                    <span>Orden: {faq.order}</span>
-                                                    <span className="flex items-center gap-1">
-                                                        {faq.is_active ? (
-                                                            <><Eye className="h-3 w-3" /> Visible</>
-                                                        ) : (
-                                                            <><EyeOff className="h-3 w-3" /> Oculto</>
+                                    category.faqs.map((faq, faqIndex) => (
+                                        <div key={`faq-${categoryIndex}-${faqIndex}`} className="border border-gray-100 rounded p-3">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-xs font-medium text-gray-500">
+                                                    FAQ #{faqIndex + 1}
+                                                </span>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => setEditingFAQ(
+                                                            editingFAQ?.categoryIndex === categoryIndex && editingFAQ?.faqIndex === faqIndex
+                                                                ? null
+                                                                : { categoryIndex, faqIndex }
                                                         )}
-                                                    </span>
+                                                        className="text-blue-600 hover:text-blue-700 text-xs"
+                                                    >
+                                                        {editingFAQ?.categoryIndex === categoryIndex && editingFAQ?.faqIndex === faqIndex ? 'Cerrar' : 'Editar'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deleteFAQ(categoryIndex, faqIndex)}
+                                                        className="text-red-600 hover:text-red-700 text-xs"
+                                                    >
+                                                        Eliminar
+                                                    </button>
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
+
+                                            {editingFAQ?.categoryIndex === categoryIndex && editingFAQ?.faqIndex === faqIndex ? (
+                                                <div className="space-y-3">
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                            Pregunta
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            value={faq.question}
+                                                            onChange={(e) => updateFAQ(categoryIndex, faqIndex, 'question', e.target.value)}
+                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                            placeholder="¿Pregunta frecuente?"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                            Respuesta
+                                                        </label>
+                                                        <textarea
+                                                            value={faq.answer}
+                                                            onChange={(e) => updateFAQ(categoryIndex, faqIndex, 'answer', e.target.value)}
+                                                            rows={3}
+                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                            placeholder="Respuesta detallada..."
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                            Tags
+                                                        </label>
+                                                        <div className="flex flex-wrap gap-1 mb-2">
+                                                            {faq.tags.map((tag, tagIndex) => (
+                                                                <span key={`tag-${categoryIndex}-${faqIndex}-${tagIndex}`} className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs flex items-center gap-1">
+                                                                    {tag}
+                                                                    <button
+                                                                        onClick={() => removeTagFromFAQ(categoryIndex, faqIndex, tagIndex)}
+                                                                        className="text-gray-600 hover:text-gray-800"
+                                                                    >
+                                                                        <X className="h-3 w-3" />
+                                                                    </button>
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            onKeyPress={(e) => {
+                                                                if (e.key === 'Enter') {
+                                                                    addTagToFAQ(categoryIndex, faqIndex, e.currentTarget.value)
+                                                                    e.currentTarget.value = ''
+                                                                }
+                                                            }}
+                                                            className="w-full border border-gray-300 rounded px-2 py-1 text-xs"
+                                                            placeholder="Agregar tag (presiona Enter)"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <h5 className="font-medium text-gray-900 text-sm mb-1">{faq.question}</h5>
+                                                    <p className="text-xs text-gray-600 mb-2">{faq.answer}</p>
+                                                    <div className="flex gap-1">
+                                                        {faq.tags.map((tag, tagIndex) => (
+                                                            <span key={`display-tag-${categoryIndex}-${faqIndex}-${tagIndex}`} className="bg-blue-100 text-blue-800 px-1 rounded text-xs">
+                                                                #{tag}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
                                 )}
                             </div>
-                        )
-                    })}
-                </div>
-            )}
+                        </div>
+                    ))
+                )}
+            </div>
         </div>
     )
 }

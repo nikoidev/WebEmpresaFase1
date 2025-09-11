@@ -1,145 +1,177 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { MapPin, Phone, Mail, Clock, Globe, MessageSquare } from 'lucide-react'
+import React, { useState } from 'react'
+import { Plus, MapPin, Phone, Mail, Clock, Building } from 'lucide-react'
 
-interface ContactInfo {
-    address: string
+interface Office {
     city: string
     country: string
-    postal_code?: string
+    address: string
     phone: string
     email: string
-    website?: string
-    business_hours: {
-        monday_friday: string
-        saturday: string
-        sunday: string
-    }
+    is_headquarters: boolean
 }
 
-interface SocialMedia {
-    platform: string
-    url: string
-    username?: string
+interface ContactReason {
+    title: string
+    description: string
+    icon: string
+    email: string
 }
 
-interface ContactData {
-    page_content: {
+interface ContactContent {
+    hero: {
         title: string
         subtitle: string
         description: string
     }
-    contact_info: ContactInfo
-    social_media: SocialMedia[]
-    map_settings: {
-        show_map: boolean
-        map_embed_url?: string
-        latitude?: number
-        longitude?: number
-    }
-    contact_form_settings: {
-        show_form: boolean
-        form_title: string
-        success_message: string
-        fields: {
-            name_required: boolean
-            email_required: boolean
-            phone_required: boolean
-            subject_required: boolean
-            message_required: boolean
+    contact_info: {
+        address: {
+            street: string
+            city: string
+            country: string
+            postal_code: string
+        }
+        phone: string
+        email: string
+        business_hours: {
+            weekdays: string
+            timezone: string
         }
     }
+    offices: Office[]
+    contact_reasons: ContactReason[]
 }
 
 interface ContactEditorProps {
-    data: ContactData
-    onChange: (data: ContactData) => void
+    data: ContactContent
+    onChange: (data: ContactContent) => void
 }
 
 export default function ContactEditor({ data, onChange }: ContactEditorProps) {
-    const [pageContent, setPageContent] = useState(data.page_content || {
-        title: 'Contáctanos',
-        subtitle: 'Estamos aquí para ayudarte',
-        description: 'Ponte en contacto con nosotros para cualquier consulta o solicitud de información.'
-    })
-    
-    const [contactInfo, setContactInfo] = useState<ContactInfo>(data.contact_info || {
-        address: '',
-        city: '',
-        country: '',
-        phone: '',
-        email: '',
-        business_hours: {
-            monday_friday: '9:00 AM - 6:00 PM',
-            saturday: '9:00 AM - 12:00 PM',
-            sunday: 'Cerrado'
+    const [formData, setFormData] = useState<ContactContent>(data)
+    const [editingOffice, setEditingOffice] = useState<number | null>(null)
+    const [editingReason, setEditingReason] = useState<number | null>(null)
+
+    const handleChange = (newData: ContactContent) => {
+        setFormData(newData)
+        onChange(newData)
+    }
+
+    const updateHero = (field: keyof typeof formData.hero, value: string) => {
+        const updatedData = {
+            ...formData,
+            hero: { ...formData.hero, [field]: value }
         }
-    })
+        handleChange(updatedData)
+    }
 
-    const [socialMedia, setSocialMedia] = useState<SocialMedia[]>(data.social_media || [])
-    
-    const [mapSettings, setMapSettings] = useState(data.map_settings || {
-        show_map: false
-    })
-    
-    const [contactFormSettings, setContactFormSettings] = useState(data.contact_form_settings || {
-        show_form: true,
-        form_title: 'Envíanos un mensaje',
-        success_message: 'Gracias por tu mensaje. Te responderemos pronto.',
-        fields: {
-            name_required: true,
-            email_required: true,
-            phone_required: false,
-            subject_required: true,
-            message_required: true
+    const updateContactInfo = (section: string, field: string, value: string) => {
+        const updatedData = { ...formData }
+        if (section === 'address') {
+            updatedData.contact_info.address = { ...updatedData.contact_info.address, [field]: value }
+        } else if (section === 'business_hours') {
+            updatedData.contact_info.business_hours = { ...updatedData.contact_info.business_hours, [field]: value }
+        } else {
+            (updatedData.contact_info as any)[field] = value
         }
-    })
-
-    useEffect(() => {
-        onChange({
-            page_content: pageContent,
-            contact_info: contactInfo,
-            social_media: socialMedia,
-            map_settings: mapSettings,
-            contact_form_settings: contactFormSettings
-        })
-    }, [pageContent, contactInfo, socialMedia, mapSettings, contactFormSettings, onChange])
-
-    const addSocialMedia = () => {
-        setSocialMedia([...socialMedia, { platform: '', url: '' }])
+        handleChange(updatedData)
     }
 
-    const updateSocialMedia = (index: number, field: keyof SocialMedia, value: string) => {
-        const updated = [...socialMedia]
-        updated[index] = { ...updated[index], [field]: value }
-        setSocialMedia(updated)
+    const addOffice = () => {
+        const newOffice: Office = {
+            city: 'Nueva Ciudad',
+            country: 'País',
+            address: 'Dirección',
+            phone: '+1 234 567 8900',
+            email: 'contacto@sevp.com',
+            is_headquarters: false
+        }
+        const updatedData = {
+            ...formData,
+            offices: [...formData.offices, newOffice]
+        }
+        handleChange(updatedData)
+        setEditingOffice(formData.offices.length)
     }
 
-    const deleteSocialMedia = (index: number) => {
-        setSocialMedia(socialMedia.filter((_, i) => i !== index))
+    const updateOffice = (index: number, field: keyof Office, value: string | boolean) => {
+        const updatedOffices = [...formData.offices]
+        updatedOffices[index] = { ...updatedOffices[index], [field]: value }
+        const updatedData = { ...formData, offices: updatedOffices }
+        handleChange(updatedData)
     }
 
-    const socialPlatforms = [
-        'Facebook', 'Twitter', 'LinkedIn', 'Instagram', 'YouTube', 'WhatsApp', 'Telegram', 'Otro'
-    ]
+    const deleteOffice = (index: number) => {
+        const updatedOffices = formData.offices.filter((_, i) => i !== index)
+        const updatedData = { ...formData, offices: updatedOffices }
+        handleChange(updatedData)
+        setEditingOffice(null)
+    }
+
+    const addContactReason = () => {
+        const newReason: ContactReason = {
+            title: 'Nuevo Motivo',
+            description: 'Descripción del motivo de contacto',
+            icon: '📧',
+            email: 'contacto@sevp.com'
+        }
+        const updatedData = {
+            ...formData,
+            contact_reasons: [...formData.contact_reasons, newReason]
+        }
+        handleChange(updatedData)
+        setEditingReason(formData.contact_reasons.length)
+    }
+
+    const updateContactReason = (index: number, field: keyof ContactReason, value: string) => {
+        const updatedReasons = [...formData.contact_reasons]
+        updatedReasons[index] = { ...updatedReasons[index], [field]: value }
+        const updatedData = { ...formData, contact_reasons: updatedReasons }
+        handleChange(updatedData)
+    }
+
+    const deleteContactReason = (index: number) => {
+        const updatedReasons = formData.contact_reasons.filter((_, i) => i !== index)
+        const updatedData = { ...formData, contact_reasons: updatedReasons }
+        handleChange(updatedData)
+        setEditingReason(null)
+    }
 
     return (
         <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900">Gestión de Página de Contacto</h3>
+            <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Editor de Contacto</h3>
+                <div className="flex gap-2">
+                    <button
+                        onClick={addOffice}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+                    >
+                        <Building className="h-4 w-4" />
+                        Oficina
+                    </button>
+                    <button
+                        onClick={addContactReason}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+                    >
+                        <Plus className="h-4 w-4" />
+                        Motivo
+                    </button>
+                </div>
+            </div>
 
-            {/* Contenido de la Página */}
+            {/* Sección Hero */}
             <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-3">Contenido de la Página</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Contenido Principal</h4>
                 <div className="space-y-3">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Título Principal
+                            Título
                         </label>
                         <input
                             type="text"
-                            value={pageContent.title}
-                            onChange={(e) => setPageContent({ ...pageContent, title: e.target.value })}
+                            value={formData.hero.title}
+                            onChange={(e) => updateHero('title', e.target.value)}
                             className="w-full border border-gray-300 rounded-md px-3 py-2"
                             placeholder="Contáctanos"
                         />
@@ -150,8 +182,8 @@ export default function ContactEditor({ data, onChange }: ContactEditorProps) {
                         </label>
                         <input
                             type="text"
-                            value={pageContent.subtitle}
-                            onChange={(e) => setPageContent({ ...pageContent, subtitle: e.target.value })}
+                            value={formData.hero.subtitle}
+                            onChange={(e) => updateHero('subtitle', e.target.value)}
                             className="w-full border border-gray-300 rounded-md px-3 py-2"
                             placeholder="Estamos aquí para ayudarte"
                         />
@@ -161,160 +193,122 @@ export default function ContactEditor({ data, onChange }: ContactEditorProps) {
                             Descripción
                         </label>
                         <textarea
-                            value={pageContent.description}
-                            onChange={(e) => setPageContent({ ...pageContent, description: e.target.value })}
+                            value={formData.hero.description}
+                            onChange={(e) => updateHero('description', e.target.value)}
                             rows={3}
                             className="w-full border border-gray-300 rounded-md px-3 py-2"
-                            placeholder="Descripción de la página de contacto..."
+                            placeholder="Ponte en contacto con nuestro equipo..."
                         />
                     </div>
                 </div>
             </div>
 
-            {/* Información de Contacto */}
+            {/* Información de Contacto Principal */}
             <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-3">Información de Contacto</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Información de Contacto Principal</h4>
                 <div className="space-y-4">
-                    {/* Dirección */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                <MapPin className="inline h-4 w-4 mr-1" />
-                                Dirección
-                            </label>
-                            <input
-                                type="text"
-                                value={contactInfo.address}
-                                onChange={(e) => setContactInfo({ ...contactInfo, address: e.target.value })}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="Calle y número"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Ciudad
-                            </label>
-                            <input
-                                type="text"
-                                value={contactInfo.city}
-                                onChange={(e) => setContactInfo({ ...contactInfo, city: e.target.value })}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="Ciudad"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                País
-                            </label>
-                            <input
-                                type="text"
-                                value={contactInfo.country}
-                                onChange={(e) => setContactInfo({ ...contactInfo, country: e.target.value })}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="País"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Código Postal
-                            </label>
-                            <input
-                                type="text"
-                                value={contactInfo.postal_code || ''}
-                                onChange={(e) => setContactInfo({ ...contactInfo, postal_code: e.target.value })}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="Código postal"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Contacto */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
                                 <Phone className="inline h-4 w-4 mr-1" />
-                                Teléfono
+                                Teléfono Principal
                             </label>
                             <input
-                                type="tel"
-                                value={contactInfo.phone}
-                                onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
+                                type="text"
+                                value={formData.contact_info.phone}
+                                onChange={(e) => updateContactInfo('', 'phone', e.target.value)}
                                 className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="+1 234 567 8900"
+                                placeholder="+52 55 1234 5678"
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 <Mail className="inline h-4 w-4 mr-1" />
-                                Email
+                                Email Principal
                             </label>
                             <input
                                 type="email"
-                                value={contactInfo.email}
-                                onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
+                                value={formData.contact_info.email}
+                                onChange={(e) => updateContactInfo('', 'email', e.target.value)}
                                 className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="contacto@empresa.com"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                <Globe className="inline h-4 w-4 mr-1" />
-                                Sitio Web
-                            </label>
-                            <input
-                                type="url"
-                                value={contactInfo.website || ''}
-                                onChange={(e) => setContactInfo({ ...contactInfo, website: e.target.value })}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="https://empresa.com"
+                                placeholder="contacto@sevp.com"
                             />
                         </div>
                     </div>
-
-                    {/* Horarios */}
+                    
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <h5 className="font-medium text-gray-800 mb-2">
+                            <MapPin className="inline h-4 w-4 mr-1" />
+                            Dirección Principal
+                        </h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Calle</label>
+                                <input
+                                    type="text"
+                                    value={formData.contact_info.address.street}
+                                    onChange={(e) => updateContactInfo('address', 'street', e.target.value)}
+                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                    placeholder="Av. Revolución 1234, Piso 15"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Ciudad</label>
+                                <input
+                                    type="text"
+                                    value={formData.contact_info.address.city}
+                                    onChange={(e) => updateContactInfo('address', 'city', e.target.value)}
+                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                    placeholder="Ciudad de México"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">País</label>
+                                <input
+                                    type="text"
+                                    value={formData.contact_info.address.country}
+                                    onChange={(e) => updateContactInfo('address', 'country', e.target.value)}
+                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                    placeholder="México"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Código Postal</label>
+                                <input
+                                    type="text"
+                                    value={formData.contact_info.address.postal_code}
+                                    onChange={(e) => updateContactInfo('address', 'postal_code', e.target.value)}
+                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                    placeholder="06030"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5 className="font-medium text-gray-800 mb-2">
                             <Clock className="inline h-4 w-4 mr-1" />
                             Horarios de Atención
-                        </label>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        </h5>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs text-gray-600 mb-1">Lunes a Viernes</label>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Días de Semana</label>
                                 <input
                                     type="text"
-                                    value={contactInfo.business_hours.monday_friday}
-                                    onChange={(e) => setContactInfo({
-                                        ...contactInfo,
-                                        business_hours: { ...contactInfo.business_hours, monday_friday: e.target.value }
-                                    })}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                    placeholder="9:00 AM - 6:00 PM"
+                                    value={formData.contact_info.business_hours.weekdays}
+                                    onChange={(e) => updateContactInfo('business_hours', 'weekdays', e.target.value)}
+                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                    placeholder="Lunes a Viernes: 9:00 AM - 6:00 PM"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs text-gray-600 mb-1">Sábado</label>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Zona Horaria</label>
                                 <input
                                     type="text"
-                                    value={contactInfo.business_hours.saturday}
-                                    onChange={(e) => setContactInfo({
-                                        ...contactInfo,
-                                        business_hours: { ...contactInfo.business_hours, saturday: e.target.value }
-                                    })}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                    placeholder="9:00 AM - 12:00 PM"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs text-gray-600 mb-1">Domingo</label>
-                                <input
-                                    type="text"
-                                    value={contactInfo.business_hours.sunday}
-                                    onChange={(e) => setContactInfo({
-                                        ...contactInfo,
-                                        business_hours: { ...contactInfo.business_hours, sunday: e.target.value }
-                                    })}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                    placeholder="Cerrado"
+                                    value={formData.contact_info.business_hours.timezone}
+                                    onChange={(e) => updateContactInfo('business_hours', 'timezone', e.target.value)}
+                                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                    placeholder="GMT-6 (Hora de México)"
                                 />
                             </div>
                         </div>
@@ -322,185 +316,220 @@ export default function ContactEditor({ data, onChange }: ContactEditorProps) {
                 </div>
             </div>
 
-            {/* Redes Sociales */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-3">
-                    <h4 className="font-medium text-gray-900">Redes Sociales</h4>
-                    <button
-                        onClick={addSocialMedia}
-                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
-                    >
-                        Agregar Red Social
-                    </button>
-                </div>
-                <div className="space-y-2">
-                    {socialMedia.map((social, index) => (
-                        <div key={index} className="flex gap-2 items-center">
-                            <select
-                                value={social.platform}
-                                onChange={(e) => updateSocialMedia(index, 'platform', e.target.value)}
-                                className="border border-gray-300 rounded-md px-3 py-2"
-                            >
-                                <option value="">Seleccionar plataforma</option>
-                                {socialPlatforms.map(platform => (
-                                    <option key={platform} value={platform}>{platform}</option>
-                                ))}
-                            </select>
-                            <input
-                                type="url"
-                                value={social.url}
-                                onChange={(e) => updateSocialMedia(index, 'url', e.target.value)}
-                                className="flex-1 border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="URL de la red social"
-                            />
-                            <input
-                                type="text"
-                                value={social.username || ''}
-                                onChange={(e) => updateSocialMedia(index, 'username', e.target.value)}
-                                className="w-32 border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="@usuario"
-                            />
-                            <button
-                                onClick={() => deleteSocialMedia(index)}
-                                className="text-red-600 hover:text-red-700 px-2"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Configuración del Mapa */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-3">Configuración del Mapa</h4>
-                <div className="space-y-3">
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={mapSettings.show_map}
-                            onChange={(e) => setMapSettings({ ...mapSettings, show_map: e.target.checked })}
-                            className="rounded"
-                        />
-                        <span className="text-sm text-gray-700">Mostrar mapa en la página</span>
-                    </label>
-                    
-                    {mapSettings.show_map && (
-                        <div className="space-y-3 ml-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    URL de Google Maps Embed
-                                </label>
-                                <input
-                                    type="url"
-                                    value={mapSettings.map_embed_url || ''}
-                                    onChange={(e) => setMapSettings({ ...mapSettings, map_embed_url: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                    placeholder="https://www.google.com/maps/embed?pb=..."
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Latitud
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="any"
-                                        value={mapSettings.latitude || ''}
-                                        onChange={(e) => setMapSettings({ ...mapSettings, latitude: parseFloat(e.target.value) })}
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                        placeholder="9.9281"
-                                    />
+            {/* Oficinas */}
+            <div className="space-y-4">
+                <h4 className="font-medium text-gray-900">Oficinas</h4>
+                {formData.offices.length === 0 ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <Building className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No hay oficinas. Haz clic en "Oficina" para empezar.</p>
+                    </div>
+                ) : (
+                    formData.offices.map((office, index) => (
+                        <div key={index} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-gray-500">
+                                        Oficina #{index + 1}
+                                    </span>
+                                    {office.is_headquarters && (
+                                        <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                                            Sede Principal
+                                        </span>
+                                    )}
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Longitud
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="any"
-                                        value={mapSettings.longitude || ''}
-                                        onChange={(e) => setMapSettings({ ...mapSettings, longitude: parseFloat(e.target.value) })}
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                        placeholder="-84.0907"
-                                    />
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setEditingOffice(editingOffice === index ? null : index)}
+                                        className="text-blue-600 hover:text-blue-700 text-sm"
+                                    >
+                                        {editingOffice === index ? 'Cerrar' : 'Editar'}
+                                    </button>
+                                    <button
+                                        onClick={() => deleteOffice(index)}
+                                        className="text-red-600 hover:text-red-700 text-sm"
+                                    >
+                                        Eliminar
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-            </div>
 
-            {/* Configuración del Formulario */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-3">
-                    <MessageSquare className="inline h-4 w-4 mr-1" />
-                    Configuración del Formulario de Contacto
-                </h4>
-                <div className="space-y-3">
-                    <label className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            checked={contactFormSettings.show_form}
-                            onChange={(e) => setContactFormSettings({ ...contactFormSettings, show_form: e.target.checked })}
-                            className="rounded"
-                        />
-                        <span className="text-sm text-gray-700">Mostrar formulario de contacto</span>
-                    </label>
-                    
-                    {contactFormSettings.show_form && (
-                        <div className="space-y-3 ml-6">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Título del Formulario
-                                </label>
-                                <input
-                                    type="text"
-                                    value={contactFormSettings.form_title}
-                                    onChange={(e) => setContactFormSettings({ ...contactFormSettings, form_title: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                    placeholder="Envíanos un mensaje"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Mensaje de Éxito
-                                </label>
-                                <input
-                                    type="text"
-                                    value={contactFormSettings.success_message}
-                                    onChange={(e) => setContactFormSettings({ ...contactFormSettings, success_message: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                    placeholder="Gracias por tu mensaje. Te responderemos pronto."
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Campos Requeridos
-                                </label>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                    {Object.entries(contactFormSettings.fields).map(([field, required]) => (
-                                        <label key={field} className="flex items-center gap-2">
+                            {editingOffice === index ? (
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Ciudad
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={office.city}
+                                                onChange={(e) => updateOffice(index, 'city', e.target.value)}
+                                                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                placeholder="Ciudad de México"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                País
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={office.country}
+                                                onChange={(e) => updateOffice(index, 'country', e.target.value)}
+                                                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                placeholder="México"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Teléfono
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={office.phone}
+                                                onChange={(e) => updateOffice(index, 'phone', e.target.value)}
+                                                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                placeholder="+52 55 1234 5678"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Email
+                                            </label>
+                                            <input
+                                                type="email"
+                                                value={office.email}
+                                                onChange={(e) => updateOffice(index, 'email', e.target.value)}
+                                                className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                                placeholder="mexico@sevp.com"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Dirección
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={office.address}
+                                            onChange={(e) => updateOffice(index, 'address', e.target.value)}
+                                            className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                            placeholder="Av. Revolución 1234"
+                                        />
+                                    </div>
+                                    <div className="flex items-center">
+                                        <label className="flex items-center">
                                             <input
                                                 type="checkbox"
-                                                checked={required}
-                                                onChange={(e) => setContactFormSettings({
-                                                    ...contactFormSettings,
-                                                    fields: { ...contactFormSettings.fields, [field]: e.target.checked }
-                                                })}
-                                                className="rounded"
+                                                checked={office.is_headquarters}
+                                                onChange={(e) => updateOffice(index, 'is_headquarters', e.target.checked)}
+                                                className="mr-2"
                                             />
-                                            <span className="text-sm text-gray-700 capitalize">
-                                                {field.replace('_required', '').replace('_', ' ')}
-                                            </span>
+                                            <span className="text-sm font-medium text-gray-700">Sede Principal</span>
                                         </label>
-                                    ))}
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div>
+                                    <h5 className="font-medium text-gray-900">{office.city}, {office.country}</h5>
+                                    <p className="text-sm text-gray-600 mt-1">{office.address}</p>
+                                    <div className="flex gap-4 mt-2 text-sm text-gray-600">
+                                        <span>📞 {office.phone}</span>
+                                        <span>✉️ {office.email}</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
+                    ))
+                )}
+            </div>
+
+            {/* Motivos de Contacto */}
+            <div className="space-y-4">
+                <h4 className="font-medium text-gray-900">Motivos de Contacto</h4>
+                {formData.contact_reasons.length === 0 ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No hay motivos. Haz clic en "Motivo" para empezar.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {formData.contact_reasons.map((reason, index) => (
+                            <div key={index} className="border border-gray-200 rounded-lg p-4">
+                                <div className="flex justify-between items-start mb-3">
+                                    <span className="text-sm font-medium text-gray-500">Motivo #{index + 1}</span>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setEditingReason(editingReason === index ? null : index)}
+                                            className="text-blue-600 hover:text-blue-700 text-xs"
+                                        >
+                                            {editingReason === index ? 'Cerrar' : 'Editar'}
+                                        </button>
+                                        <button
+                                            onClick={() => deleteContactReason(index)}
+                                            className="text-red-600 hover:text-red-700 text-xs"
+                                        >
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {editingReason === index ? (
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">Título</label>
+                                            <input
+                                                type="text"
+                                                value={reason.title}
+                                                onChange={(e) => updateContactReason(index, 'title', e.target.value)}
+                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                placeholder="Ventas"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">Icono (emoji)</label>
+                                            <input
+                                                type="text"
+                                                value={reason.icon}
+                                                onChange={(e) => updateContactReason(index, 'icon', e.target.value)}
+                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                placeholder="💼"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">Email</label>
+                                            <input
+                                                type="email"
+                                                value={reason.email}
+                                                onChange={(e) => updateContactReason(index, 'email', e.target.value)}
+                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                placeholder="ventas@sevp.com"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">Descripción</label>
+                                            <textarea
+                                                value={reason.description}
+                                                onChange={(e) => updateContactReason(index, 'description', e.target.value)}
+                                                rows={2}
+                                                className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                placeholder="Solicita una demostración..."
+                                            />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-center">
+                                        <div className="text-2xl mb-2">{reason.icon}</div>
+                                        <h5 className="font-medium text-gray-900">{reason.title}</h5>
+                                        <p className="text-xs text-gray-600 mb-2">{reason.description}</p>
+                                        <span className="text-xs text-blue-600">{reason.email}</span>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     )
