@@ -61,8 +61,11 @@ def verify_token(token: str) -> TokenData:
         raise credentials_exception
 
 def authenticate_user(db: Session, username: str, password: str) -> Optional[User]:
-    """Autentica usuario con username y password"""
-    user = db.query(User).filter(User.username == username).first()
+    """Autentica usuario con username/email y password"""
+    # Buscar por username O email (para compatibilidad)
+    user = db.query(User).filter(
+        (User.username == username) | (User.email == username)
+    ).first()
     if not user:
         return None
     if not verify_password(password, user.password_hash):

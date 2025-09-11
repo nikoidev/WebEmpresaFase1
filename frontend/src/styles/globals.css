@@ -386,3 +386,43 @@ table .text-sm {
 table .font-medium {
     color: inherit !important;
 }
+
+/* SOLUCIÓN ESPECÍFICA PARA PÁGINA DE USUARIOS */
+/* Forzar colores visibles en tabla de usuarios */
+.min-w-full .text-gray-900 {
+    color: #111827 !important;
+}
+.min-w-full .text-gray-500 {
+    color: #6b7280 !important;
+}
+.min-w-full .text-gray-600 {
+    color: #4b5563 !important;
+}
+.min-w-full .text-sm {
+    color: #4b5563 !important;
+}
+.min-w-full .font-medium {
+    color: #111827 !important;
+}
+
+/* Filas de tabla específicamente */
+tbody tr .text-gray-900,
+tbody tr div .text-gray-900 {
+    color: #111827 !important;
+}
+tbody tr .text-gray-500,
+tbody tr div .text-gray-500 {
+    color: #6b7280 !important;
+}
+tbody tr .text-gray-600,
+tbody tr div .text-gray-600 {
+    color: #4b5563 !important;
+}
+tbody tr .text-sm,
+tbody tr div .text-sm {
+    color: #4b5563 !important;
+}
+tbody tr .font-medium,
+tbody tr div .font-medium {
+    color: #111827 !important;
+}

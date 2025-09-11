@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { BarChart3, DollarSign, FileText, Home, LogOut, Menu, MessageSquare, Settings, Users, X } from 'lucide-react'
+import { BarChart3, DollarSign, FileText, HelpCircle, Home, LogOut, Menu, MessageSquare, Settings, Users, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -30,9 +30,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
         { name: 'Noticias', href: '/admin/news', icon: FileText },
         { name: 'Contenido de Páginas', href: '/admin/content', icon: Settings },
+        { name: 'Usuarios', href: '/admin/users', icon: Users },
         { name: 'Planes de Servicio', href: '/admin/plans', icon: DollarSign },
         { name: 'Testimonios', href: '/admin/testimonials', icon: MessageSquare },
-        { name: 'FAQs', href: '/admin/faqs', icon: Users },
+        { name: 'FAQs', href: '/admin/faqs', icon: HelpCircle },
         { name: 'Mensajes de Contacto', href: '/admin/contacts', icon: MessageSquare },
         { name: 'Información de Empresa', href: '/admin/company', icon: Settings },
         { name: 'Reportes', href: '/admin/reports', icon: BarChart3 },

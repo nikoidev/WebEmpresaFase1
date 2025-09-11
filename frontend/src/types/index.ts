@@ -1,13 +1,24 @@
 // Tipos de datos para la aplicación
 
+export type UserRole = 'super_admin' | 'admin' | 'editor' | 'moderator' | 'viewer'
+
+export type Permission = 'view' | 'create' | 'edit' | 'delete' | 'moderate' | 'manage_users'
+
 export interface User {
     id: number
     username: string
     email: string
     first_name: string
     last_name: string
+    full_name: string
+    role: UserRole
+    is_active: boolean
     is_staff: boolean
     is_superuser: boolean
+    is_admin: boolean
+    date_joined: string
+    last_login?: string
+    permissions: Permission[]
 }
 
 export interface NewsArticle {

@@ -1,6 +1,6 @@
 'use client'
 
-import adminApi from '@/services/adminApi'
+import { adminApi } from '@/lib/api'
 import DevFileInfo from '@/components/DevFileInfo'
 import AdminLayout from '@/components/layout/AdminLayout'
 import {
