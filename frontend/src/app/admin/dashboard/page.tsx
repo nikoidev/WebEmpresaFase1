@@ -2,109 +2,32 @@
 
 import AdminLayout from '@/components/layout/AdminLayout'
 import DevFileInfo from '@/components/DevFileInfo'
-import { publicApi } from '@/lib/api'
-import { BarChart3, DollarSign, FileText, Globe, MessageSquare, Users } from 'lucide-react'
+import { BarChart3, Globe, Settings, Users } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-
-interface DashboardStats {
-    totalNews: number
-    totalTestimonials: number
-    totalPlans: number
-    totalContacts: number
-    featuredNews: number
-}
 
 export default function AdminDashboardPage() {
-    const [stats, setStats] = useState<DashboardStats>({
-        totalNews: 0,
-        totalTestimonials: 0,
-        totalPlans: 0,
-        totalContacts: 0,
-        featuredNews: 0
-    })
-    const [isLoading, setIsLoading] = useState(true)
-
-    useEffect(() => {
-        loadStats()
-    }, [])
-
-    const loadStats = async () => {
-        try {
-            const response = await publicApi.getStats()
-            setStats({
-                totalNews: response.data.total_articles,
-                totalTestimonials: response.data.total_testimonials,
-                totalPlans: 3, // Hardcoded por ahora
-                totalContacts: 0, // Será implementado
-                featuredNews: response.data.featured_articles
-            })
-        } catch (error) {
-            console.error('Error loading stats:', error)
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    const statCards = [
-        {
-            title: 'Artículos de Noticias',
-            value: stats.totalNews,
-            icon: FileText,
-            color: 'bg-blue-500',
-            href: '/admin/news'
-        },
-        {
-            title: 'Planes de Servicio',
-            value: stats.totalPlans,
-            icon: DollarSign,
-            color: 'bg-green-500',
-            href: '/admin/plans'
-        },
-        {
-            title: 'Testimonios',
-            value: stats.totalTestimonials,
-            icon: MessageSquare,
-            color: 'bg-purple-500',
-            href: '/admin/testimonials'
-        },
-        {
-            title: 'Mensajes de Contacto',
-            value: stats.totalContacts,
-            icon: Users,
-            color: 'bg-orange-500',
-            href: '/admin/contacts'
-        }
-    ]
 
     const quickActions = [
         {
-            title: 'Crear Nuevo Artículo',
-            description: 'Agregar una nueva noticia o entrada de blog',
-            icon: FileText,
-            href: '/admin/news/create',
+            title: 'Gestión de Contenido',
+            description: 'Editar y administrar todo el contenido del sitio web',
+            icon: Settings,
+            href: '/admin/content',
             color: 'bg-blue-100 text-blue-600'
         },
         {
-            title: 'Gestionar Planes',
-            description: 'Editar precios y características de los planes',
-            icon: DollarSign,
-            href: '/admin/plans',
+            title: 'Gestionar Usuarios',
+            description: 'Administrar usuarios y permisos del sistema',
+            icon: Users,
+            href: '/admin/users',
             color: 'bg-green-100 text-green-600'
         },
         {
-            title: 'Ver Mensajes',
-            description: 'Revisar y responder mensajes de contacto',
-            icon: MessageSquare,
-            href: '/admin/contacts',
-            color: 'bg-purple-100 text-purple-600'
-        },
-        {
-            title: 'Configurar Empresa',
-            description: 'Actualizar información de la empresa',
+            title: 'Ver Sitio Público',
+            description: 'Revisar cómo se ve el sitio web público',
             icon: Globe,
-            href: '/admin/company',
-            color: 'bg-orange-100 text-orange-600'
+            href: '/',
+            color: 'bg-purple-100 text-purple-600'
         }
     ]
 
@@ -121,31 +44,37 @@ export default function AdminDashboardPage() {
                     </p>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {statCards.map((stat, index) => (
-                        <Link key={index} href={stat.href}>
-                            <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                                <div className="flex items-center">
-                                    <div className={`${stat.color} p-3 rounded-lg`}>
-                                        <stat.icon className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div className="ml-4">
-                                        <h3 className="text-lg font-semibold text-gray-900">
-                                            {isLoading ? '...' : stat.value}
-                                        </h3>
-                                        <p className="text-sm text-gray-600">{stat.title}</p>
-                                    </div>
-                                </div>
+                {/* Mensaje informativo */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <div className="flex items-start">
+                        <div className="flex-shrink-0">
+                            <Settings className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div className="ml-3">
+                            <h3 className="text-lg font-medium text-blue-900">
+                                Sistema Unificado de Gestión de Contenido
+                            </h3>
+                            <p className="mt-2 text-blue-700">
+                                Ahora todo el contenido del sitio web se gestiona desde un solo lugar. 
+                                Ve a <strong>Gestión de Contenido</strong> para editar páginas, noticias, testimonios, FAQs, precios y más.
+                            </p>
+                            <div className="mt-4">
+                                <Link
+                                    href="/admin/content"
+                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                                >
+                                    Ir a Gestión de Contenido
+                                    <Settings className="ml-2 h-4 w-4" />
+                                </Link>
                             </div>
-                        </Link>
-                    ))}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Quick Actions */}
                 <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Acciones Rápidas</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-6">Acciones Principales</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {quickActions.map((action, index) => (
                             <Link key={index} href={action.href}>
                                 <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
@@ -164,9 +93,8 @@ export default function AdminDashboardPage() {
                     </div>
                 </div>
 
-                {/* Recent Activity */}
+                {/* System Status */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* System Status */}
                     <div className="bg-white rounded-lg shadow-md p-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                             <BarChart3 className="h-5 w-5 mr-2" />
@@ -186,32 +114,31 @@ export default function AdminDashboardPage() {
                                 </span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-600">Sitio Público</span>
+                                <span className="text-sm text-gray-600">Gestión de Contenido</span>
                                 <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-                                    Online
+                                    Disponible
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Quick Links */}
                     <div className="bg-white rounded-lg shadow-md p-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                             <Globe className="h-5 w-5 mr-2" />
                             Enlaces Útiles
                         </h3>
                         <div className="space-y-3">
-                            <Link href="/" className="block text-primary-600 hover:text-primary-700 text-sm">
+                            <Link href="/" className="block text-blue-600 hover:text-blue-700 text-sm">
                                 → Ver Sitio Público
                             </Link>
-                            <Link href="http://localhost:8001/admin/" className="block text-primary-600 hover:text-primary-700 text-sm">
-                                → Panel Admin Django
+                            <Link href="/admin/content" className="block text-blue-600 hover:text-blue-700 text-sm">
+                                → Gestión de Contenido
                             </Link>
-                            <Link href="/admin/company" className="block text-primary-600 hover:text-primary-700 text-sm">
-                                → Configurar Información de Empresa
+                            <Link href="/admin/users" className="block text-blue-600 hover:text-blue-700 text-sm">
+                                → Administrar Usuarios
                             </Link>
-                            <Link href="/admin/plans" className="block text-primary-600 hover:text-primary-700 text-sm">
-                                → Gestionar Planes de Precios
+                            <Link href="/admin/contacts" className="block text-blue-600 hover:text-blue-700 text-sm">
+                                → Ver Mensajes de Contacto
                             </Link>
                         </div>
                     </div>

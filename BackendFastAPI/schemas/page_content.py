@@ -9,7 +9,7 @@ from datetime import datetime
 class PageContentBase(BaseModel):
     page_key: str
     title: str
-    content_data: Dict[str, Any] = {}
+    content_json: Dict[str, Any] = {}
     meta_title: Optional[str] = ""
     meta_description: Optional[str] = ""
     meta_keywords: Optional[str] = ""
@@ -18,7 +18,10 @@ class PageContentBase(BaseModel):
 class PageContentCreate(PageContentBase):
     @validator('page_key')
     def validate_page_key(cls, v):
-        allowed_keys = ['homepage', 'about', 'history', 'clients', 'contact']
+        allowed_keys = [
+            'homepage', 'about', 'history', 'clients', 'prices', 'contact',
+            'news', 'testimonials', 'faqs'
+        ]
         if v not in allowed_keys:
             raise ValueError(f'page_key must be one of: {allowed_keys}')
         return v

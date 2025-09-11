@@ -3,6 +3,8 @@
 import { adminApi } from '@/lib/api'
 import DevFileInfo from '@/components/DevFileInfo'
 import AdminLayout from '@/components/layout/AdminLayout'
+import HomepageEditor from '@/components/content-editors/HomepageEditor'
+import AboutEditor from '@/components/content-editors/AboutEditor'
 import {
     Edit,
     Eye,
@@ -13,7 +15,9 @@ import {
     Mail,
     Plus,
     Save,
-    Users
+    Users,
+    DollarSign,
+    HelpCircle as Help
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -21,7 +25,7 @@ interface PageContent {
     id: number
     page_key: string
     title: string
-    content_data: any
+    content_json: any
     meta_title: string
     meta_description: string
     meta_keywords: string
@@ -38,7 +42,7 @@ export default function ContentManagementPage() {
     const [formData, setFormData] = useState({
         page_key: '',
         title: '',
-        content_data: {},
+        content_json: {},
         meta_title: '',
         meta_description: '',
         meta_keywords: '',
@@ -75,11 +79,39 @@ export default function ContentManagementPage() {
             color: 'bg-orange-500'
         },
         {
+            key: 'prices',
+            name: 'Precios',
+            description: 'Planes y precios de servicios',
+            icon: DollarSign,
+            color: 'bg-yellow-500'
+        },
+        {
             key: 'contact',
             name: 'Contacto',
             description: 'Información de contacto',
             icon: Mail,
             color: 'bg-red-500'
+        },
+        {
+            key: 'news',
+            name: 'Noticias',
+            description: 'Artículos y noticias del blog',
+            icon: FileText,
+            color: 'bg-indigo-500'
+        },
+        {
+            key: 'testimonials',
+            name: 'Testimonios',
+            description: 'Testimonios de clientes',
+            icon: Users,
+            color: 'bg-pink-500'
+        },
+        {
+            key: 'faqs',
+            name: 'FAQs',
+            description: 'Preguntas frecuentes',
+            icon: Help,
+            color: 'bg-teal-500'
         }
     ]
 
@@ -90,9 +122,11 @@ export default function ContentManagementPage() {
     const fetchPages = async () => {
         try {
             const response = await adminApi.getPageContents()
+            console.log('Pages response:', response.data)
             setPages(response.data || [])
         } catch (error) {
             console.error('Error fetching pages:', error)
+            setPages([]) // Asegurar que hay una lista vacía en caso de error
         } finally {
             setLoading(false)
         }
@@ -113,7 +147,7 @@ export default function ContentManagementPage() {
             setFormData({
                 page_key: '',
                 title: '',
-                content_data: {},
+                content_json: {},
                 meta_title: '',
                 meta_description: '',
                 meta_keywords: '',
@@ -130,7 +164,7 @@ export default function ContentManagementPage() {
         setFormData({
             page_key: page.page_key,
             title: page.title,
-            content_data: page.content_data,
+            content_json: page.content_json,
             meta_title: page.meta_title,
             meta_description: page.meta_description,
             meta_keywords: page.meta_keywords,
@@ -145,7 +179,7 @@ export default function ContentManagementPage() {
         setFormData({
             page_key: pageKey,
             title: pageType?.name || '',
-            content_data: getDefaultContentForPage(pageKey),
+            content_json: getDefaultContentForPage(pageKey),
             meta_title: '',
             meta_description: '',
             meta_keywords: '',
@@ -185,11 +219,65 @@ export default function ContentManagementPage() {
                     testimonials: [],
                     stats: {}
                 }
+            case 'prices':
+                return {
+                    hero_title: 'Nuestros Planes',
+                    hero_description: 'Elige el plan que mejor se adapte a tus necesidades',
+                    plans: [],
+                    features_comparison: {},
+                    contact_cta: {}
+                }
             case 'contact':
                 return {
                     office_info: {},
                     contact_info: {},
                     form_settings: {}
+                }
+            case 'news':
+                return {
+                    hero_title: 'Noticias y Blog',
+                    hero_description: 'Mantente al día con nuestras últimas noticias y artículos',
+                    articles: [],
+                    categories: [],
+                    featured_article: null
+                }
+            case 'testimonials':
+                return {
+                    hero_title: 'Lo que dicen nuestros clientes',
+                    hero_description: 'Testimonios reales de clientes satisfechos',
+                    testimonials: [],
+                    stats: {
+                        total_clients: 0,
+                        satisfaction_rate: 0,
+                        average_rating: 0
+                    }
+                }
+            case 'faqs':
+                return {
+                    hero_title: 'Preguntas Frecuentes',
+                    hero_description: 'Encuentra respuestas a las preguntas más comunes',
+                    categories: [
+                        {
+                            name: 'General',
+                            key: 'general',
+                            faqs: []
+                        },
+                        {
+                            name: 'Precios',
+                            key: 'pricing',
+                            faqs: []
+                        },
+                        {
+                            name: 'Técnico',
+                            key: 'technical',
+                            faqs: []
+                        }
+                    ],
+                    contact_cta: {
+                        title: '¿No encuentras lo que buscas?',
+                        description: 'Contáctanos y te ayudaremos',
+                        button_text: 'Contactar Soporte'
+                    }
                 }
             default:
                 return {}
@@ -209,6 +297,52 @@ export default function ContentManagementPage() {
     const getPageName = (pageKey: string) => {
         const pageType = pageTypes.find(p => p.key === pageKey)
         return pageType?.name || pageKey
+    }
+
+    const renderEditor = () => {
+        switch (formData.page_key) {
+            case 'homepage':
+                return (
+                    <HomepageEditor
+                        content={formData.content_json}
+                        onChange={(content) => setFormData({ ...formData, content_json: content })}
+                    />
+                )
+            case 'about':
+                return (
+                    <AboutEditor
+                        content={formData.content_json}
+                        onChange={(content) => setFormData({ ...formData, content_json: content })}
+                    />
+                )
+            default:
+                return (
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Contenido (JSON)
+                            </label>
+                            <textarea
+                                value={JSON.stringify(formData.content_json, null, 2)}
+                                onChange={(e) => {
+                                    try {
+                                        const parsed = JSON.parse(e.target.value)
+                                        setFormData({ ...formData, content_json: parsed })
+                                    } catch (error) {
+                                        // Mantener el valor aunque no sea JSON válido para permitir edición
+                                    }
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                rows={10}
+                                placeholder="Contenido en formato JSON..."
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                El contenido debe estar en formato JSON válido
+                            </p>
+                        </div>
+                    </div>
+                )
+        }
     }
 
     if (loading) {
@@ -307,16 +441,30 @@ export default function ContentManagementPage() {
 
                 {/* Modal */}
                 {showModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                            <h2 className="text-xl font-bold text-gray-900 mb-4">
-                                {editingPage ? `Editar: ${getPageName(editingPage.page_key)}` : `Crear: ${getPageName(formData.page_key)}`}
-                            </h2>
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-lg shadow-lg w-full max-w-7xl h-[90vh] flex flex-col">
+                            {/* Header */}
+                            <div className="border-b border-gray-200 p-6">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-bold text-gray-900">
+                                        {editingPage ? `Editar: ${getPageName(editingPage.page_key)}` : `Crear: ${getPageName(formData.page_key)}`}
+                                    </h2>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowModal(false)
+                                            setEditingPage(null)
+                                        }}
+                                        className="text-gray-400 hover:text-gray-600"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Configuración básica */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Título de la Página
                                         </label>
                                         <input
@@ -324,85 +472,70 @@ export default function ContentManagementPage() {
                                             required
                                             value={formData.title}
                                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                                         />
                                     </div>
                                     <div>
-                                        <label className="flex items-center">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Meta Título (SEO)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.meta_title}
+                                            onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                            placeholder="Título para SEO"
+                                        />
+                                    </div>
+                                    <div className="flex items-center">
+                                        <label className="flex items-center mt-6">
                                             <input
                                                 type="checkbox"
                                                 checked={formData.is_active}
                                                 onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                                                 className="mr-2"
                                             />
-                                            Página Activa
+                                            <span className="text-sm font-medium text-gray-700">Página Activa</span>
                                         </label>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Contenido (JSON)
-                                    </label>
-                                    <textarea
-                                        value={JSON.stringify(formData.content_data, null, 2)}
-                                        onChange={(e) => {
-                                            try {
-                                                const parsed = JSON.parse(e.target.value)
-                                                setFormData({ ...formData, content_data: parsed })
-                                            } catch (error) {
-                                                // Mantener el valor aunque no sea JSON válido para permitir edición
-                                            }
-                                        }}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                        rows={10}
-                                        placeholder="Contenido en formato JSON..."
-                                    />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        El contenido debe estar en formato JSON válido
-                                    </p>
-                                </div>
+                            {/* Content Editor */}
+                            <div className="flex-1 overflow-hidden">
+                                {renderEditor()}
+                            </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* Footer */}
+                            <div className="border-t border-gray-200 p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Meta Título
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.meta_title}
-                                            onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                            placeholder="Título para SEO"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Meta Descripción
                                         </label>
                                         <input
                                             type="text"
                                             value={formData.meta_description}
                                             onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                                             placeholder="Descripción para SEO"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Palabras Clave
                                         </label>
                                         <input
                                             type="text"
                                             value={formData.meta_keywords}
                                             onChange={(e) => setFormData({ ...formData, meta_keywords: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                                             placeholder="palabra1, palabra2, palabra3"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="flex justify-end gap-2 pt-4">
+                                <div className="flex justify-end gap-2">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -414,14 +547,14 @@ export default function ContentManagementPage() {
                                         Cancelar
                                     </button>
                                     <button
-                                        type="submit"
+                                        onClick={handleSubmit}
                                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
                                     >
                                         <Save size={16} />
                                         {editingPage ? 'Actualizar' : 'Crear'}
                                     </button>
                                 </div>
-                            </form>
+                            </div>
                         </div>
                     </div>
                 )}

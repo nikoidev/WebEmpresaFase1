@@ -15,7 +15,7 @@ class PageContent(Base):
     title = Column(String(200), nullable=False)
     
     # Contenido estructurado como JSON
-    content_data = Column(JSON, default={})
+    content_json = Column(JSON, default={})
     
     # Meta información
     meta_title = Column(String(200), default="")
