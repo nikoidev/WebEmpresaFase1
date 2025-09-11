@@ -147,7 +147,7 @@ export default function AboutEditor({ content, onChange }: AboutEditorProps) {
             </div>
 
             {/* Content Editor */}
-            <div className="flex-1 p-6">
+            <div className="flex-1 p-6 overflow-y-auto">
                 {activeSection === 'hero' && (
                     <div className="space-y-6">
                         <h3 className="text-xl font-semibold text-gray-900">Sección Hero de Nosotros</h3>

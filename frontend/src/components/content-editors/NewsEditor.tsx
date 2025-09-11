@@ -156,7 +156,7 @@ export default function NewsEditor({ data, onChange }: NewsEditorProps) {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto max-h-[70vh]">
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Editor de Noticias</h3>
                 <div className="flex gap-2">

@@ -123,7 +123,7 @@ export default function FAQsEditor({ data, onChange }: FAQsEditorProps) {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 overflow-y-auto max-h-[70vh]">
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Editor de FAQs</h3>
                 <button

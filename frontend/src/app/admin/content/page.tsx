@@ -374,6 +374,12 @@ export default function ContentManagementPage() {
                     <HistoryEditor
                         data={formData.content_json}
                         onChange={(data) => setFormData({ ...formData, content_json: data })}
+                        metaData={{
+                            meta_title: formData.meta_title,
+                            meta_description: formData.meta_description,
+                            meta_keywords: formData.meta_keywords
+                        }}
+                        onMetaChange={(meta) => setFormData({ ...formData, ...meta })}
                     />
                 )
             case 'contact':
@@ -574,35 +580,8 @@ export default function ContentManagementPage() {
                                 {renderEditor()}
                             </div>
 
-                            {/* Footer */}
+                            {/* Footer - Solo botones de acción */}
                             <div className="border-t border-gray-200 p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Meta Descripción
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.meta_description}
-                                            onChange={(e) => setFormData({ ...formData, meta_description: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                                            placeholder="Descripción para SEO"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                                            Palabras Clave
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.meta_keywords}
-                                            onChange={(e) => setFormData({ ...formData, meta_keywords: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                                            placeholder="palabra1, palabra2, palabra3"
-                                        />
-                                    </div>
-                                </div>
-
                                 <div className="flex justify-end gap-2">
                                     <button
                                         type="button"
