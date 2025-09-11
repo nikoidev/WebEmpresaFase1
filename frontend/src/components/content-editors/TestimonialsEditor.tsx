@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, Star, Video, TrendingUp } from 'lucide-react'
 
 interface ImpactMetric {
@@ -51,6 +51,11 @@ interface TestimonialsEditorProps {
 
 export default function TestimonialsEditor({ data, onChange }: TestimonialsEditorProps) {
     const [formData, setFormData] = useState<TestimonialsContent>(data)
+
+    // Sincronizar estado local con props cuando cambian los datos
+    useEffect(() => {
+        setFormData(data)
+    }, [data])
     const [editingTestimonial, setEditingTestimonial] = useState<number | null>(null)
 
     const handleChange = (newData: TestimonialsContent) => {

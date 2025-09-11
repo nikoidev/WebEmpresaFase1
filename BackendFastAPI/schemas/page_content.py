@@ -28,7 +28,7 @@ class PageContentCreate(PageContentBase):
 
 class PageContentUpdate(BaseModel):
     title: Optional[str] = None
-    content_data: Optional[Dict[str, Any]] = None
+    content_json: Optional[Dict[str, Any]] = None
     meta_title: Optional[str] = None
     meta_description: Optional[str] = None
     meta_keywords: Optional[str] = None

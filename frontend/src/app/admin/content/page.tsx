@@ -128,10 +128,14 @@ export default function ContentManagementPage() {
 
     const fetchPages = async () => {
         try {
+            console.log('🔄 Cargando páginas...')
             const response = await adminApi.getPageContents()
+            console.log('📥 Páginas recibidas:', response.data)
             setPages(response.data || [])
+            console.log('✅ Páginas cargadas exitosamente')
         } catch (error) {
-            console.error('Error fetching pages:', error)
+            console.error('❌ Error cargando páginas:', error)
+            console.error('❌ Error response:', error.response)
             setPages([])
         } finally {
             setLoading(false)
@@ -141,11 +145,25 @@ export default function ContentManagementPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         
+        console.log('🔄 Iniciando guardado...')
+        console.log('📝 FormData:', formData)
+        console.log('✏️ EditingPage:', editingPage)
+        
         try {
             if (editingPage) {
-                await adminApi.updatePageContent(editingPage.page_key, formData)
+                console.log(`🔄 Actualizando página: ${editingPage.page_key}`)
+                console.log('📤 Datos a enviar:', formData)
+                
+                const response = await adminApi.updatePageContent(editingPage.page_key, formData)
+                console.log('✅ Respuesta del servidor:', response)
+                alert('✅ Página actualizada exitosamente')
             } else {
-                await adminApi.createPageContent(formData)
+                console.log('🔄 Creando nueva página')
+                console.log('📤 Datos a enviar:', formData)
+                
+                const response = await adminApi.createPageContent(formData)
+                console.log('✅ Respuesta del servidor:', response)
+                alert('✅ Página creada exitosamente')
             }
 
             setShowModal(false)
@@ -159,9 +177,14 @@ export default function ContentManagementPage() {
                 meta_keywords: '',
                 is_active: true
             })
+            
+            console.log('🔄 Recargando páginas...')
             fetchPages()
         } catch (error) {
-            console.error('Error saving page:', error)
+            console.error('❌ Error completo:', error)
+            console.error('❌ Error response:', error.response)
+            console.error('❌ Error data:', error.response?.data)
+            alert('❌ Error al guardar la página. Revisa la consola para más detalles.')
         }
     }
 
@@ -318,6 +341,22 @@ export default function ContentManagementPage() {
         return pageType?.name || pageKey
     }
 
+    const getPageUrl = (pageKey: string) => {
+        const urlMap: { [key: string]: string } = {
+            'homepage': '/',
+            'about': '/nosotros',
+            'history': '/historia',
+            'clients': '/clientes',
+            'prices': '/precios',
+            'contact': '/contacto',
+            // Estas páginas dinámicas se gestionan desde el admin pero no tienen página pública dedicada
+            'news': '/admin/news',
+            'testimonials': '/admin/testimonials',
+            'faqs': '/admin/faqs'
+        }
+        return urlMap[pageKey] || `/${pageKey}`
+    }
+
     const renderEditor = () => {
         switch (formData.page_key) {
             case 'homepage':
@@ -467,7 +506,7 @@ export default function ContentManagementPage() {
                                                         <Edit size={18} />
                                                     </button>
                                                     <a
-                                                        href={`/${pageType.key === 'homepage' ? '' : pageType.key}`}
+                                                        href={getPageUrl(pageType.key)}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="p-2 bg-gray-600 text-white hover:bg-gray-700 rounded-md transition-colors shadow-sm"

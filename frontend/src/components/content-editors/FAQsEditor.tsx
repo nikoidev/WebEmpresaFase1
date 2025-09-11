@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, HelpCircle, X } from 'lucide-react'
 
 interface FAQ {
@@ -31,6 +31,11 @@ interface FAQsEditorProps {
 
 export default function FAQsEditor({ data, onChange }: FAQsEditorProps) {
     const [formData, setFormData] = useState<FAQsContent>(data)
+
+    // Sincronizar estado local con props cuando cambian los datos
+    useEffect(() => {
+        setFormData(data)
+    }, [data])
     const [editingCategory, setEditingCategory] = useState<number | null>(null)
     const [editingFAQ, setEditingFAQ] = useState<{ categoryIndex: number; faqIndex: number } | null>(null)
 

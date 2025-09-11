@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, Star, Building, Users, Globe, X } from 'lucide-react'
 
 interface ClientTestimonial {
@@ -45,6 +45,11 @@ interface ClientsEditorProps {
 
 export default function ClientsEditor({ data, onChange }: ClientsEditorProps) {
     const [formData, setFormData] = useState<ClientsContent>(data)
+
+    // Sincronizar estado local con props cuando cambian los datos
+    useEffect(() => {
+        setFormData(data)
+    }, [data])
     const [editingClient, setEditingClient] = useState<number | null>(null)
     const [editingTestimonial, setEditingTestimonial] = useState<number | null>(null)
     const [activeSection, setActiveSection] = useState<'hero' | 'testimonials' | 'clients' | 'stats'>('hero')

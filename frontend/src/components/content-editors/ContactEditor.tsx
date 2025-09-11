@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, MapPin, Phone, Mail, Clock, Building } from 'lucide-react'
 
 interface Office {
@@ -50,6 +50,11 @@ interface ContactEditorProps {
 
 export default function ContactEditor({ data, onChange }: ContactEditorProps) {
     const [formData, setFormData] = useState<ContactContent>(data)
+
+    // Sincronizar estado local con props cuando cambian los datos
+    useEffect(() => {
+        setFormData(data)
+    }, [data])
     const [editingOffice, setEditingOffice] = useState<number | null>(null)
     const [editingReason, setEditingReason] = useState<number | null>(null)
     const [activeSection, setActiveSection] = useState<'hero' | 'contact_info' | 'offices' | 'reasons'>('hero')

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, Check, X, DollarSign, Crown } from 'lucide-react'
 
 interface Plan {
@@ -43,6 +43,11 @@ interface PricesEditorProps {
 
 export default function PricesEditor({ data, onChange }: PricesEditorProps) {
     const [formData, setFormData] = useState<PricesContent>(data)
+
+    // Sincronizar estado local con props cuando cambian los datos
+    useEffect(() => {
+        setFormData(data)
+    }, [data])
     const [editingPlan, setEditingPlan] = useState<number | null>(null)
     const [editingFeature, setEditingFeature] = useState<number | null>(null)
     const [editingFAQ, setEditingFAQ] = useState<number | null>(null)

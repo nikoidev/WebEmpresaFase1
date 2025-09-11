@@ -1,14 +1,34 @@
+'use client'
+
 import PublicLayout from '@/components/layout/PublicLayout'
 import { Award, Heart, Target, Users } from 'lucide-react'
-import type { Metadata } from 'next'
+import { publicApi } from '@/lib/api'
+import { useEffect, useState } from 'react'
 
-export const metadata: Metadata = {
-    title: 'Nosotros - SEVP | Sistema Educativo Virtual Profesional',
-    description: 'Conoce más sobre SEVP, nuestra misión, visión y el equipo que hace posible la transformación educativa digital.',
-    keywords: ['SEVP', 'nosotros', 'equipo', 'misión', 'visión', 'educación digital'],
-}
+// Metadata se maneja desde layout.tsx para client components
 
 export default function NosotrosPage() {
+    const [aboutContent, setAboutContent] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const loadContent = async () => {
+            try {
+                console.log('🔄 Cargando contenido de /nosotros...')
+                const response = await publicApi.getPageContent('about')
+                console.log('✅ Contenido cargado:', response.data)
+                setAboutContent(response.data.content_json)
+            } catch (error) {
+                console.error('❌ Error loading about content:', error)
+                // Usar contenido por defecto si falla
+            } finally {
+                setLoading(false)
+            }
+        }
+        
+        loadContent()
+    }, [])
+
     return (
         <PublicLayout>
             {/* Hero Section */}
@@ -35,14 +55,10 @@ export default function NosotrosPage() {
                             </div>
                             <h2 className="text-3xl font-bold text-gray-900 mb-6">Nuestra Misión</h2>
                             <p className="text-lg text-gray-600 mb-6">
-                                Democratizar el acceso a herramientas educativas de calidad profesional,
-                                permitiendo que instituciones educativas de todos los tamaños puedan
-                                ofrecer experiencias de aprendizaje excepcionales.
+                                {aboutContent?.mission || 'Democratizar el acceso a herramientas educativas de calidad profesional, permitiendo que instituciones educativas de todos los tamaños puedan ofrecer experiencias de aprendizaje excepcionales.'}
                             </p>
                             <p className="text-lg text-gray-600">
-                                Creemos que cada estudiante merece acceso a una educación de calidad,
-                                y trabajamos cada día para hacer realidad esta visión a través de
-                                tecnología innovadora y accesible.
+                                {aboutContent?.mission_description || 'Creemos que cada estudiante merece acceso a una educación de calidad, y trabajamos cada día para hacer realidad esta visión a través de tecnología innovadora y accesible.'}
                             </p>
                         </div>
 
@@ -52,14 +68,10 @@ export default function NosotrosPage() {
                             </div>
                             <h2 className="text-3xl font-bold text-gray-900 mb-6">Nuestra Visión</h2>
                             <p className="text-lg text-gray-600 mb-6">
-                                Ser la plataforma educativa líder en América Latina, reconocida por
-                                su capacidad de transformar instituciones educativas y empoderar a
-                                educadores y estudiantes.
+                                {aboutContent?.vision || 'Ser la plataforma educativa líder en América Latina, reconocida por su capacidad de transformar instituciones educativas y empoderar a educadores y estudiantes.'}
                             </p>
                             <p className="text-lg text-gray-600">
-                                Aspiramos a un futuro donde la tecnología educativa sea intuitiva,
-                                accesible y poderosa, creando oportunidades ilimitadas de aprendizaje
-                                para todos.
+                                {aboutContent?.vision_description || 'Aspiramos a un futuro donde la tecnología educativa sea intuitiva, accesible y poderosa, creando oportunidades ilimitadas de aprendizaje para todos.'}
                             </p>
                         </div>
                     </div>
@@ -79,49 +91,60 @@ export default function NosotrosPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <div className="text-center">
-                            <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Users className="h-10 w-10 text-primary-600" />
+                        {aboutContent?.values?.map((value: any, index: number) => (
+                            <div key={index} className="text-center">
+                                <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <span className="text-2xl">{value.icon || '💎'}</span>
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900 mb-4">{value.title}</h3>
+                                <p className="text-gray-600">
+                                    {value.description}
+                                </p>
                             </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Colaboración</h3>
-                            <p className="text-gray-600">
-                                Creemos en el poder del trabajo en equipo y la construcción conjunta
-                                de soluciones innovadoras.
-                            </p>
-                        </div>
-
-                        <div className="text-center">
-                            <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Award className="h-10 w-10 text-primary-600" />
-                            </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Excelencia</h3>
-                            <p className="text-gray-600">
-                                Nos comprometemos a entregar productos y servicios de la más alta
-                                calidad en cada interacción.
-                            </p>
-                        </div>
-
-                        <div className="text-center">
-                            <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Heart className="h-10 w-10 text-primary-600" />
-                            </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Pasión</h3>
-                            <p className="text-gray-600">
-                                Amamos lo que hacemos y ponemos el corazón en cada proyecto
-                                para crear impacto real.
-                            </p>
-                        </div>
-
-                        <div className="text-center">
-                            <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Target className="h-10 w-10 text-primary-600" />
-                            </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Innovación</h3>
-                            <p className="text-gray-600">
-                                Buscamos constantemente nuevas formas de resolver problemas
-                                y mejorar la experiencia educativa.
-                            </p>
-                        </div>
+                        )) || (
+                            <>
+                                <div className="text-center">
+                                    <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Users className="h-10 w-10 text-primary-600" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Colaboración</h3>
+                                    <p className="text-gray-600">
+                                        Creemos en el poder del trabajo en equipo y la construcción conjunta
+                                        de soluciones innovadoras.
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Award className="h-10 w-10 text-primary-600" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Excelencia</h3>
+                                    <p className="text-gray-600">
+                                        Nos comprometemos a entregar productos y servicios de la más alta
+                                        calidad en cada interacción.
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Heart className="h-10 w-10 text-primary-600" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Pasión</h3>
+                                    <p className="text-gray-600">
+                                        Amamos lo que hacemos y ponemos el corazón en cada proyecto
+                                        para crear impacto real.
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="bg-primary-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <Target className="h-10 w-10 text-primary-600" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Innovación</h3>
+                                    <p className="text-gray-600">
+                                        Buscamos constantemente nuevas formas de resolver problemas
+                                        y mejorar la experiencia educativa.
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
@@ -139,44 +162,62 @@ export default function NosotrosPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {/* Team Member 1 */}
-                        <div className="text-center">
-                            <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mx-auto mb-6 flex items-center justify-center">
-                                <span className="text-3xl font-bold text-white">AM</span>
-                            </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Ana Martínez</h3>
-                            <p className="text-primary-600 font-medium mb-4">CEO & Fundadora</p>
-                            <p className="text-gray-600">
-                                Más de 15 años de experiencia en tecnología educativa.
-                                Visionaria apasionada por democratizar la educación.
-                            </p>
-                        </div>
-
-                        {/* Team Member 2 */}
-                        <div className="text-center">
-                            <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mx-auto mb-6 flex items-center justify-center">
-                                <span className="text-3xl font-bold text-white">CL</span>
-                            </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">Carlos López</h3>
-                            <p className="text-primary-600 font-medium mb-4">CTO</p>
-                            <p className="text-gray-600">
-                                Experto en arquitectura de software y sistemas distribuidos.
-                                Lidera el desarrollo técnico de la plataforma.
-                            </p>
-                        </div>
-
-                        {/* Team Member 3 */}
-                        <div className="text-center">
-                            <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mx-auto mb-6 flex items-center justify-center">
-                                <span className="text-3xl font-bold text-white">MR</span>
-                            </div>
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">María Rodríguez</h3>
-                            <p className="text-primary-600 font-medium mb-4">Head of Product</p>
-                            <p className="text-gray-600">
-                                Especialista en UX/UI y productos digitales.
-                                Se asegura que cada funcionalidad sea intuitiva y útil.
-                            </p>
-                        </div>
+                        {aboutContent?.team?.map((member: any, index: number) => {
+                            const initials = member.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+                            return (
+                                <div key={index} className="text-center">
+                                    <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+                                        {member.image ? (
+                                            <img src={member.image} alt={member.name} className="w-full h-full object-cover rounded-full" />
+                                        ) : (
+                                            <span className="text-3xl font-bold text-white">{initials}</span>
+                                        )}
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{member.name}</h3>
+                                    <p className="text-primary-600 font-medium mb-4">{member.position}</p>
+                                    <p className="text-gray-600">
+                                        {member.bio}
+                                    </p>
+                                </div>
+                            )
+                        }) || (
+                            <>
+                                {/* Contenido por defecto si no hay equipo en BD */}
+                                <div className="text-center">
+                                    <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+                                        <span className="text-3xl font-bold text-white">AM</span>
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Ana Martínez</h3>
+                                    <p className="text-primary-600 font-medium mb-4">CEO & Fundadora</p>
+                                    <p className="text-gray-600">
+                                        Más de 15 años de experiencia en tecnología educativa.
+                                        Visionaria apasionada por democratizar la educación.
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+                                        <span className="text-3xl font-bold text-white">CL</span>
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">Carlos López</h3>
+                                    <p className="text-primary-600 font-medium mb-4">CTO</p>
+                                    <p className="text-gray-600">
+                                        Experto en arquitectura de software y sistemas distribuidos.
+                                        Lidera el desarrollo técnico de la plataforma.
+                                    </p>
+                                </div>
+                                <div className="text-center">
+                                    <div className="w-32 h-32 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full mx-auto mb-6 flex items-center justify-center">
+                                        <span className="text-3xl font-bold text-white">MR</span>
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-900 mb-2">María Rodríguez</h3>
+                                    <p className="text-primary-600 font-medium mb-4">Head of Product</p>
+                                    <p className="text-gray-600">
+                                        Especialista en UX/UI y productos digitales.
+                                        Se asegura que cada funcionalidad sea intuitiva y útil.
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, FileText, Calendar, Tag, Star } from 'lucide-react'
 
 interface FeaturedPost {
@@ -41,6 +41,11 @@ interface NewsEditorProps {
 
 export default function NewsEditor({ data, onChange }: NewsEditorProps) {
     const [formData, setFormData] = useState<NewsContent>(data)
+
+    // Sincronizar estado local con props cuando cambian los datos
+    useEffect(() => {
+        setFormData(data)
+    }, [data])
     const [editingPost, setEditingPost] = useState<number | null>(null)
     const [editingRecent, setEditingRecent] = useState<number | null>(null)
     const [newCategory, setNewCategory] = useState('')

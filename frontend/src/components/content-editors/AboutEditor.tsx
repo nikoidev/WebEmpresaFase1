@@ -7,7 +7,9 @@ interface AboutContent {
     hero_title?: string
     hero_description?: string
     mission: string
+    mission_description?: string
     vision: string
+    vision_description?: string
     values: Array<{
         title: string
         description: string
@@ -199,6 +201,19 @@ export default function AboutEditor({ content, onChange }: AboutEditorProps) {
 
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de la Misión
+                            </label>
+                            <textarea
+                                value={content.mission_description || ''}
+                                onChange={(e) => updateContent('mission_description', e.target.value)}
+                                rows={3}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                                placeholder="Descripción adicional de la misión..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Visión
                             </label>
                             <textarea
@@ -207,6 +222,19 @@ export default function AboutEditor({ content, onChange }: AboutEditorProps) {
                                 rows={5}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                                 placeholder="Nuestra visión es..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de la Visión
+                            </label>
+                            <textarea
+                                value={content.vision_description || ''}
+                                onChange={(e) => updateContent('vision_description', e.target.value)}
+                                rows={3}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                                placeholder="Descripción adicional de la visión..."
                             />
                         </div>
                     </div>

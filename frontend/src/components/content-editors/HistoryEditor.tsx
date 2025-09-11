@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Plus, Calendar, Award, Users, Target } from 'lucide-react'
 
 interface TimelineItem {
@@ -42,6 +42,11 @@ export default function HistoryEditor({ data, onChange, metaData, onMetaChange }
     const [formData, setFormData] = useState<HistoryContent>(data)
     const [editingIndex, setEditingIndex] = useState<number | null>(null)
     const [activeSection, setActiveSection] = useState<'hero' | 'timeline' | 'stats' | 'seo'>('hero')
+
+    // Sincronizar estado local con props cuando cambian los datos
+    useEffect(() => {
+        setFormData(data)
+    }, [data])
 
     const handleChange = (newData: HistoryContent) => {
         setFormData(newData)
