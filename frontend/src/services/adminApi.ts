@@ -107,22 +107,7 @@ export const deleteFAQ = async (id: number) => {
     return await api.delete(`/api/admin/faqs/${id}/`)
 }
 
-// Contact Messages Management
-export const getContactMessages = async () => {
-    return await api.get('/api/admin/contact-messages/')
-}
-
-export const getContactMessageById = async (id: number) => {
-    return await api.get(`/api/admin/contact-messages/${id}/`)
-}
-
-export const updateContactMessage = async (id: number, message: Partial<ContactMessage>) => {
-    return await api.put(`/api/admin/contact-messages/${id}/`, message)
-}
-
-export const deleteContactMessage = async (id: number) => {
-    return await api.delete(`/api/admin/contact-messages/${id}/`)
-}
+// Contact Messages - moved to bottom to avoid duplication
 
 // Company Info Management
 export const getCompanyInfo = async () => {
@@ -131,6 +116,41 @@ export const getCompanyInfo = async () => {
 
 export const updateCompanyInfo = async (id: number, info: Partial<CompanyInfo>) => {
     return await api.put(`/api/admin/company/${id}/`, info)
+}
+
+// Page Content Management
+export const getPageContents = async () => {
+    return await api.get('/api/admin/pages/')
+}
+
+export const getPageContent = async (pageKey: string) => {
+    return await api.get(`/api/admin/pages/${pageKey}/`)
+}
+
+export const createPageContent = async (content: any) => {
+    return await api.post('/api/admin/pages/', content)
+}
+
+export const updatePageContent = async (pageKey: string, content: any) => {
+    return await api.put(`/api/admin/pages/${pageKey}/`, content)
+}
+
+// Contact Messages Management
+export const getContactMessages = async (status?: string) => {
+    const params = status ? `?status_filter=${status}` : ''
+    return await api.get(`/api/admin/contact-messages/${params}`)
+}
+
+export const getContactMessage = async (id: number) => {
+    return await api.get(`/api/admin/contact-messages/${id}/`)
+}
+
+export const updateContactMessage = async (id: number, data: any) => {
+    return await api.put(`/api/admin/contact-messages/${id}/`, data)
+}
+
+export const deleteContactMessage = async (id: number) => {
+    return await api.delete(`/api/admin/contact-messages/${id}/`)
 }
 
 export default {
@@ -169,11 +189,17 @@ export default {
 
     // Contact Messages
     getContactMessages,
-    getContactMessageById,
+    getContactMessage,
     updateContactMessage,
     deleteContactMessage,
 
     // Company Info
     getCompanyInfo,
-    updateCompanyInfo
+    updateCompanyInfo,
+
+    // Page Content
+    getPageContents,
+    getPageContent,
+    createPageContent,
+    updatePageContent
 }

@@ -17,7 +17,7 @@ export default function HomePage() {
 
     const loadContent = async () => {
         try {
-            console.log('Attempting to load homepage content from:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001')
+            console.log('Attempting to load homepage content from:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002')
             const response = await publicApi.getHomepageContent()
             console.log('Homepage content loaded successfully:', response.data)
             setContent(response.data)

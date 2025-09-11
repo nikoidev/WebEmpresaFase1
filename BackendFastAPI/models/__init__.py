@@ -8,6 +8,7 @@ from .company import CompanyInfo, ContactMessage
 from .plans import ServicePlan
 from .testimonials import Testimonial
 from .faqs import FAQ
+from .page_content import PageContent
 
 __all__ = [
     "User",
@@ -16,5 +17,6 @@ __all__ = [
     "ContactMessage",
     "ServicePlan",
     "Testimonial", 
-    "FAQ"
+    "FAQ",
+    "PageContent"
 ]

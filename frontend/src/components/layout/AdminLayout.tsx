@@ -29,6 +29,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     const navigation = [
         { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
         { name: 'Noticias', href: '/admin/news', icon: FileText },
+        { name: 'Contenido de Páginas', href: '/admin/content', icon: Settings },
         { name: 'Planes de Servicio', href: '/admin/plans', icon: DollarSign },
         { name: 'Testimonios', href: '/admin/testimonials', icon: MessageSquare },
         { name: 'FAQs', href: '/admin/faqs', icon: Users },

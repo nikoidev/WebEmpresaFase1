@@ -11,7 +11,7 @@ import uvicorn
 import sys
 
 # Importar routers
-from routers import auth, news, plans, testimonials, faqs, company, contact
+from routers import auth, news, plans, testimonials, faqs, company, contact, page_content
 from database import engine, Base
 from config import settings
 
@@ -74,6 +74,7 @@ app.include_router(testimonials.router, prefix="/api", tags=["testimonials"])
 app.include_router(faqs.router, prefix="/api", tags=["faqs"])
 app.include_router(company.router, prefix="/api", tags=["company"])
 app.include_router(contact.router, prefix="/api", tags=["contact"])
+app.include_router(page_content.router, prefix="/api", tags=["page-content"])
 
 @app.get("/")
 async def root():

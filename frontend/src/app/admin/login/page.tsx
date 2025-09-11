@@ -5,9 +5,10 @@ import { LoginFormData } from '@/types'
 import { AlertCircle, Eye, EyeOff, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function AdminLoginPage() {
+    const [mounted, setMounted] = useState(false)
     const [formData, setFormData] = useState<LoginFormData>({
         username: '',
         password: '',
@@ -19,16 +20,46 @@ export default function AdminLoginPage() {
     const { login } = useAuth()
     const router = useRouter()
 
+    // Asegurar que el componente solo se renderice del lado del cliente
+    useEffect(() => {
+        setMounted(true)
+        
+        // Recuperar error persistente si existe
+        const persistedError = localStorage.getItem('loginError')
+        if (persistedError) {
+            setError(persistedError)
+        }
+    }, [])
+
+    // No renderizar hasta que esté montado del lado del cliente
+    if (!mounted) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-2 text-gray-600">Cargando...</p>
+                </div>
+            </div>
+        )
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
+        
+        // Limpiar error previo al iniciar nuevo intento
+        localStorage.removeItem('loginError')
         setError('')
 
         try {
             await login(formData)
+            localStorage.removeItem('loginError') // Asegurar que se limpia en éxito
             router.push('/admin/dashboard')
         } catch (err: any) {
-            setError(err.message || 'Error al iniciar sesión')
+            const errorMessage = err.message || 'Error al iniciar sesión'
+            // Persistir error en localStorage para sobrevivir re-mounts
+            localStorage.setItem('loginError', errorMessage)
+            setError(errorMessage)
         } finally {
             setIsLoading(false)
         }
@@ -39,6 +70,13 @@ export default function AdminLoginPage() {
             ...prev,
             [e.target.name]: e.target.value
         }))
+        // Ya no limpiamos el error automáticamente al escribir
+        // El error se mantendrá visible hasta el próximo intento de login
+    }
+
+    const clearError = () => {
+        setError('')
+        localStorage.removeItem('loginError')
     }
 
     return (
@@ -67,12 +105,24 @@ export default function AdminLoginPage() {
                     <form className="space-y-6" onSubmit={handleSubmit}>
                         {/* Error Message */}
                         {error && (
-                            <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                                <div className="flex">
-                                    <AlertCircle className="h-5 w-5 text-red-400" />
-                                    <div className="ml-3">
-                                        <p className="text-sm text-red-800">{error}</p>
+                            <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 mb-4">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1">
+                                        <div className="text-red-800 font-medium text-sm">
+                                            ⚠️ Error de autenticación
+                                        </div>
+                                        <div className="text-red-700 text-sm mt-1">
+                                            {error}
+                                        </div>
                                     </div>
+                                    <button
+                                        type="button"
+                                        onClick={clearError}
+                                        className="ml-3 text-red-400 hover:text-red-600 text-sm"
+                                        title="Cerrar error"
+                                    >
+                                        ✕
+                                    </button>
                                 </div>
                             </div>
                         )}

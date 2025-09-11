@@ -47,7 +47,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             Cookies.set('user', JSON.stringify(userData), { expires: 7 })
             setUser(userData)
         } catch (error: any) {
-            throw new Error(error.response?.data?.detail || 'Error al iniciar sesión')
+            let errorMessage = 'Error al iniciar sesión'
+            
+            if (error.response?.status === 401) {
+                errorMessage = 'Usuario o contraseña incorrectos'
+            } else if (error.response?.status === 400) {
+                errorMessage = 'Usuario inactivo'
+            } else if (error.response?.data?.detail) {
+                errorMessage = error.response.data.detail
+            }
+            
+            throw new Error(errorMessage)
         }
     }
 

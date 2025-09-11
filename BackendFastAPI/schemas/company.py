@@ -48,6 +48,10 @@ class ContactMessageCreate(BaseModel):
     subject: str
     message: str
 
+class ContactMessageUpdate(BaseModel):
+    status: Optional[str] = None
+    admin_response: Optional[str] = None
+
 class ContactMessageResponse(BaseModel):
     id: int
     name: str
