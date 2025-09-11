@@ -5,6 +5,13 @@ import DevFileInfo from '@/components/DevFileInfo'
 import AdminLayout from '@/components/layout/AdminLayout'
 import HomepageEditor from '@/components/content-editors/HomepageEditor'
 import AboutEditor from '@/components/content-editors/AboutEditor'
+import NewsEditor from '@/components/content-editors/NewsEditor'
+import TestimonialsEditor from '@/components/content-editors/TestimonialsEditor'
+import FAQsEditor from '@/components/content-editors/FAQsEditor'
+import PricesEditor from '@/components/content-editors/PricesEditor'
+import ClientsEditor from '@/components/content-editors/ClientsEditor'
+import HistoryEditor from '@/components/content-editors/HistoryEditor'
+import ContactEditor from '@/components/content-editors/ContactEditor'
 import {
     Edit,
     Eye,
@@ -122,11 +129,10 @@ export default function ContentManagementPage() {
     const fetchPages = async () => {
         try {
             const response = await adminApi.getPageContents()
-            console.log('Pages response:', response.data)
             setPages(response.data || [])
         } catch (error) {
             console.error('Error fetching pages:', error)
-            setPages([]) // Asegurar que hay una lista vacía en caso de error
+            setPages([])
         } finally {
             setLoading(false)
         }
@@ -206,77 +212,90 @@ export default function ContentManagementPage() {
                     values: [],
                     team: []
                 }
-            case 'history':
-                return {
-                    intro: 'Nuestra historia comenzó...',
-                    milestones: [],
-                    achievements: []
-                }
-            case 'clients':
-                return {
-                    intro: 'Nuestros clientes...',
-                    client_types: [],
-                    testimonials: [],
-                    stats: {}
-                }
-            case 'prices':
-                return {
-                    hero_title: 'Nuestros Planes',
-                    hero_description: 'Elige el plan que mejor se adapte a tus necesidades',
-                    plans: [],
-                    features_comparison: {},
-                    contact_cta: {}
-                }
-            case 'contact':
-                return {
-                    office_info: {},
-                    contact_info: {},
-                    form_settings: {}
-                }
             case 'news':
                 return {
-                    hero_title: 'Noticias y Blog',
-                    hero_description: 'Mantente al día con nuestras últimas noticias y artículos',
-                    articles: [],
-                    categories: [],
-                    featured_article: null
+                    articles: []
                 }
             case 'testimonials':
                 return {
-                    hero_title: 'Lo que dicen nuestros clientes',
-                    hero_description: 'Testimonios reales de clientes satisfechos',
-                    testimonials: [],
-                    stats: {
-                        total_clients: 0,
-                        satisfaction_rate: 0,
-                        average_rating: 0
-                    }
+                    testimonials: []
                 }
             case 'faqs':
                 return {
-                    hero_title: 'Preguntas Frecuentes',
-                    hero_description: 'Encuentra respuestas a las preguntas más comunes',
-                    categories: [
-                        {
-                            name: 'General',
-                            key: 'general',
-                            faqs: []
-                        },
-                        {
-                            name: 'Precios',
-                            key: 'pricing',
-                            faqs: []
-                        },
-                        {
-                            name: 'Técnico',
-                            key: 'technical',
-                            faqs: []
+                    faqs: [],
+                    categories: ['General', 'Servicios', 'Precios', 'Soporte']
+                }
+            case 'prices':
+                return {
+                    plans: [],
+                    general_info: {
+                        title: 'Nuestros Planes',
+                        subtitle: 'Elige el plan que mejor se adapte a tus necesidades'
+                    }
+                }
+            case 'clients':
+                return {
+                    clients: [],
+                    page_content: {
+                        title: 'Nuestros Clientes',
+                        subtitle: 'Empresas que confían en nosotros',
+                        description: 'Trabajamos con empresas de diferentes sectores, brindando soluciones tecnológicas de calidad.'
+                    },
+                    stats: {
+                        total_clients: 0,
+                        years_experience: 0,
+                        success_rate: 0
+                    }
+                }
+            case 'history':
+                return {
+                    page_content: {
+                        title: 'Nuestra Historia',
+                        subtitle: 'Un viaje de innovación y crecimiento',
+                        intro_text: 'Desde nuestros inicios, hemos estado comprometidos con la excelencia y la innovación tecnológica.'
+                    },
+                    milestones: [],
+                    company_stats: {
+                        founded_year: '',
+                        employees_count: 0,
+                        projects_completed: 0,
+                        countries_served: 0
+                    }
+                }
+            case 'contact':
+                return {
+                    page_content: {
+                        title: 'Contáctanos',
+                        subtitle: 'Estamos aquí para ayudarte',
+                        description: 'Ponte en contacto con nosotros para cualquier consulta o solicitud de información.'
+                    },
+                    contact_info: {
+                        address: '',
+                        city: '',
+                        country: '',
+                        phone: '',
+                        email: '',
+                        business_hours: {
+                            monday_friday: '9:00 AM - 6:00 PM',
+                            saturday: '9:00 AM - 12:00 PM',
+                            sunday: 'Cerrado'
                         }
-                    ],
-                    contact_cta: {
-                        title: '¿No encuentras lo que buscas?',
-                        description: 'Contáctanos y te ayudaremos',
-                        button_text: 'Contactar Soporte'
+                    },
+                    social_media: [],
+                    map_settings: {
+                        show_map: false
+                    },
+                    contact_form_settings: {
+                        show_form: true,
+                        form_title: 'Envíanos un mensaje',
+                        success_message: 'Gracias por tu mensaje. Te responderemos pronto.',
+                        fields: {
+                            name_required: true,
+                            email_required: true,
+                            phone_required: false,
+                            subject_required: true,
+                            message_required: true
+                        }
                     }
                 }
             default:
@@ -313,6 +332,55 @@ export default function ContentManagementPage() {
                     <AboutEditor
                         content={formData.content_json}
                         onChange={(content) => setFormData({ ...formData, content_json: content })}
+                    />
+                )
+            case 'news':
+                return (
+                    <NewsEditor
+                        data={formData.content_json}
+                        onChange={(data) => setFormData({ ...formData, content_json: data })}
+                    />
+                )
+            case 'testimonials':
+                return (
+                    <TestimonialsEditor
+                        data={formData.content_json}
+                        onChange={(data) => setFormData({ ...formData, content_json: data })}
+                    />
+                )
+            case 'faqs':
+                return (
+                    <FAQsEditor
+                        data={formData.content_json}
+                        onChange={(data) => setFormData({ ...formData, content_json: data })}
+                    />
+                )
+            case 'prices':
+                return (
+                    <PricesEditor
+                        data={formData.content_json}
+                        onChange={(data) => setFormData({ ...formData, content_json: data })}
+                    />
+                )
+            case 'clients':
+                return (
+                    <ClientsEditor
+                        data={formData.content_json}
+                        onChange={(data) => setFormData({ ...formData, content_json: data })}
+                    />
+                )
+            case 'history':
+                return (
+                    <HistoryEditor
+                        data={formData.content_json}
+                        onChange={(data) => setFormData({ ...formData, content_json: data })}
+                    />
+                )
+            case 'contact':
+                return (
+                    <ContactEditor
+                        data={formData.content_json}
+                        onChange={(data) => setFormData({ ...formData, content_json: data })}
                     />
                 )
             default:
@@ -382,33 +450,33 @@ export default function ContentManagementPage() {
                                         <div className={`${pageType.color} w-10 h-10 rounded-lg flex items-center justify-center`}>
                                             <IconComponent className="h-5 w-5 text-white" />
                                         </div>
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-1">
                                             {existingPage ? (
                                                 <>
                                                     <button
                                                         onClick={() => handleEdit(existingPage)}
-                                                        className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-md transition-colors"
+                                                        className="p-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md transition-colors shadow-sm"
                                                         title="Editar página"
                                                     >
-                                                        <Edit size={16} />
+                                                        <Edit size={18} />
                                                     </button>
                                                     <a
                                                         href={`/${pageType.key === 'homepage' ? '' : pageType.key}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-md transition-colors"
+                                                        className="p-2 bg-gray-600 text-white hover:bg-gray-700 rounded-md transition-colors shadow-sm"
                                                         title="Ver página"
                                                     >
-                                                        <Eye size={16} />
+                                                        <Eye size={18} />
                                                     </a>
                                                 </>
                                             ) : (
                                                 <button
                                                     onClick={() => handleCreateNew(pageType.key)}
-                                                    className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-md transition-colors"
+                                                    className="p-2 bg-green-600 text-white hover:bg-green-700 rounded-md transition-colors shadow-sm"
                                                     title="Crear contenido"
                                                 >
-                                                    <Plus size={16} />
+                                                    <Plus size={18} />
                                                 </button>
                                             )}
                                         </div>
