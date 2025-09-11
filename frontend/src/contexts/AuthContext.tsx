@@ -35,15 +35,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const login = async (credentials: LoginFormData) => {
         try {
             const response = await adminApi.login(credentials)
-            const { token, user: userData } = response.data
+            const { access_token } = response.data
 
-            // Guardar token y usuario
-            Cookies.set('authToken', token, { expires: 7 }) // 7 días
+            // Guardar token
+            Cookies.set('authToken', access_token, { expires: 7 }) // 7 días
+
+            // Obtener datos del usuario después del login
+            const userResponse = await adminApi.getCurrentUser()
+            const userData = userResponse.data
+            
             Cookies.set('user', JSON.stringify(userData), { expires: 7 })
-
             setUser(userData)
         } catch (error: any) {
-            throw new Error(error.response?.data?.error || 'Error al iniciar sesión')
+            throw new Error(error.response?.data?.detail || 'Error al iniciar sesión')
         }
     }
 

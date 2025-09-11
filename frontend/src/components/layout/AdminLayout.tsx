@@ -53,12 +53,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="h-screen bg-gray-50 flex">
             {/* Sidebar */}
             <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex lg:flex-col`}>
-                <div className="flex items-center justify-center h-16 bg-gray-800">
-                    <div className="flex items-center">
-                        <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
+                <div className="flex items-center justify-center h-16 bg-gray-800 px-4 border-b border-gray-700">
+                    <div className="flex items-center w-full">
+                        <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
                             <span className="text-white font-bold text-xl">S</span>
                         </div>
-                        <span className="text-white text-xl font-bold">SEVP Admin</span>
+                        <span className="text-white text-xl font-bold truncate">SEVP Admin</span>
                     </div>
                 </div>
 
@@ -67,11 +67,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         <Link
                             key={item.name}
                             href={item.href}
-                            className="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                            className="flex items-center px-6 py-3 text-white hover:bg-primary-600 transition-all duration-200"
                             onClick={() => setIsSidebarOpen(false)}
                         >
-                            <item.icon className="h-5 w-5 mr-3" />
-                            {item.name}
+                            <item.icon className="h-5 w-5 mr-3 text-white" />
+                            <span className="text-white">{item.name}</span>
                         </Link>
                     ))}
                 </nav>
@@ -88,7 +88,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                                 <p className="text-white text-sm font-medium">
                                     {user?.first_name || user?.username}
                                 </p>
-                                <p className="text-gray-400 text-xs">
+                                <p className="text-white text-xs">
                                     {user?.is_superuser ? 'Super Admin' : 'Admin'}
                                 </p>
                             </div>
@@ -141,6 +141,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         </div>
                     </div>
                 </div>
+
+                {/* Dev Mode File Info */}
+                {process.env.NODE_ENV === 'development' && (
+                    <div className="bg-yellow-50 border-l-4 border-yellow-400 px-4 py-2 text-xs">
+                        <span className="text-yellow-800 font-mono">
+                            📁 Layout: frontend/src/components/layout/AdminLayout.tsx
+                        </span>
+                    </div>
+                )}
 
                 {/* Page Content */}
                 <main className="flex-1 overflow-y-auto bg-gray-50 px-4 sm:px-6 lg:px-8 py-8">

@@ -118,9 +118,9 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                                 <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
                                     <span className="text-white font-bold text-xl">S</span>
                                 </div>
-                                <span className="text-xl font-bold">SEVP</span>
+                                <span className="text-xl font-bold text-white">SEVP</span>
                             </div>
-                            <p className="text-gray-300 mb-4 max-w-md">
+                            <p className="text-white mb-4 max-w-md">
                                 Sistema Educativo Virtual Profesional - La plataforma más completa
                                 para transformar la gestión educativa de tu institución.
                             </p>
@@ -148,13 +148,13 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
 
                         {/* Navigation Links */}
                         <div>
-                            <h3 className="text-lg font-semibold mb-4">Navegación</h3>
+                            <h3 className="text-lg font-semibold mb-4 text-white">Navegación</h3>
                             <ul className="space-y-2">
                                 {navigation.map((item) => (
                                     <li key={item.name}>
                                         <Link
                                             href={item.href}
-                                            className="text-gray-300 hover:text-white transition-colors"
+                                            className="text-white hover:text-gray-200 transition-colors"
                                         >
                                             {item.name}
                                         </Link>
@@ -165,20 +165,20 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
 
                         {/* Support */}
                         <div>
-                            <h3 className="text-lg font-semibold mb-4">Soporte</h3>
+                            <h3 className="text-lg font-semibold mb-4 text-white">Soporte</h3>
                             <ul className="space-y-2">
                                 <li>
-                                    <a href="mailto:soporte@sevp.com" className="text-gray-300 hover:text-white transition-colors">
+                                    <a href="mailto:soporte@sevp.com" className="text-white hover:text-gray-200 transition-colors">
                                         soporte@sevp.com
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="tel:+51999999999" className="text-gray-300 hover:text-white transition-colors">
+                                    <a href="tel:+51999999999" className="text-white hover:text-gray-200 transition-colors">
                                         +51 999 999 999
                                     </a>
                                 </li>
                                 <li>
-                                    <span className="text-gray-300">
+                                    <span className="text-white">
                                         Lun - Vie: 9:00 - 18:00
                                     </span>
                                 </li>
@@ -187,14 +187,14 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                     </div>
 
                     <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-white text-sm">
                             © {new Date().getFullYear()} SEVP. Todos los derechos reservados.
                         </p>
                         <div className="flex space-x-6 mt-4 md:mt-0">
-                            <Link href="/privacidad" className="text-gray-400 hover:text-white text-sm transition-colors">
+                            <Link href="/privacidad" className="text-white hover:text-gray-200 text-sm transition-colors">
                                 Política de Privacidad
                             </Link>
-                            <Link href="/terminos" className="text-gray-400 hover:text-white text-sm transition-colors">
+                            <Link href="/terminos" className="text-white hover:text-gray-200 text-sm transition-colors">
                                 Términos de Uso
                             </Link>
                         </div>

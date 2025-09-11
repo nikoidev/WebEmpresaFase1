@@ -204,13 +204,24 @@ div select {
     -webkit-text-fill-color: #1f2937 !important;
 }
 
-/* LABELS y texto visible */
-label,
-.block,
-.text-sm,
-.font-medium,
+/* LABELS y texto visible - SOLO PARA FORMULARIOS Y MODALES */
+form label,
+form .block,
+form .text-sm,
+form .font-medium,
+.modal .text-sm,
+.modal .font-medium,
+.modal .text-gray-700,
 .text-gray-700 {
     color: #1f2937 !important;
+}
+
+/* EXCEPCIÓN: NO aplicar a tablas y páginas admin */
+table .text-sm,
+table .font-medium,
+.space-y-6 table .text-sm,
+.space-y-6 table .font-medium {
+    color: inherit !important;
 }
 
 /* Checkboxes y radio buttons */
@@ -220,9 +231,9 @@ input[type="radio"] {
     border-color: #d1d5db !important;
 }
 
-/* Texto junto a checkboxes */
-label span,
-label {
+/* Texto junto a checkboxes - SOLO EN FORMULARIOS */
+form label span,
+form label {
     color: #1f2937 !important;
 }
 
@@ -254,11 +265,11 @@ button {
     color: #1f2937 !important;
 }
 
-/* Labels de checkboxes específicamente */
-.flex.items-center label,
-.flex.items-center span,
-.flex.gap-4 label,
-.flex.gap-4 span {
+/* Labels de checkboxes específicamente - SOLO EN FORMULARIOS */
+form .flex.items-center label,
+form .flex.items-center span,
+form .flex.gap-4 label,
+form .flex.gap-4 span {
     color: #1f2937 !important;
 }
 
@@ -295,4 +306,83 @@ label:has(input[type="checkbox"]) span {
 .flex-fill {
     flex: 1;
     min-height: 0;
+}
+
+/* Mejoras específicas para el admin sidebar */
+.admin-sidebar {
+    background-color: #111827;
+}
+
+/* Mejor contraste para texto del admin */
+.admin-text-primary {
+    color: #f9fafb !important;
+}
+
+.admin-text-secondary {
+    color: #e5e7eb !important;
+}
+
+/* Estados hover mejorados */
+.admin-nav-hover:hover {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+}
+
+/* SOLUCIÓN ESPECÍFICA PARA FOOTER - FORZAR COLORES BLANCOS */
+footer .text-white,
+footer .text-white span,
+footer .text-white p,
+footer .text-white h3,
+footer .text-white a,
+footer .text-white li,
+footer span.text-white,
+footer p.text-white,
+footer h3.text-white,
+footer a.text-white,
+footer li.text-white {
+    color: #ffffff !important;
+}
+
+/* SOLUCIÓN ESPECÍFICA PARA ADMIN SIDEBAR - FORZAR COLORES BLANCOS */
+.bg-gray-900 .text-white,
+.bg-gray-900 .text-white span,
+.bg-gray-900 .text-white a,
+.bg-gray-900 span.text-white,
+.bg-gray-900 a.text-white {
+    color: #ffffff !important;
+}
+
+/* FORZAR OVERRIDE DE TODAS LAS REGLAS PROBLEMÁTICAS */
+footer *[class*="text-white"],
+.bg-gray-900 *[class*="text-white"] {
+    color: #ffffff !important;
+}
+
+/* SOLUCIÓN ESPECÍFICA PARA PÁGINAS ADMIN */
+/* Restaurar colores específicos para la página de noticias */
+.space-y-6 h1.text-gray-900 {
+    color: #111827 !important;
+}
+.space-y-6 p.text-gray-600 {
+    color: #4b5563 !important;
+}
+
+/* Tablas en páginas admin - colores específicos */
+table .text-gray-900 {
+    color: #111827 !important;
+}
+table .text-gray-500 {
+    color: #6b7280 !important;
+}
+table .text-gray-600 {
+    color: #4b5563 !important;
+}
+table .text-gray-400 {
+    color: #9ca3af !important;
+}
+table .text-sm {
+    color: inherit !important;
+}
+table .font-medium {
+    color: inherit !important;
 }

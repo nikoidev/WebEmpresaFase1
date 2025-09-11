@@ -2,6 +2,7 @@
 
 import adminApi from '@/services/adminApi'
 import type { NewsArticle } from '@/types'
+import DevFileInfo from '@/components/DevFileInfo'
 import {
     Calendar,
     Edit,
@@ -105,6 +106,8 @@ export default function NewsManagementPage() {
 
     return (
         <div className="space-y-6">
+            <DevFileInfo filePath="frontend/src/app/admin/news/page.tsx" />
+            
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>

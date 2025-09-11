@@ -1,6 +1,7 @@
 'use client'
 
 import AdminLayout from '@/components/layout/AdminLayout'
+import DevFileInfo from '@/components/DevFileInfo'
 import { publicApi } from '@/lib/api'
 import { BarChart3, DollarSign, FileText, Globe, MessageSquare, Users } from 'lucide-react'
 import Link from 'next/link'
@@ -110,6 +111,8 @@ export default function AdminDashboardPage() {
     return (
         <AdminLayout>
             <div className="h-full space-y-8">
+                <DevFileInfo filePath="frontend/src/app/admin/dashboard/page.tsx" />
+                
                 {/* Header */}
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
