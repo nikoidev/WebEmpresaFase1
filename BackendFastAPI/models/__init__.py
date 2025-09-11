@@ -9,6 +9,7 @@ from .plans import ServicePlan
 from .testimonials import Testimonial
 from .faqs import FAQ
 from .page_content import PageContent
+from .user_permissions import UserPermission
 
 __all__ = [
     "User",
@@ -18,5 +19,6 @@ __all__ = [
     "ServicePlan",
     "Testimonial", 
     "FAQ",
-    "PageContent"
+    "PageContent",
+    "UserPermission"
 ]

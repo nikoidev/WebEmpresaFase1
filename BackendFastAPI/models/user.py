@@ -4,6 +4,7 @@ Modelo de Usuario para autenticación
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SQLEnum
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from database import Base
 import enum
 
@@ -49,6 +50,9 @@ class User(Base):
     date_joined = Column(DateTime(timezone=True), server_default=func.now())
     last_login = Column(DateTime(timezone=True), nullable=True)
     
+    # Relación con permisos personalizados
+    custom_permissions = relationship("UserPermission", back_populates="user", cascade="all, delete-orphan")
+    
     def __repr__(self):
         return f"<User {self.username}>"
     
@@ -62,13 +66,19 @@ class User(Base):
         """Verifica si el usuario es administrador"""
         return self.is_staff or self.is_superuser or self.role in [UserRole.ADMIN, UserRole.SUPER_ADMIN]
     
-    def has_permission(self, permission: Permission) -> bool:
+    def has_permission(self, permission: Permission, resource: str = "*") -> bool:
         """Verifica si el usuario tiene un permiso específico"""
         # Super admins tienen todos los permisos
         if self.is_superuser or self.role == UserRole.SUPER_ADMIN:
             return True
-            
-        # Mapeo de roles a permisos
+        
+        # Verificar permisos personalizados primero (más específico)
+        for custom_perm in self.custom_permissions:
+            if (custom_perm.permission == permission.value and 
+                (custom_perm.resource == resource or custom_perm.resource == "*")):
+                return custom_perm.is_granted
+        
+        # Si no hay permisos personalizados, usar permisos del rol
         role_permissions = {
             UserRole.ADMIN: [Permission.VIEW, Permission.CREATE, Permission.EDIT, Permission.DELETE, Permission.MODERATE],
             UserRole.EDITOR: [Permission.VIEW, Permission.CREATE, Permission.EDIT],
@@ -77,6 +87,29 @@ class User(Base):
         }
         
         return permission in role_permissions.get(self.role, [])
+        
+    def get_all_permissions(self) -> dict:
+        """Obtiene todos los permisos del usuario (rol + personalizados)"""
+        permissions = {}
+        
+        # Permisos base del rol
+        role_permissions = {
+            UserRole.ADMIN: [Permission.VIEW, Permission.CREATE, Permission.EDIT, Permission.DELETE, Permission.MODERATE],
+            UserRole.EDITOR: [Permission.VIEW, Permission.CREATE, Permission.EDIT],
+            UserRole.MODERATOR: [Permission.VIEW, Permission.MODERATE],
+            UserRole.VIEWER: [Permission.VIEW]
+        }
+        
+        # Agregar permisos del rol
+        for perm in role_permissions.get(self.role, []):
+            permissions[f"{perm.value}:*"] = True
+            
+        # Sobrescribir con permisos personalizados
+        for custom_perm in self.custom_permissions:
+            key = f"{custom_perm.permission}:{custom_perm.resource}"
+            permissions[key] = custom_perm.is_granted
+            
+        return permissions
     
     def can_manage_users(self) -> bool:
         """Verifica si el usuario puede gestionar otros usuarios"""
