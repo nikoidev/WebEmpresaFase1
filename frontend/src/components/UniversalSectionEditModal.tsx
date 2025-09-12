@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Plus, Trash2, User } from 'lucide-react'
+import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 
 // Función para sincronizar stats entre páginas
@@ -1143,31 +1143,308 @@ export default function UniversalSectionEditModal({
 
             // Editores para página Clientes
             case 'client_types':
+                // Limpiar datos antiguos y usar estructura nueva
+                const clientTypes = Array.isArray(content.clients) && content.clients.length > 0 && content.clients[0].title 
+                    ? content.clients 
+                    : [
+                        {
+                            title: 'Universidades',
+                            description: 'Instituciones de educación superior que han digitalizado completamente sus procesos académicos.',
+                            icon: 'GraduationCap',
+                            count: '250+',
+                            color: 'bg-blue-500',
+                            examples: ['Universidad Nacional', 'Instituto Tecnológico', 'Universidad Privada del Norte']
+                        },
+                        {
+                            title: 'Colegios',
+                            description: 'Centros educativos de primaria y secundaria que ofrecen experiencias de aprendizaje innovadoras.',
+                            icon: 'School',
+                            count: '800+',
+                            color: 'bg-green-500',
+                            examples: ['Colegio San Patricio', 'Instituto María Auxiliadora', 'Colegio Internacional']
+                        },
+                        {
+                            title: 'Centros de Capacitación',
+                            description: 'Institutos especializados en formación profesional y capacitación empresarial.',
+                            icon: 'Building',
+                            count: '300+',
+                            color: 'bg-purple-500',
+                            examples: ['Centro TECSUP', 'Instituto CIBERTEC', 'Academia de Liderazgo']
+                        },
+                        {
+                            title: 'Organizaciones',
+                            description: 'Empresas y ONGs que utilizan nuestra plataforma para capacitación interna.',
+                            icon: 'Users',
+                            count: '150+',
+                            color: 'bg-orange-500',
+                            examples: ['Fundación Educativa', 'Corporativo Global', 'ONG Desarrollo Social']
+                        }
+                    ]
+                
+                const addClientType = () => {
+                    const newClientType = {
+                        title: '',
+                        description: '',
+                        icon: 'Users',
+                        count: '0+',
+                        color: 'bg-blue-500',
+                        examples: []
+                    }
+                    updateContent('clients', [...clientTypes, newClientType])
+                }
+                
+                const updateClientType = (index: number, field: string, value: any) => {
+                    const updatedTypes = [...clientTypes]
+                    updatedTypes[index] = { ...updatedTypes[index], [field]: value }
+                    updateContent('clients', updatedTypes)
+                }
+                
+                const removeClientType = (index: number) => {
+                    const updatedTypes = clientTypes.filter((_, i) => i !== index)
+                    updateContent('clients', updatedTypes)
+                }
+
+                const resetToDefaults = () => {
+                    const defaultTypes = [
+                        {
+                            title: 'Universidades',
+                            description: 'Instituciones de educación superior que han digitalizado completamente sus procesos académicos.',
+                            icon: 'GraduationCap',
+                            count: '250+',
+                            color: 'bg-blue-500',
+                            examples: ['Universidad Nacional', 'Instituto Tecnológico', 'Universidad Privada del Norte']
+                        },
+                        {
+                            title: 'Colegios',
+                            description: 'Centros educativos de primaria y secundaria que ofrecen experiencias de aprendizaje innovadoras.',
+                            icon: 'School',
+                            count: '800+',
+                            color: 'bg-green-500',
+                            examples: ['Colegio San Patricio', 'Instituto María Auxiliadora', 'Colegio Internacional']
+                        },
+                        {
+                            title: 'Centros de Capacitación',
+                            description: 'Institutos especializados en formación profesional y capacitación empresarial.',
+                            icon: 'Building',
+                            count: '300+',
+                            color: 'bg-purple-500',
+                            examples: ['Centro TECSUP', 'Instituto CIBERTEC', 'Academia de Liderazgo']
+                        },
+                        {
+                            title: 'Organizaciones',
+                            description: 'Empresas y ONGs que utilizan nuestra plataforma para capacitación interna.',
+                            icon: 'Users',
+                            count: '150+',
+                            color: 'bg-orange-500',
+                            examples: ['Fundación Educativa', 'Corporativo Global', 'ONG Desarrollo Social']
+                        }
+                    ]
+                    updateContent('clients', defaultTypes)
+                }
+
+                const iconOptions = [
+                    { value: 'GraduationCap', label: '🎓 Universidad' },
+                    { value: 'School', label: '🏫 Colegio' },
+                    { value: 'Building', label: '🏢 Empresa' },
+                    { value: 'Users', label: '👥 Organización' },
+                    { value: 'BookOpen', label: '📖 Instituto' },
+                    { value: 'Award', label: '🏆 Academia' },
+                    { value: 'Globe', label: '🌍 Internacional' },
+                    { value: 'Heart', label: '❤️ ONG' }
+                ]
+
+                const colorOptions = [
+                    { value: 'bg-blue-500', label: 'Azul', preview: '#3B82F6' },
+                    { value: 'bg-green-500', label: 'Verde', preview: '#10B981' },
+                    { value: 'bg-purple-500', label: 'Morado', preview: '#8B5CF6' },
+                    { value: 'bg-orange-500', label: 'Naranja', preview: '#F97316' },
+                    { value: 'bg-red-500', label: 'Rojo', preview: '#EF4444' },
+                    { value: 'bg-yellow-500', label: 'Amarillo', preview: '#EAB308' },
+                    { value: 'bg-pink-500', label: 'Rosa', preview: '#EC4899' },
+                    { value: 'bg-indigo-500', label: 'Índigo', preview: '#6366F1' }
+                ]
+                
                 return (
                     <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Título de Tipos de Clientes
-                            </label>
-                            <input
-                                type="text"
-                                value={content.client_types_title || ''}
-                                onChange={(e) => updateContent('client_types_title', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Tipos de Clientes"
-                            />
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                                🎨 Editor Completo de Tipos de Clientes
+                            </h3>
+                            <p className="text-blue-700 text-sm">
+                                Controla completamente esta sección: iconos, colores, títulos, descripciones y ejemplos. 
+                                Usa "🔄 Restablecer" para cargar tipos por defecto si tienes datos incompatibles.
+                            </p>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción de Tipos de Clientes
-                            </label>
-                            <textarea
-                                rows={3}
-                                value={content.client_types_description || ''}
-                                onChange={(e) => updateContent('client_types_description', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Descripción de los tipos de clientes"
-                            />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Título de la Sección
+                                </label>
+                                <input
+                                    type="text"
+                                    value={content.client_types_title || ''}
+                                    onChange={(e) => updateContent('client_types_title', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Tipos de Clientes"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Descripción de la Sección
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={content.client_types_description || ''}
+                                    onChange={(e) => updateContent('client_types_description', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Descripción de los tipos de clientes"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="border-t pt-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900">Tipos de Clientes</h3>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={resetToDefaults}
+                                        className="bg-gray-500 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-600 transition-colors"
+                                        title="Restablecer a tipos por defecto"
+                                    >
+                                        🔄 Restablecer
+                                    </button>
+                                    <button
+                                        onClick={addClientType}
+                                        className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors flex items-center gap-2"
+                                    >
+                                        <Plus className="h-4 w-4" />
+                                        Agregar Tipo
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-6">
+                                {clientTypes.map((clientType: any, index: number) => (
+                                    <div key={index} className="bg-gray-50 p-6 rounded-lg border">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <h4 className="text-md font-semibold text-gray-800">Tipo {index + 1}</h4>
+                                            <button
+                                                onClick={() => removeClientType(index)}
+                                                className="text-red-600 hover:text-red-800 transition-colors"
+                                                title="Eliminar tipo de cliente"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Título
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={clientType.title || ''}
+                                                    onChange={(e) => updateClientType(index, 'title', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                    placeholder="ej. Universidades"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Cantidad
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={clientType.count || ''}
+                                                    onChange={(e) => updateClientType(index, 'count', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                    placeholder="ej. 250+"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="mb-4">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Descripción
+                                            </label>
+                                            <textarea
+                                                rows={3}
+                                                value={clientType.description || ''}
+                                                onChange={(e) => updateClientType(index, 'description', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                placeholder="Descripción del tipo de cliente"
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Icono
+                                                </label>
+                                                <select
+                                                    value={clientType.icon || 'Users'}
+                                                    onChange={(e) => updateClientType(index, 'icon', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                >
+                                                    {iconOptions.map(option => (
+                                                        <option key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Color
+                                                </label>
+                                                <select
+                                                    value={clientType.color || 'bg-blue-500'}
+                                                    onChange={(e) => updateClientType(index, 'color', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                >
+                                                    {colorOptions.map(option => (
+                                                        <option key={option.value} value={option.value}>
+                                                            {option.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <div className="mt-2 flex items-center gap-2">
+                                                    <div 
+                                                        className="w-6 h-6 rounded border"
+                                                        style={{ 
+                                                            backgroundColor: colorOptions.find(c => c.value === clientType.color)?.preview || '#3B82F6' 
+                                                        }}
+                                                    ></div>
+                                                    <span className="text-sm text-gray-600">Vista previa del color</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Ejemplos (separados por comas)
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={(clientType.examples || []).join(', ')}
+                                                onChange={(e) => updateClientType(index, 'examples', e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                placeholder="Universidad Nacional, Instituto Tecnológico, Universidad Privada"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {clientTypes.length === 0 && (
+                                    <div className="text-center py-8 text-gray-500">
+                                        No hay tipos de clientes configurados. Haz clic en "Agregar Tipo" para comenzar.
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )

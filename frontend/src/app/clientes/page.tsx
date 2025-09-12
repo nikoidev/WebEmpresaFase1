@@ -2,7 +2,7 @@
 
 import PublicLayout from '@/components/layout/PublicLayout'
 import { publicApi } from '@/lib/api'
-import { Building, GraduationCap, School, Users } from 'lucide-react'
+import { Building, GraduationCap, School, Users, BookOpen, Award, Globe, Heart } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import InlineEditButton from '@/components/InlineEditButton'
 import SectionEditButton from '@/components/SectionEditButton'
@@ -93,6 +93,10 @@ export default function ClientesPage() {
             case 'School': return School
             case 'Building': return Building
             case 'Users': return Users
+            case 'BookOpen': return BookOpen
+            case 'Award': return Award
+            case 'Globe': return Globe
+            case 'Heart': return Heart
             default: return Users
         }
     }
@@ -164,9 +168,11 @@ export default function ClientesPage() {
         { metric: '24/7', label: 'Soporte Técnico' }
     ]
 
-    const clientTypes = content?.clients || defaultClientTypes
+    // Intentar diferentes campos donde pueden estar los datos de tipos de clientes
+    const clientTypes = content?.clients || content?.client_types || content?.clientTypes || defaultClientTypes
     const testimonials = content?.testimonials || defaultTestimonials
     const successMetrics = content?.stats || defaultSuccessMetrics
+
 
     if (isLoading) {
         return (
@@ -243,22 +249,40 @@ export default function ClientesPage() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {clientTypes.map((client, index) => (
-                            <div key={client.name} className="bg-gray-50 rounded-lg p-8 hover:shadow-lg transition-shadow">
-                                <div className="bg-blue-500 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
-                                    <Building className="h-8 w-8 text-white" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {(clientTypes && clientTypes.length > 0 ? clientTypes : defaultClientTypes).map((clientType, index) => {
+                            // Manejar diferentes estructuras de datos
+                            const title = clientType.title || clientType.name || `Tipo ${index + 1}`
+                            const description = clientType.description || clientType.desc || ''
+                            const icon = clientType.icon || 'Users'
+                            const count = clientType.count || clientType.students || '0+'
+                            const color = clientType.color || 'bg-blue-500'
+                            const examples = clientType.examples || []
+                            
+                            const IconComponent = getIcon(icon)
+                            return (
+                                <div key={index} className="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow border">
+                                    <div className={`${color} w-16 h-16 rounded-lg flex items-center justify-center mb-6`}>
+                                        <IconComponent className="h-8 w-8 text-white" />
+                                    </div>
+                                    <div className="text-center">
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+                                        <div className="text-2xl font-bold text-primary-600 mb-3">{count}</div>
+                                        <p className="text-gray-600 text-sm mb-4">{description}</p>
+                                        {examples && examples.length > 0 && (
+                                            <div className="text-xs text-gray-500">
+                                                <div className="font-semibold mb-1">Ejemplos:</div>
+                                                <div className="space-y-1">
+                                                    {examples.slice(0, 3).map((example, idx) => (
+                                                        <div key={idx}>{example}</div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-2xl font-bold text-gray-900">{client.name}</h3>
-                                    <span className="text-lg font-bold text-primary-600">{client.students}</span>
-                                </div>
-                                <p className="text-gray-600 mb-4">{client.country}</p>
-                                <div className="text-sm text-gray-500">
-                                    Cliente desde: {client.since}
-                                </div>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
             </section>
