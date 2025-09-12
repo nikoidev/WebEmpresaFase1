@@ -29,6 +29,7 @@ export default function PreciosPage() {
     const [isYearly, setIsYearly] = useState(false)
     const [editingSection, setEditingSection] = useState<string | null>(null)
     const [editingSectionName, setEditingSectionName] = useState<string>('')
+    const [isSaving, setIsSaving] = useState(false)
     const [fullPageContent, setFullPageContent] = useState<any>(null)
 
     useEffect(() => {
@@ -72,10 +73,21 @@ export default function PreciosPage() {
     }
 
     const handleSectionSave = async () => {
-        // Recargar contenido después de guardar
-        await loadContent()
-        setEditingSection(null)
-        setEditingSectionName('')
+        setIsSaving(true)
+        try {
+            // Recargar contenido y planes después de guardar
+            await Promise.all([
+                loadContent(),
+                loadPlans()
+            ])
+            console.log('✅ Contenido actualizado después de guardar')
+        } catch (error) {
+            console.error('❌ Error al actualizar contenido:', error)
+        } finally {
+            setIsSaving(false)
+            setEditingSection(null)
+            setEditingSectionName('')
+        }
     }
 
     const formatPrice = (plan: ServicePlan) => {
@@ -92,6 +104,16 @@ export default function PreciosPage() {
             period: '/mes',
             savings: null
         }
+    }
+
+    const getGridClasses = (planCount: number) => {
+        if (planCount === 0) return 'grid grid-cols-1'
+        if (planCount === 1) return 'grid grid-cols-1 max-w-md mx-auto'
+        if (planCount === 2) return 'grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+        if (planCount === 3) return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        if (planCount === 4) return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4'
+        // Para 5 o más planes, usar un grid responsive que se adapte
+        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
     }
 
     if (isLoading) {
@@ -167,8 +189,21 @@ export default function PreciosPage() {
                     </div>
 
                     {/* Plans Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {plans.map((plan) => {
+                    {plans.length === 0 ? (
+                        <div className="text-center py-12">
+                            <div className="bg-gray-50 rounded-2xl p-8 max-w-md mx-auto">
+                                <div className="text-gray-400 mb-4">
+                                    <svg className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay planes disponibles</h3>
+                                <p className="text-gray-600">Los planes de servicio se están configurando. Vuelve pronto.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={`${getGridClasses(plans.length)} gap-8`}>
+                            {plans.map((plan) => {
                             const pricing = formatPrice(plan)
                             return (
                                 <div
@@ -267,7 +302,8 @@ export default function PreciosPage() {
                                 </div>
                             )
                         })}
-                    </div>
+                        </div>
+                    )}
 
                     {/* Enterprise CTA - Integrated Design */}
                     <div className="mt-16 bg-white rounded-2xl shadow-lg p-8 text-center relative">
@@ -423,6 +459,7 @@ export default function PreciosPage() {
                     pageKey="pricing"
                     initialContent={fullPageContent}
                     onSave={handleSectionSave}
+                    isSaving={isSaving}
                 />
             )}
         </PublicLayout>

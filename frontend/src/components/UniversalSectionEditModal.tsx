@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart } from 'lucide-react'
+import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart, Copy, Move } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 
 // Componente específico para el editor de precios
@@ -27,12 +27,109 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
     const updatePlan = async (planId: number, field: string, value: any) => {
         try {
             await adminApi.plans.update(planId, { [field]: value })
-            // Actualizar estado local
-            setPlans(prev => prev.map(plan => 
-                plan.id === planId ? { ...plan, [field]: value } : plan
-            ))
+            
+            // Si se está marcando como popular, desmarcar todos los otros
+            if (field === 'is_popular' && value === true) {
+                // Actualizar estado local: quitar popular de todos y asignar solo al seleccionado
+                setPlans(prev => prev.map(plan => ({
+                    ...plan,
+                    is_popular: plan.id === planId
+                })))
+                
+                // Actualizar en el backend: desmarcar todos los otros planes
+                const otherPlans = plans.filter(plan => plan.id !== planId && plan.is_popular)
+                for (const otherPlan of otherPlans) {
+                    try {
+                        await adminApi.plans.update(otherPlan.id, { is_popular: false })
+                    } catch (error) {
+                        console.error(`Error removing popular from plan ${otherPlan.id}:`, error)
+                    }
+                }
+            } else {
+                // Actualizar estado local normalmente para otros campos
+                setPlans(prev => prev.map(plan => 
+                    plan.id === planId ? { ...plan, [field]: value } : plan
+                ))
+            }
         } catch (error) {
             console.error('Error updating plan:', error)
+        }
+    }
+
+    const addNewPlan = async () => {
+        try {
+            const newPlan = {
+                name: `Nuevo Plan ${plans.length + 1}`,
+                slug: `nuevo-plan-${plans.length + 1}`,
+                description: 'Descripción del nuevo plan',
+                price_monthly: 5.0,
+                price_yearly: 50.0,
+                monthly_savings: 1.67,
+                max_users: 100,
+                max_courses: 50,
+                storage_gb: 100,
+                api_requests_limit: 5000,
+                features: ['Funcionalidad básica', 'Soporte por email'],
+                color_primary: '#3B82F6',
+                color_secondary: '#EBF4FF',
+                is_active: true,
+                is_popular: false,
+                display_order: plans.length + 1
+            }
+            
+            const response = await adminApi.plans.create(newPlan)
+            setPlans(prev => [...prev, response.data])
+            console.log('✅ Plan creado exitosamente')
+        } catch (error) {
+            console.error('Error creating plan:', error)
+            alert('❌ Error al crear el plan')
+        }
+    }
+
+    const deletePlan = async (planId: number) => {
+        const plan = plans.find(p => p.id === planId)
+        if (!plan) return
+
+        const confirmDelete = window.confirm(
+            `¿Estás seguro de que quieres eliminar el plan "${plan.name}"?\n\nEsta acción no se puede deshacer.`
+        )
+        
+        if (confirmDelete) {
+            try {
+                await adminApi.plans.delete(planId)
+                setPlans(prev => prev.filter(plan => plan.id !== planId))
+                console.log('✅ Plan eliminado exitosamente')
+            } catch (error) {
+                console.error('Error deleting plan:', error)
+                alert('❌ Error al eliminar el plan')
+            }
+        }
+    }
+
+    const duplicatePlan = async (planId: number) => {
+        try {
+            const originalPlan = plans.find(p => p.id === planId)
+            if (!originalPlan) return
+
+            const duplicatedPlan = {
+                ...originalPlan,
+                name: `${originalPlan.name} (Copia)`,
+                slug: `${originalPlan.slug}-copia-${Date.now()}`,
+                is_popular: false, // Las copias nunca son populares por defecto
+                display_order: plans.length + 1
+            }
+            
+            // Quitar el ID para crear un nuevo registro
+            delete duplicatedPlan.id
+            delete duplicatedPlan.created_at
+            delete duplicatedPlan.updated_at
+            
+            const response = await adminApi.plans.create(duplicatedPlan)
+            setPlans(prev => [...prev, response.data])
+            console.log('✅ Plan duplicado exitosamente')
+        } catch (error) {
+            console.error('Error duplicating plan:', error)
+            alert('❌ Error al duplicar el plan')
         }
     }
     
@@ -77,7 +174,23 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
 
             {/* Editor de planes */}
             <div className="border-t pt-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4">Planes de Servicio</h4>
+                <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-gray-900">Planes de Servicio</h4>
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-1">
+                            <p className="text-xs text-amber-700 font-medium">
+                                💡 Solo un plan puede ser "Más Popular"
+                            </p>
+                        </div>
+                        <button
+                            onClick={addNewPlan}
+                            className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Agregar Plan
+                        </button>
+                    </div>
+                </div>
                 
                 {loadingPlans ? (
                     <div className="text-center py-4">
@@ -91,15 +204,38 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                                 <div className="flex items-center justify-between mb-4">
                                     <h5 className="font-semibold text-gray-900">{plan.name}</h5>
                                     <div className="flex items-center space-x-2">
-                                        <label className="flex items-center bg-white px-3 py-1 rounded-md border">
+                                        <label className={`flex items-center px-3 py-1 rounded-md border transition-all duration-200 cursor-pointer ${
+                                            plan.is_popular 
+                                                ? 'bg-primary-50 border-primary-200 text-primary-700' 
+                                                : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                                        }`}>
                                             <input
-                                                type="checkbox"
+                                                type="radio"
+                                                name="popular-plan"
                                                 checked={plan.is_popular || false}
                                                 onChange={(e) => updatePlan(plan.id, 'is_popular', e.target.checked)}
                                                 className="mr-2 text-primary-600 focus:ring-primary-500"
                                             />
-                                            <span className="text-sm font-medium text-gray-700">⭐ Más Popular</span>
+                                            <span className="text-sm font-medium">⭐ Más Popular</span>
                                         </label>
+                                        
+                                        {/* Botones de acción */}
+                                        <div className="flex items-center space-x-1">
+                                            <button
+                                                onClick={() => duplicatePlan(plan.id)}
+                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                                title="Duplicar plan"
+                                            >
+                                                <Copy className="h-4 w-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => deletePlan(plan.id)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                title="Eliminar plan"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 
@@ -128,7 +264,7 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                                     </div>
                                 </div>
                                 
-                                <div className="grid grid-cols-3 gap-4">
+                                <div className="grid grid-cols-3 gap-4 mb-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Precio Mensual (€)
@@ -163,6 +299,91 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                                             value={plan.monthly_savings || ''}
                                             onChange={(e) => updatePlan(plan.id, 'monthly_savings', parseFloat(e.target.value))}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Límites y capacidades */}
+                                <div className="grid grid-cols-4 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Máx. Usuarios
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={plan.max_users || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'max_users', parseInt(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Máx. Cursos
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={plan.max_courses || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'max_courses', parseInt(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Almacenamiento (GB)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={plan.storage_gb || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'storage_gb', parseInt(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            API Requests/mes
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={plan.api_requests_limit || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'api_requests_limit', parseInt(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Configuración de estado y orden */}
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={plan.is_active || false}
+                                                onChange={(e) => updatePlan(plan.id, 'is_active', e.target.checked)}
+                                                className="mr-2 text-primary-600 focus:ring-primary-500"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700">Plan Activo</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Orden de Visualización
+                                        </label>
+                                        <input
+                                            type="number"
+                                            value={plan.display_order || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'display_order', parseInt(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Color Principal
+                                        </label>
+                                        <input
+                                            type="color"
+                                            value={plan.color_primary || '#3B82F6'}
+                                            onChange={(e) => updatePlan(plan.id, 'color_primary', e.target.value)}
+                                            className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         />
                                     </div>
                                 </div>
@@ -233,6 +454,7 @@ interface UniversalSectionEditModalProps {
     pageKey: string
     initialContent: any
     onSave: () => Promise<void>
+    isSaving?: boolean
 }
 
 export default function UniversalSectionEditModal({
@@ -242,10 +464,10 @@ export default function UniversalSectionEditModal({
     sectionName,
     pageKey,
     initialContent,
-    onSave
+    onSave,
+    isSaving = false
 }: UniversalSectionEditModalProps) {
     
-    const [isSaving, setIsSaving] = useState(false)
     const [content, setContent] = useState<any>({})
 
     // Actualizar contenido cuando cambie initialContent
@@ -258,7 +480,7 @@ export default function UniversalSectionEditModal({
     if (!isOpen) return null
 
     const handleSave = async () => {
-        setIsSaving(true)
+        // Estado de guardado manejado por el parent
         try {
             // Actualizar el contenido completo
             await adminApi.updatePageContent(pageKey, {
@@ -340,11 +562,12 @@ export default function UniversalSectionEditModal({
                     document.body.removeChild(notification)
                 }
             }, 3000)
+
+            // Llamar al callback del parent para actualizar la página
+            await onSave()
         } catch (error) {
             console.error('Error saving section:', error)
             alert('❌ Error al guardar la sección')
-        } finally {
-            setIsSaving(false)
         }
     }
 
