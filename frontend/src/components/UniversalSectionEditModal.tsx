@@ -2048,31 +2048,147 @@ export default function UniversalSectionEditModal({
                 )
 
             case 'faq':
+                const faqs = content.faqs || [
+                    {
+                        question: '¿Puedo cambiar de plan en cualquier momento?',
+                        answer: 'Sí, puedes actualizar o cambiar tu plan en cualquier momento desde el panel de administración. Los cambios se aplicarán inmediatamente.'
+                    },
+                    {
+                        question: '¿Ofrecen descuentos para instituciones sin fines de lucro?',
+                        answer: 'Sí, ofrecemos descuentos especiales para instituciones educativas sin fines de lucro. Contacta a nuestro equipo de ventas para más información.'
+                    },
+                    {
+                        question: '¿Qué incluye el soporte técnico?',
+                        answer: 'Todos los planes incluyen soporte por email. Los planes Premium y Enterprise incluyen soporte telefónico y chat en vivo.'
+                    },
+                    {
+                        question: '¿Hay período de prueba gratuito?',
+                        answer: 'Sí, ofrecemos 14 días de prueba gratuita para que puedas explorar todas las funcionalidades antes de comprometerte.'
+                    }
+                ]
+
+                const addFaq = () => {
+                    const newFaqs = [...faqs, {
+                        question: 'Nueva pregunta',
+                        answer: 'Nueva respuesta'
+                    }]
+                    updateContent('faqs', newFaqs)
+                }
+
+                const updateFaq = (index: number, field: 'question' | 'answer', value: string) => {
+                    const newFaqs = [...faqs]
+                    newFaqs[index] = { ...newFaqs[index], [field]: value }
+                    updateContent('faqs', newFaqs)
+                }
+
+                const removeFaq = (index: number) => {
+                    const newFaqs = faqs.filter((_, i) => i !== index)
+                    updateContent('faqs', newFaqs)
+                }
+
                 return (
                     <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Título de Preguntas Frecuentes
-                            </label>
-                            <input
-                                type="text"
-                                value={content.faq_title || ''}
-                                onChange={(e) => updateContent('faq_title', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Preguntas Frecuentes"
-                            />
+                        <div className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-purple-900 mb-2">
+                                ❓ Editor de Preguntas Frecuentes
+                            </h3>
+                            <p className="text-purple-700 text-sm">
+                                Gestiona el título, descripción y todas las preguntas frecuentes.
+                            </p>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción de FAQ
-                            </label>
-                            <textarea
-                                rows={3}
-                                value={content.faq_description || ''}
-                                onChange={(e) => updateContent('faq_description', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Descripción de las preguntas frecuentes"
-                            />
+
+                        {/* Configuración general */}
+                        <div className="grid grid-cols-1 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Título de Preguntas Frecuentes
+                                </label>
+                                <input
+                                    type="text"
+                                    value={content.faq_title || ''}
+                                    onChange={(e) => updateContent('faq_title', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Preguntas Frecuentes"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Descripción de FAQ
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={content.faq_description || ''}
+                                    onChange={(e) => updateContent('faq_description', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Descripción de las preguntas frecuentes"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Lista de FAQs */}
+                        <div className="border-t pt-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-lg font-semibold text-gray-900">Preguntas y Respuestas</h4>
+                                <button
+                                    onClick={addFaq}
+                                    className="flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Agregar FAQ
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {faqs.map((faq, index) => (
+                                    <div key={index} className="bg-gray-50 rounded-lg p-4 border">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h5 className="font-medium text-gray-900">FAQ #{index + 1}</h5>
+                                            <button
+                                                onClick={() => removeFaq(index)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                title="Eliminar FAQ"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="space-y-3">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Pregunta
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={faq.question || ''}
+                                                    onChange={(e) => updateFaq(index, 'question', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                    placeholder="¿Cuál es tu pregunta?"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Respuesta
+                                                </label>
+                                                <textarea
+                                                    rows={3}
+                                                    value={faq.answer || ''}
+                                                    onChange={(e) => updateFaq(index, 'answer', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                    placeholder="Respuesta a la pregunta..."
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {faqs.length === 0 && (
+                                <div className="text-center py-8 text-gray-500">
+                                    <div className="text-4xl mb-2">❓</div>
+                                    <p>No hay preguntas frecuentes.</p>
+                                    <p className="text-sm">Haz clic en "Agregar FAQ" para comenzar.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )
