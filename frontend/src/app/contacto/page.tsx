@@ -2,7 +2,7 @@
 
 import PublicLayout from '@/components/layout/PublicLayout'
 import { publicApi } from '@/lib/api'
-import { Clock, Mail, MapPin, Phone } from 'lucide-react'
+import { Clock, Mail, MapPin, Phone, Building, Wifi, Calendar, MessageSquare, Smartphone, Send, MessageCircle, Video, Headphones, Users, Globe2, ExternalLink } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import InlineEditButton from '@/components/InlineEditButton'
 import SectionEditButton from '@/components/SectionEditButton'
@@ -124,30 +124,57 @@ export default function ContactoPage() {
         }
     }
 
-    const contactInfo = [
+    // Mapeo de iconos desde el nombre a componente
+    const getIconComponent = (iconName: string) => {
+        const iconMap: { [key: string]: any } = {
+            'Mail': Mail,
+            'Phone': Phone,
+            'Smartphone': Smartphone,
+            'MessageCircle': MessageCircle,
+            'Send': Send,
+            'MapPin': MapPin,
+            'Building': Building,
+            'Clock': Clock,
+            'Calendar': Calendar,
+            'Video': Video,
+            'MessageSquare': MessageSquare,
+            'Headphones': Headphones,
+            'Users': Users,
+            'Wifi': Wifi,
+            'Globe2': Globe2,
+            'ExternalLink': ExternalLink
+        }
+        return iconMap[iconName] || Mail
+    }
+
+    const contactInfo = content?.contact_items || [
         {
-            icon: Mail,
+            id: 'email',
+            icon: 'Mail',
             title: 'Email',
-            value: content?.contact_info?.email || 'contacto@sevp.com',
-            description: content?.contact_info?.email_description || 'Respuesta en 24 horas'
+            value: 'contacto@sevp.com',
+            description: 'Respuesta en 24 horas'
         },
         {
-            icon: Phone,
+            id: 'phone',
+            icon: 'Phone',
             title: 'Teléfono',
-            value: content?.contact_info?.phone || '+51 1 234-5678',
-            description: content?.contact_info?.phone_description || 'Lun - Vie, 9am - 6pm'
+            value: '+51 1 234-5678',
+            description: 'Lun - Vie, 9am - 6pm'
         },
         {
-            icon: MapPin,
+            id: 'whatsapp',
+            icon: 'Smartphone',
+            title: 'WhatsApp',
+            value: '+51 999 888 777',
+            description: 'Respuesta inmediata'
+        },
+        {
+            id: 'address',
+            icon: 'MapPin',
             title: 'Oficina',
-            value: content?.contact_info?.address || 'Lima, Perú',
-            description: content?.contact_info?.address_description || 'San Isidro, Lima 27'
-        },
-        {
-            icon: Clock,
-            title: 'Horario',
-            value: content?.contact_info?.hours || '9:00 AM - 6:00 PM',
-            description: content?.contact_info?.hours_description || 'Zona horaria GMT-5'
+            value: 'Lima, Perú',
+            description: 'San Isidro, Lima 27'
         }
     ]
 
@@ -191,16 +218,19 @@ export default function ContactoPage() {
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {contactInfo.map((info) => (
-                            <div key={info.title} className="text-center">
-                                <div className="bg-primary-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
-                                    <info.icon className="h-8 w-8 text-primary-600" />
+                        {contactInfo.map((info) => {
+                            const IconComponent = getIconComponent(info.icon)
+                            return (
+                                <div key={info.id || info.title} className="text-center">
+                                    <div className="bg-primary-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                        <IconComponent className="h-8 w-8 text-primary-600" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{info.title}</h3>
+                                    <p className="text-primary-600 font-medium mb-1">{info.value}</p>
+                                    <p className="text-sm text-gray-600">{info.description}</p>
                                 </div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{info.title}</h3>
-                                <p className="text-primary-600 font-medium mb-1">{info.value}</p>
-                                <p className="text-sm text-gray-600">{info.description}</p>
-                            </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 </div>
             </section>

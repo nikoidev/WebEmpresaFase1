@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart, Copy, Move } from 'lucide-react'
+import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart, Copy, Move, Mail, Phone, MapPin, Clock, Building, Wifi, Calendar, MessageSquare, Smartphone, Send, MessageCircle, Video, Headphones, Users, Globe2, ExternalLink } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 
 // Componente específico para el editor de precios
@@ -737,69 +737,206 @@ export default function UniversalSectionEditModal({
                 )
 
             case 'contact_info':
+                // Lista de iconos disponibles para la información de contacto
+                const availableIcons = [
+                    { name: 'Mail', component: Mail, label: 'Email' },
+                    { name: 'Phone', component: Phone, label: 'Teléfono' },
+                    { name: 'Smartphone', component: Smartphone, label: 'WhatsApp' },
+                    { name: 'MessageCircle', component: MessageCircle, label: 'Telegram' },
+                    { name: 'Send', component: Send, label: 'Mensaje Directo' },
+                    { name: 'MapPin', component: MapPin, label: 'Ubicación' },
+                    { name: 'Building', component: Building, label: 'Oficina' },
+                    { name: 'Clock', component: Clock, label: 'Horario' },
+                    { name: 'Calendar', component: Calendar, label: 'Calendario' },
+                    { name: 'Video', component: Video, label: 'Videollamada' },
+                    { name: 'MessageSquare', component: MessageSquare, label: 'Chat en Vivo' },
+                    { name: 'Headphones', component: Headphones, label: 'Soporte' },
+                    { name: 'Users', component: Users, label: 'Reuniones' },
+                    { name: 'Wifi', component: Wifi, label: 'Online' },
+                    { name: 'Globe2', component: Globe2, label: 'Sitio Web' },
+                    { name: 'ExternalLink', component: ExternalLink, label: 'Enlace Externo' }
+                ]
+
+                // Estructura de datos para la información de contacto
+                const contactItems = content.contact_items || [
+                    {
+                        id: 'email',
+                        icon: 'Mail',
+                        title: 'Email',
+                        value: 'contacto@sevp.com',
+                        description: 'Respuesta en 24 horas'
+                    },
+                    {
+                        id: 'phone',
+                        icon: 'Phone',
+                        title: 'Teléfono',
+                        value: '+51 1 234-5678',
+                        description: 'Lun - Vie, 9am - 6pm'
+                    },
+                    {
+                        id: 'whatsapp',
+                        icon: 'Smartphone',
+                        title: 'WhatsApp',
+                        value: '+51 999 888 777',
+                        description: 'Respuesta inmediata'
+                    },
+                    {
+                        id: 'address',
+                        icon: 'MapPin',
+                        title: 'Oficina',
+                        value: 'Lima, Perú',
+                        description: 'San Isidro, Lima 27'
+                    }
+                ]
+
+                const addContactItem = () => {
+                    const newItems = [...contactItems, {
+                        id: `contact_${Date.now()}`,
+                        icon: 'MessageSquare',
+                        title: 'Nueva información',
+                        value: 'Valor',
+                        description: 'Descripción'
+                    }]
+                    updateContent('contact_items', newItems)
+                }
+
+                const updateContactItem = (index: number, field: string, value: string) => {
+                    const newItems = [...contactItems]
+                    newItems[index] = { ...newItems[index], [field]: value }
+                    updateContent('contact_items', newItems)
+                }
+
+                const removeContactItem = (index: number) => {
+                    const newItems = contactItems.filter((_, i) => i !== index)
+                    updateContent('contact_items', newItems)
+                }
+
+                const getIconComponent = (iconName: string) => {
+                    const iconObj = availableIcons.find(icon => icon.name === iconName)
+                    return iconObj ? iconObj.component : MessageSquare
+                }
+
                 return (
                     <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email
-                                </label>
-                                <input
-                                    type="email"
-                                    value={content.contact_info?.email || ''}
-                                    onChange={(e) => updateContent('contact_info.email', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="contacto@empresa.com"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Teléfono
-                                </label>
-                                <input
-                                    type="tel"
-                                    value={content.contact_info?.phone || ''}
-                                    onChange={(e) => updateContent('contact_info.phone', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="+51 999 999 999"
-                                />
-                            </div>
+                        <div className="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-green-900 mb-2">
+                                📞 Editor de Información de Contacto
+                            </h3>
+                            <p className="text-green-700 text-sm">
+                                Gestiona toda la información de contacto con iconos personalizables.
+                            </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Dirección
-                                </label>
-                                <input
-                                    type="text"
-                                    value={content.contact_info?.address || ''}
-                                    onChange={(e) => updateContent('contact_info.address', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="Lima, Perú"
-                                />
+                        {/* Lista de información de contacto */}
+                        <div className="border-t pt-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-lg font-semibold text-gray-900">Información de Contacto</h4>
+                                <button
+                                    onClick={addContactItem}
+                                    className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Agregar Información
+                                </button>
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Horario
-                                </label>
-                                <input
-                                    type="text"
-                                    value={content.contact_info?.hours || ''}
-                                    onChange={(e) => updateContent('contact_info.hours', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="9:00 AM - 6:00 PM"
-                                />
+                            <div className="space-y-4">
+                                {contactItems.map((item, index) => {
+                                    const IconComponent = getIconComponent(item.icon)
+                                    return (
+                                        <div key={item.id || index} className="bg-gray-50 rounded-lg p-4 border">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="flex items-center justify-center w-10 h-10 bg-primary-100 rounded-lg">
+                                                        <IconComponent className="h-5 w-5 text-primary-600" />
+                                                    </div>
+                                                    <h5 className="font-medium text-gray-900">{item.title}</h5>
+                                                </div>
+                                                <button
+                                                    onClick={() => removeContactItem(index)}
+                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                    title="Eliminar información"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Icono
+                                                    </label>
+                                                    <select
+                                                        value={item.icon}
+                                                        onChange={(e) => updateContactItem(index, 'icon', e.target.value)}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                    >
+                                                        {availableIcons.map((iconOption) => (
+                                                            <option key={iconOption.name} value={iconOption.name}>
+                                                                {iconOption.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Título
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={item.title || ''}
+                                                        onChange={(e) => updateContactItem(index, 'title', e.target.value)}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                        placeholder="Título"
+                                                    />
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-1 gap-4 mt-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Valor Principal
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={item.value || ''}
+                                                        onChange={(e) => updateContactItem(index, 'value', e.target.value)}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                        placeholder="Valor principal (email, teléfono, dirección, etc.)"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                        Descripción
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={item.description || ''}
+                                                        onChange={(e) => updateContactItem(index, 'description', e.target.value)}
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                        placeholder="Descripción adicional"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
                             </div>
+
+                            {contactItems.length === 0 && (
+                                <div className="text-center py-8 text-gray-500">
+                                    <div className="text-4xl mb-2">📞</div>
+                                    <p>No hay información de contacto.</p>
+                                    <p className="text-sm">Haz clic en "Agregar Información" para comenzar.</p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )
 
             case 'values':
                 const values = content.values || []
-                const availableIcons = [
+                const valueIcons = [
                     { emoji: '💎', name: 'Diamante' },
                     { emoji: '🎆', name: 'Fuegos artificiales' },
                     { emoji: '⭐', name: 'Estrella' },
@@ -895,7 +1032,7 @@ export default function UniversalSectionEditModal({
                                             Seleccionar Icono
                                         </label>
                                         <div className="grid grid-cols-8 gap-2 p-3 bg-gray-50 rounded-lg max-h-32 overflow-y-auto">
-                                            {availableIcons.map((iconOption, iconIndex) => (
+                                            {valueIcons.map((iconOption, iconIndex) => (
                                                 <button
                                                     key={iconIndex}
                                                     type="button"
