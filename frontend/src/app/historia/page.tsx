@@ -268,20 +268,20 @@ export default function HistoriaPage() {
                         )) || (
                             <>
                                 <div className="text-center">
-                                    <div className="text-4xl md:text-5xl font-bold mb-2">50K+</div>
-                                    <div className="text-primary-100">Estudiantes Activos</div>
-                                </div>
-                                <div className="text-center">
-                                    <div className="text-4xl md:text-5xl font-bold mb-2">1,500+</div>
+                                    <div className="text-4xl md:text-5xl font-bold mb-2">500+</div>
                                     <div className="text-primary-100">Instituciones</div>
                                 </div>
                                 <div className="text-center">
-                                    <div className="text-4xl md:text-5xl font-bold mb-2">8</div>
+                                    <div className="text-4xl md:text-5xl font-bold mb-2">100K+</div>
+                                    <div className="text-primary-100">Estudiantes</div>
+                                </div>
+                                <div className="text-center">
+                                    <div className="text-4xl md:text-5xl font-bold mb-2">15</div>
                                     <div className="text-primary-100">Países</div>
                                 </div>
                                 <div className="text-center">
                                     <div className="text-4xl md:text-5xl font-bold mb-2">99.9%</div>
-                                    <div className="text-primary-100">Uptime</div>
+                                    <div className="text-primary-100">Satisfacción</div>
                                 </div>
                             </>
                         )}

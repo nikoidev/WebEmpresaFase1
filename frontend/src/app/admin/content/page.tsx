@@ -19,6 +19,7 @@ import SectionBasedHistoryEditor from '@/components/content-editors/SectionBased
 import SectionBasedClientsEditor from '@/components/content-editors/SectionBasedClientsEditor'
 import SectionBasedPricesEditor from '@/components/content-editors/SectionBasedPricesEditor'
 import SectionBasedContactEditor from '@/components/content-editors/SectionBasedContactEditor'
+import CompanyEditor from '@/components/content-editors/CompanyEditor'
 import {
     Edit,
     Eye,
@@ -108,11 +109,18 @@ export default function ContentManagementPage() {
             color: 'bg-red-500'
         },
         {
+            key: 'company',
+            name: 'Datos de la Empresa',
+            description: 'Estadísticas y métricas globales compartidas',
+            icon: Globe,
+            color: 'bg-indigo-500'
+        },
+        {
             key: 'news',
             name: 'Noticias',
             description: 'Artículos y noticias del blog',
             icon: FileText,
-            color: 'bg-indigo-500'
+            color: 'bg-cyan-500'
         },
         {
             key: 'testimonials',
@@ -336,6 +344,21 @@ export default function ContentManagementPage() {
                         }
                     }
                 }
+            case 'company':
+                return {
+                    global_stats: [
+                        { number: '500+', label: 'Instituciones', description: 'Instituciones educativas que confían en nosotros' },
+                        { number: '100K+', label: 'Estudiantes', description: 'Estudiantes activos en nuestra plataforma' },
+                        { number: '15', label: 'Países', description: 'Países donde operamos' },
+                        { number: '99.9%', label: 'Satisfacción', description: 'Índice de satisfacción de clientes' }
+                    ],
+                    success_metrics: [
+                        { number: '98%', label: 'Satisfacción del Cliente', description: 'Clientes satisfechos con nuestro servicio' },
+                        { number: '45%', label: 'Reducción en Costos', description: 'Reducción promedio en costos operativos' },
+                        { number: '300%', label: 'Aumento en Engagement', description: 'Incremento en engagement estudiantil' },
+                        { number: '24/7', label: 'Soporte Técnico', description: 'Disponibilidad de soporte' }
+                    ]
+                }
             default:
                 return {}
         }
@@ -441,6 +464,13 @@ export default function ContentManagementPage() {
                     <SectionBasedContactEditor
                         data={formData.content_json}
                         onChange={(data) => setFormData({ ...formData, content_json: data })}
+                    />
+                )
+            case 'company':
+                return (
+                    <CompanyEditor
+                        content={formData.content_json}
+                        onChange={(content) => setFormData({ ...formData, content_json: content })}
                     />
                 )
             case 'footer':

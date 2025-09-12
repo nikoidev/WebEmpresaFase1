@@ -204,20 +204,20 @@ export default function ClientesPage() {
                             )) || (
                                 <>
                                     <div>
-                                        <div className="text-3xl md:text-4xl font-bold">1,500+</div>
+                                        <div className="text-3xl md:text-4xl font-bold">500+</div>
                                         <div className="text-primary-100">Instituciones</div>
                                     </div>
                                     <div>
-                                        <div className="text-3xl md:text-4xl font-bold">50K+</div>
+                                        <div className="text-3xl md:text-4xl font-bold">100K+</div>
                                         <div className="text-primary-100">Estudiantes</div>
                                     </div>
                                     <div>
-                                        <div className="text-3xl md:text-4xl font-bold">8</div>
+                                        <div className="text-3xl md:text-4xl font-bold">15</div>
                                         <div className="text-primary-100">Países</div>
                                     </div>
                                     <div>
-                                        <div className="text-3xl md:text-4xl font-bold">5</div>
-                                        <div className="text-primary-100">Años</div>
+                                        <div className="text-3xl md:text-4xl font-bold">99.9%</div>
+                                        <div className="text-primary-100">Satisfacción</div>
                                     </div>
                                 </>
                             )}

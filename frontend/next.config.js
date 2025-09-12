@@ -15,7 +15,9 @@ const nextConfig = {
         ];
     },
     // Configuración para desarrollo - permite acceso desde diferentes IPs de la red local
-    // Nota: allowedDevOrigins se maneja automáticamente en Next.js moderno
+    experimental: {
+        allowedDevOrigins: ['192.168.1.36', 'localhost', '127.0.0.1']
+    }
 }
 
 module.exports = nextConfig

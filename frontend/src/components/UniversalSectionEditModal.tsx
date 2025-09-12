@@ -4,6 +4,56 @@ import { useState, useEffect } from 'react'
 import { X, Plus, Trash2, User } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 
+// Función para sincronizar stats entre páginas
+const syncStatsAcrossPages = async (stats: any[], isGlobalStats: boolean = true) => {
+    try {
+        if (isGlobalStats) {
+            // Sincronizar global_stats (Historia -> Clientes y Company)
+            
+            // Actualizar en Clientes (usar las mismas stats para hero)
+            try {
+                const clientsResponse = await adminApi.getPageContent('clients')
+                const clientsContent = clientsResponse.data.content_json
+                clientsContent.stats = stats // Hero usa stats generales
+                await adminApi.updatePageContent('clients', {
+                    content_json: clientsContent
+                })
+                console.log('✅ Stats sincronizadas en Clientes')
+            } catch (err) {
+                console.warn('⚠️ No se pudo sincronizar con Clientes:', err)
+            }
+
+            // Actualizar en Company page
+            try {
+                const companyResponse = await adminApi.getPageContent('company')
+                const companyContent = companyResponse.data.content_json
+                companyContent.global_stats = stats
+                await adminApi.updatePageContent('company', {
+                    content_json: companyContent
+                })
+                console.log('✅ Global stats sincronizadas en Company')
+            } catch (err) {
+                console.warn('⚠️ No se pudo sincronizar con Company:', err)
+            }
+        } else {
+            // Sincronizar success_metrics (Clientes -> Company)
+            try {
+                const companyResponse = await adminApi.getPageContent('company')
+                const companyContent = companyResponse.data.content_json
+                companyContent.success_metrics = stats
+                await adminApi.updatePageContent('company', {
+                    content_json: companyContent
+                })
+                console.log('✅ Success metrics sincronizadas en Company')
+            } catch (err) {
+                console.warn('⚠️ No se pudo sincronizar success metrics con Company:', err)
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error en sincronización:', error)
+    }
+}
+
 interface UniversalSectionEditModalProps {
     isOpen: boolean
     onClose: () => void
@@ -48,6 +98,61 @@ export default function UniversalSectionEditModal({
                 meta_keywords: initialContent.meta_keywords,
                 is_active: initialContent.is_active
             })
+
+            // 🔄 SINCRONIZACIÓN AUTOMÁTICA DE STATS
+            if (pageKey === 'history' && sectionType === 'impact' && content.stats) {
+                console.log('🔄 Sincronizando stats de Historia con otras páginas...')
+                await syncStatsAcrossPages(content.stats, true)
+            } else if (pageKey === 'clients' && sectionType === 'metrics' && content.success_metrics) {
+                console.log('🔄 Sincronizando métricas de Clientes con Company...')
+                await syncStatsAcrossPages(content.success_metrics, false)
+            } else if (pageKey === 'company') {
+                // Sincronizar desde Company hacia Historia y Clientes
+                if (content.global_stats) {
+                    console.log('🔄 Sincronizando global_stats desde Company...')
+                    // Actualizar Historia
+                    try {
+                        const historyResponse = await adminApi.getPageContent('history')
+                        const historyContent = historyResponse.data.content_json
+                        historyContent.stats = content.global_stats
+                        await adminApi.updatePageContent('history', {
+                            content_json: historyContent
+                        })
+                        console.log('✅ Stats sincronizadas en Historia')
+                    } catch (err) {
+                        console.warn('⚠️ No se pudo sincronizar con Historia:', err)
+                    }
+                    
+                    // Actualizar Clientes
+                    try {
+                        const clientsResponse = await adminApi.getPageContent('clients')
+                        const clientsContent = clientsResponse.data.content_json
+                        clientsContent.stats = content.global_stats
+                        await adminApi.updatePageContent('clients', {
+                            content_json: clientsContent
+                        })
+                        console.log('✅ Stats sincronizadas en Clientes')
+                    } catch (err) {
+                        console.warn('⚠️ No se pudo sincronizar con Clientes:', err)
+                    }
+                }
+                
+                if (content.success_metrics) {
+                    console.log('🔄 Sincronizando success_metrics desde Company...')
+                    // Actualizar sección métricas en Clientes
+                    try {
+                        const clientsResponse = await adminApi.getPageContent('clients')
+                        const clientsContent = clientsResponse.data.content_json
+                        clientsContent.success_metrics = content.success_metrics
+                        await adminApi.updatePageContent('clients', {
+                            content_json: clientsContent
+                        })
+                        console.log('✅ Success metrics sincronizadas en Clientes')
+                    } catch (err) {
+                        console.warn('⚠️ No se pudo sincronizar success metrics con Clientes:', err)
+                    }
+                }
+            }
             
             // Llamar onSave ANTES de cerrar el modal para recargar contenido
             await onSave()
