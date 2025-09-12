@@ -7,8 +7,7 @@ import { ArrowRight, Check, Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import InlineEditButton from '@/components/InlineEditButton'
 import SectionEditButton from '@/components/SectionEditButton'
-import PricesEditor from '@/components/content-editors/PricesEditor'
-import { adminApi } from '@/lib/api'
+import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 
 // Definir tipos para el contenido de Precios
 interface PricingContent {
@@ -28,9 +27,9 @@ export default function PreciosPage() {
     const [content, setContent] = useState<PricingContent | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isYearly, setIsYearly] = useState(false)
-    const [isEditing, setIsEditing] = useState(false)
+    const [editingSection, setEditingSection] = useState<string | null>(null)
+    const [editingSectionName, setEditingSectionName] = useState<string>('')
     const [fullPageContent, setFullPageContent] = useState<any>(null)
-    const [isSaving, setIsSaving] = useState(false)
 
     useEffect(() => {
         loadPlans()
@@ -67,43 +66,16 @@ export default function PreciosPage() {
         }
     }
 
-    const handleSectionEdit = () => {
-        setIsEditing(true)
+    const handleSectionEdit = (sectionType: string, sectionName: string) => {
+        setEditingSection(sectionType)
+        setEditingSectionName(sectionName)
     }
 
-    const handleSave = async () => {
-        if (!fullPageContent) return
-        
-        setIsSaving(true)
-        try {
-            await adminApi.updatePageContent('pricing', fullPageContent)
-            setIsEditing(false)
-            await loadContent()
-            
-            const notification = document.createElement('div')
-            notification.innerHTML = '✅ Contenido actualizado exitosamente'
-            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg z-50 shadow-lg'
-            document.body.appendChild(notification)
-            
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification)
-                }
-            }, 3000)
-        } catch (error) {
-            console.error('Error saving content:', error)
-            alert('❌ Error al guardar el contenido')
-        } finally {
-            setIsSaving(false)
-        }
-    }
-
-    const handleContentChange = (data: any) => {
-        setFullPageContent({
-            ...fullPageContent,
-            content_json: data
-        })
-        setContent(data)
+    const handleSectionSave = async () => {
+        // Recargar contenido después de guardar
+        await loadContent()
+        setEditingSection(null)
+        setEditingSectionName('')
     }
 
     const formatPrice = (plan: ServicePlan) => {
@@ -137,7 +109,7 @@ export default function PreciosPage() {
             <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24 relative">
                 <SectionEditButton 
                     sectionName="Sección Hero"
-                    onEdit={handleSectionEdit}
+                    onEdit={() => handleSectionEdit('hero', 'Sección Hero')}
                     position="top-right"
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -156,7 +128,7 @@ export default function PreciosPage() {
             <section className="py-16 bg-gray-50 relative">
                 <SectionEditButton 
                     sectionName="Planes y Precios"
-                    onEdit={handleSectionEdit}
+                    onEdit={() => handleSectionEdit('pricing', 'Planes y Precios')}
                     position="top-right"
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -313,7 +285,7 @@ export default function PreciosPage() {
             <section className="py-24 bg-white relative">
                 <SectionEditButton 
                     sectionName="Preguntas Frecuentes"
-                    onEdit={handleSectionEdit}
+                    onEdit={() => handleSectionEdit('faq', 'Preguntas Frecuentes')}
                     position="top-right"
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -383,44 +355,17 @@ export default function PreciosPage() {
                 </div>
             </section>
 
-            {/* Modal de edición */}
-            {isEditing && fullPageContent && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-                    <div className="w-full max-w-6xl h-[80vh] shadow-lg rounded-md bg-white flex flex-col">
-                        <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
-                            <h3 className="text-xl font-bold text-gray-900">Editar Página Precios</h3>
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-                            >
-                                ×
-                            </button>
-                        </div>
-                        
-                        <div className="flex-1 overflow-hidden">
-                            <PricesEditor
-                                data={content || {}}
-                                onChange={handleContentChange}
-                            />
-                        </div>
-                        
-                        <div className="flex justify-end space-x-4 p-6 border-t flex-shrink-0">
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
-                            >
-                                {isSaving ? 'Guardando...' : 'Guardar Cambios'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Modal de edición por sección */}
+            {editingSection && fullPageContent && (
+                <UniversalSectionEditModal
+                    isOpen={!!editingSection}
+                    onClose={() => setEditingSection(null)}
+                    sectionType={editingSection}
+                    sectionName={editingSectionName}
+                    pageKey="pricing"
+                    initialContent={fullPageContent}
+                    onSave={handleSectionSave}
+                />
             )}
         </PublicLayout>
     )

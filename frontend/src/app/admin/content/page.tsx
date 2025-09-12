@@ -15,6 +15,10 @@ import ContactEditor from '@/components/content-editors/ContactEditor'
 import FooterEditor from '@/components/content-editors/FooterEditor'
 import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 import SectionBasedAboutEditor from '@/components/content-editors/SectionBasedAboutEditor'
+import SectionBasedHistoryEditor from '@/components/content-editors/SectionBasedHistoryEditor'
+import SectionBasedClientsEditor from '@/components/content-editors/SectionBasedClientsEditor'
+import SectionBasedPricesEditor from '@/components/content-editors/SectionBasedPricesEditor'
+import SectionBasedContactEditor from '@/components/content-editors/SectionBasedContactEditor'
 import {
     Edit,
     Eye,
@@ -407,21 +411,21 @@ export default function ContentManagementPage() {
                 )
             case 'prices':
                 return (
-                    <PricesEditor
+                    <SectionBasedPricesEditor
                         data={formData.content_json}
                         onChange={(data) => setFormData({ ...formData, content_json: data })}
                     />
                 )
             case 'clients':
                 return (
-                    <ClientsEditor
+                    <SectionBasedClientsEditor
                         data={formData.content_json}
                         onChange={(data) => setFormData({ ...formData, content_json: data })}
                     />
                 )
             case 'history':
                 return (
-                    <HistoryEditor
+                    <SectionBasedHistoryEditor
                         data={formData.content_json}
                         onChange={(data) => setFormData({ ...formData, content_json: data })}
                         metaData={{
@@ -434,7 +438,7 @@ export default function ContentManagementPage() {
                 )
             case 'contact':
                 return (
-                    <ContactEditor
+                    <SectionBasedContactEditor
                         data={formData.content_json}
                         onChange={(data) => setFormData({ ...formData, content_json: data })}
                     />

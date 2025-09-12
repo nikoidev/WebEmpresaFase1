@@ -6,8 +6,7 @@ import { Clock, MapPin, Trophy, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import InlineEditButton from '@/components/InlineEditButton'
 import SectionEditButton from '@/components/SectionEditButton'
-import HistoryEditor from '@/components/content-editors/HistoryEditor'
-import { adminApi } from '@/lib/api'
+import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 
 // Definir tipos para el contenido de Historia
 interface Milestone {
@@ -37,9 +36,9 @@ interface HistoryContent {
 export default function HistoriaPage() {
     const [content, setContent] = useState<HistoryContent | null>(null)
     const [isLoading, setIsLoading] = useState(true)
-    const [isEditing, setIsEditing] = useState(false)
+    const [editingSection, setEditingSection] = useState<string | null>(null)
+    const [editingSectionName, setEditingSectionName] = useState<string>('')
     const [fullPageContent, setFullPageContent] = useState<any>(null)
-    const [isSaving, setIsSaving] = useState(false)
 
     useEffect(() => {
         loadContent()
@@ -64,50 +63,16 @@ export default function HistoriaPage() {
         }
     }
 
-    const handleSectionEdit = () => {
-        setIsEditing(true)
+    const handleSectionEdit = (sectionType: string, sectionName: string) => {
+        setEditingSection(sectionType)
+        setEditingSectionName(sectionName)
     }
 
-    const handleSave = async () => {
-        if (!fullPageContent) return
-        
-        setIsSaving(true)
-        try {
-            await adminApi.updatePageContent('history', fullPageContent)
-            setIsEditing(false)
-            await loadContent()
-            
-            const notification = document.createElement('div')
-            notification.innerHTML = '✅ Contenido actualizado exitosamente'
-            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg z-50 shadow-lg'
-            document.body.appendChild(notification)
-            
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification)
-                }
-            }, 3000)
-        } catch (error) {
-            console.error('Error saving content:', error)
-            alert('❌ Error al guardar el contenido')
-        } finally {
-            setIsSaving(false)
-        }
-    }
-
-    const handleContentChange = (data: any) => {
-        setFullPageContent({
-            ...fullPageContent,
-            content_json: data
-        })
-        setContent(data)
-    }
-
-    const handleMetaChange = (meta: any) => {
-        setFullPageContent({
-            ...fullPageContent,
-            ...meta
-        })
+    const handleSectionSave = async () => {
+        // Recargar contenido después de guardar
+        await loadContent()
+        setEditingSection(null)
+        setEditingSectionName('')
     }
 
     // Iconos por defecto
@@ -185,7 +150,7 @@ export default function HistoriaPage() {
             <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24 relative">
                 <SectionEditButton 
                     sectionName="Sección Hero"
-                    onEdit={handleSectionEdit}
+                    onEdit={() => handleSectionEdit('hero', 'Sección Hero')}
                     position="top-right"
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -204,7 +169,7 @@ export default function HistoriaPage() {
             <section className="py-24 bg-white relative">
                 <SectionEditButton 
                     sectionName="Introducción"
-                    onEdit={handleSectionEdit}
+                    onEdit={() => handleSectionEdit('intro', 'Introducción')}
                     position="top-right"
                 />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -227,7 +192,7 @@ export default function HistoriaPage() {
             <section className="py-24 bg-gray-50 relative">
                 <SectionEditButton 
                     sectionName="Línea de Tiempo"
-                    onEdit={handleSectionEdit}
+                    onEdit={() => handleSectionEdit('timeline', 'Línea de Tiempo')}
                     position="top-right"
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -281,7 +246,7 @@ export default function HistoriaPage() {
             <section className="py-24 bg-primary-600 text-white relative">
                 <SectionEditButton 
                     sectionName="Números de Impacto"
-                    onEdit={handleSectionEdit}
+                    onEdit={() => handleSectionEdit('impact', 'Números de Impacto')}
                     position="top-right"
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -328,7 +293,7 @@ export default function HistoriaPage() {
             <section className="py-24 bg-white relative">
                 <SectionEditButton 
                     sectionName="Visión de Futuro"
-                    onEdit={handleSectionEdit}
+                    onEdit={() => handleSectionEdit('future', 'Visión de Futuro')}
                     position="top-right"
                 />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -358,50 +323,17 @@ export default function HistoriaPage() {
                 </div>
             </section>
 
-            {/* Modal de edición */}
-            {isEditing && fullPageContent && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-                    <div className="w-full max-w-6xl h-[80vh] shadow-lg rounded-md bg-white flex flex-col">
-                        <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
-                            <h3 className="text-xl font-bold text-gray-900">Editar Página Historia</h3>
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-                            >
-                                ×
-                            </button>
-                        </div>
-                        
-                        <div className="flex-1 overflow-hidden">
-                            <HistoryEditor
-                                data={content || {}}
-                                onChange={handleContentChange}
-                                metaData={{
-                                    meta_title: fullPageContent?.meta_title,
-                                    meta_description: fullPageContent?.meta_description,
-                                    meta_keywords: fullPageContent?.meta_keywords
-                                }}
-                                onMetaChange={handleMetaChange}
-                            />
-                        </div>
-                        
-                        <div className="flex justify-end space-x-4 p-6 border-t flex-shrink-0">
-                            <button
-                                onClick={() => setIsEditing(false)}
-                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                            >
-                                Cancelar
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
-                            >
-                                {isSaving ? 'Guardando...' : 'Guardar Cambios'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* Modal de edición por sección */}
+            {editingSection && fullPageContent && (
+                <UniversalSectionEditModal
+                    isOpen={!!editingSection}
+                    onClose={() => setEditingSection(null)}
+                    sectionType={editingSection}
+                    sectionName={editingSectionName}
+                    pageKey="history"
+                    initialContent={fullPageContent}
+                    onSave={handleSectionSave}
+                />
             )}
         </PublicLayout>
     )

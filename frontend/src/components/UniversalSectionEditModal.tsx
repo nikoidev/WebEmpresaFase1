@@ -89,6 +89,49 @@ export default function UniversalSectionEditModal({
         })
     }
 
+    // Funciones helper para Historia - Milestones
+    const addMilestone = () => {
+        const newMilestone = {
+            year: '2024',
+            title: 'Nuevo Hito',
+            description: 'Descripción del hito',
+            color: 'bg-blue-500'
+        }
+        updateContent('milestones', [...(content.milestones || []), newMilestone])
+    }
+
+    const updateMilestone = (index: number, field: string, value: string) => {
+        const milestones = [...(content.milestones || [])]
+        milestones[index] = { ...milestones[index], [field]: value }
+        updateContent('milestones', milestones)
+    }
+
+    const removeMilestone = (index: number) => {
+        const milestones = content.milestones?.filter((_: any, i: number) => i !== index) || []
+        updateContent('milestones', milestones)
+    }
+
+    // Funciones helper para Historia - Stats
+    const addStat = () => {
+        const newStat = {
+            number: '100+',
+            label: 'Nueva Métrica',
+            description: 'Descripción de la estadística'
+        }
+        updateContent('stats', [...(content.stats || []), newStat])
+    }
+
+    const updateStat = (index: number, field: string, value: string) => {
+        const stats = [...(content.stats || [])]
+        stats[index] = { ...stats[index], [field]: value }
+        updateContent('stats', stats)
+    }
+
+    const removeStat = (index: number) => {
+        const stats = content.stats?.filter((_: any, i: number) => i !== index) || []
+        updateContent('stats', stats)
+    }
+
     const renderSectionEditor = () => {
         const sectionData = content[sectionType] || {}
 
@@ -708,6 +751,514 @@ export default function UniversalSectionEditModal({
                                     placeholder="/contacto"
                                 />
                             </div>
+                        </div>
+                    </div>
+                )
+
+            // Editores para página Historia
+            case 'intro':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de la Introducción
+                            </label>
+                            <input
+                                type="text"
+                                value={content.intro_title || ''}
+                                onChange={(e) => updateContent('intro_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Título de la introducción"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de la Introducción
+                            </label>
+                            <textarea
+                                rows={4}
+                                value={content.intro_description || ''}
+                                onChange={(e) => updateContent('intro_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Descripción de la introducción a la historia"
+                            />
+                        </div>
+                    </div>
+                )
+
+            case 'timeline':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de la Línea de Tiempo
+                            </label>
+                            <input
+                                type="text"
+                                value={content.timeline_title || ''}
+                                onChange={(e) => updateContent('timeline_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Hitos Importantes"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de la Línea de Tiempo
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.timeline_description || ''}
+                                onChange={(e) => updateContent('timeline_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Los momentos que definieron nuestro camino hacia la excelencia educativa"
+                            />
+                        </div>
+                        
+                        <h4 className="text-lg font-semibold text-gray-800 mb-4 pt-4 border-t">Hitos</h4>
+                        {(content.milestones || []).map((milestone: any, index: number) => (
+                            <div key={index} className="border p-4 rounded-md space-y-3 bg-gray-50">
+                                <div className="flex justify-between items-center">
+                                    <h5 className="font-medium text-gray-900">Hito #{index + 1}</h5>
+                                    <button onClick={() => removeMilestone(index)} className="text-red-600 hover:text-red-800">
+                                        <Trash2 className="h-5 w-5" />
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Año</label>
+                                        <input
+                                            type="text"
+                                            value={milestone.year || ''}
+                                            onChange={(e) => updateMilestone(index, 'year', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                            placeholder="2024"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                                        <input
+                                            type="text"
+                                            value={milestone.color || ''}
+                                            onChange={(e) => updateMilestone(index, 'color', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                            placeholder="bg-blue-500"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
+                                    <input
+                                        type="text"
+                                        value={milestone.title || ''}
+                                        onChange={(e) => updateMilestone(index, 'title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Título del hito"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                                    <textarea
+                                        value={milestone.description || ''}
+                                        onChange={(e) => updateMilestone(index, 'description', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        rows={2}
+                                        placeholder="Descripción del hito"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                        <button onClick={addMilestone} className="w-full bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2">
+                            <Plus className="h-5 w-5" /> Agregar Hito
+                        </button>
+                    </div>
+                )
+
+            case 'impact':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de Números de Impacto
+                            </label>
+                            <input
+                                type="text"
+                                value={content.impact_title || ''}
+                                onChange={(e) => updateContent('impact_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Nuestro Impacto en Números"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de Números de Impacto
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.impact_description || ''}
+                                onChange={(e) => updateContent('impact_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Los resultados de años de dedicación y trabajo arduo"
+                            />
+                        </div>
+                        
+                        <h4 className="text-lg font-semibold text-gray-800 mb-4 pt-4 border-t">Estadísticas</h4>
+                        {(content.stats || []).map((stat: any, index: number) => (
+                            <div key={index} className="border p-4 rounded-md space-y-3 bg-gray-50">
+                                <div className="flex justify-between items-center">
+                                    <h5 className="font-medium text-gray-900">Estadística #{index + 1}</h5>
+                                    <button onClick={() => removeStat(index)} className="text-red-600 hover:text-red-800">
+                                        <Trash2 className="h-5 w-5" />
+                                    </button>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Número</label>
+                                    <input
+                                        type="text"
+                                        value={stat.number || ''}
+                                        onChange={(e) => updateStat(index, 'number', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="100+"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Etiqueta</label>
+                                    <input
+                                        type="text"
+                                        value={stat.label || ''}
+                                        onChange={(e) => updateStat(index, 'label', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Instituciones Educativas"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                                    <textarea
+                                        value={stat.description || ''}
+                                        onChange={(e) => updateStat(index, 'description', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        rows={2}
+                                        placeholder="Descripción de la estadística"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                        <button onClick={addStat} className="w-full bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2">
+                            <Plus className="h-5 w-5" /> Agregar Estadística
+                        </button>
+                    </div>
+                )
+
+            case 'future':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de Visión de Futuro
+                            </label>
+                            <input
+                                type="text"
+                                value={content.future_title || ''}
+                                onChange={(e) => updateContent('future_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Mirando hacia el Futuro"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de Visión de Futuro
+                            </label>
+                            <textarea
+                                rows={4}
+                                value={content.future_description || ''}
+                                onChange={(e) => updateContent('future_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Estamos apenas comenzando. Nuestro objetivo para los próximos años..."
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción Adicional
+                            </label>
+                            <textarea
+                                rows={4}
+                                value={content.future_vision || ''}
+                                onChange={(e) => updateContent('future_vision', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Con nuevas tecnologías como IA, realidad virtual y análisis predictivo..."
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Texto Botón Principal
+                                </label>
+                                <input
+                                    type="text"
+                                    value={content.future_button_text || ''}
+                                    onChange={(e) => updateContent('future_button_text', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Conoce al Equipo"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Enlace Botón Principal
+                                </label>
+                                <input
+                                    type="url"
+                                    value={content.future_button_link || ''}
+                                    onChange={(e) => updateContent('future_button_link', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="/nosotros"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Texto Botón Secundario
+                                </label>
+                                <input
+                                    type="text"
+                                    value={content.future_secondary_text || ''}
+                                    onChange={(e) => updateContent('future_secondary_text', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Únete a Nosotros"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Enlace Botón Secundario
+                                </label>
+                                <input
+                                    type="url"
+                                    value={content.future_secondary_link || ''}
+                                    onChange={(e) => updateContent('future_secondary_link', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="/contacto"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )
+
+            // Editores para página Clientes
+            case 'client_types':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de Tipos de Clientes
+                            </label>
+                            <input
+                                type="text"
+                                value={content.client_types_title || ''}
+                                onChange={(e) => updateContent('client_types_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Tipos de Clientes"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de Tipos de Clientes
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.client_types_description || ''}
+                                onChange={(e) => updateContent('client_types_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Descripción de los tipos de clientes"
+                            />
+                        </div>
+                    </div>
+                )
+
+            case 'testimonials':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de Testimonios
+                            </label>
+                            <input
+                                type="text"
+                                value={content.testimonials_title || ''}
+                                onChange={(e) => updateContent('testimonials_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Testimonios"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de Testimonios
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.testimonials_description || ''}
+                                onChange={(e) => updateContent('testimonials_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Descripción de testimonios"
+                            />
+                        </div>
+                    </div>
+                )
+
+            case 'metrics':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de Métricas de Éxito
+                            </label>
+                            <input
+                                type="text"
+                                value={content.metrics_title || ''}
+                                onChange={(e) => updateContent('metrics_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Métricas de Éxito"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de Métricas
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.metrics_description || ''}
+                                onChange={(e) => updateContent('metrics_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Descripción de las métricas"
+                            />
+                        </div>
+                    </div>
+                )
+
+            // Editores para página Precios
+            case 'pricing':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de Planes y Precios
+                            </label>
+                            <input
+                                type="text"
+                                value={content.pricing_title || ''}
+                                onChange={(e) => updateContent('pricing_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Planes y Precios"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de Planes
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.pricing_description || ''}
+                                onChange={(e) => updateContent('pricing_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Descripción de los planes y precios"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Etiqueta Anual
+                                </label>
+                                <input
+                                    type="text"
+                                    value={content.pricing_yearly_label || ''}
+                                    onChange={(e) => updateContent('pricing_yearly_label', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Anual"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Etiqueta Mensual
+                                </label>
+                                <input
+                                    type="text"
+                                    value={content.pricing_monthly_label || ''}
+                                    onChange={(e) => updateContent('pricing_monthly_label', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Mensual"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )
+
+            case 'faq':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de Preguntas Frecuentes
+                            </label>
+                            <input
+                                type="text"
+                                value={content.faq_title || ''}
+                                onChange={(e) => updateContent('faq_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Preguntas Frecuentes"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de FAQ
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.faq_description || ''}
+                                onChange={(e) => updateContent('faq_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Descripción de las preguntas frecuentes"
+                            />
+                        </div>
+                    </div>
+                )
+
+            // Editores para página Contacto
+            case 'form':
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título del Formulario
+                            </label>
+                            <input
+                                type="text"
+                                value={content.form_title || ''}
+                                onChange={(e) => updateContent('form_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Envíanos un Mensaje"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción del Formulario
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.form_description || ''}
+                                onChange={(e) => updateContent('form_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Completa el formulario y nos pondremos en contacto contigo"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Texto del Botón
+                            </label>
+                            <input
+                                type="text"
+                                value={content.form_button_text || ''}
+                                onChange={(e) => updateContent('form_button_text', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Enviar Mensaje"
+                            />
                         </div>
                     </div>
                 )
