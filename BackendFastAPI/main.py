@@ -112,7 +112,7 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8002,
         reload=True,
-        log_level="info",  # Más información en debug
+        log_level="info",
         access_log=True,
         reload_dirs=["./"]
     )

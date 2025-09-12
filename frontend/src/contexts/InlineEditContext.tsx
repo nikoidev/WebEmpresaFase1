@@ -17,13 +17,6 @@ export function InlineEditProvider({ children }: { children: React.ReactNode }) 
 
     // Solo admins pueden editar
     const canEdit = isAuthenticated && user?.is_admin
-    
-    // Debug logs
-    console.log(`🔍 InlineEditContext Debug:`, {
-        isAuthenticated,
-        user: user ? { id: user.id, email: user.email, is_admin: user.is_admin } : null,
-        canEdit
-    })
 
     const toggleEditMode = () => {
         if (canEdit) {

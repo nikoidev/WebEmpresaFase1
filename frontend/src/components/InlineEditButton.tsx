@@ -35,13 +35,7 @@ export default function InlineEditButton({
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
-    // Debug logs
-    console.log(`🔍 InlineEditButton Debug - pageKey: ${pageKey}, canEdit: ${canEdit}`)
-
-    if (!canEdit) {
-        console.log(`❌ InlineEditButton - Usuario no puede editar, ocultando botón`)
-        return null
-    }
+    if (!canEdit) return null
 
     const handleEdit = async () => {
         setIsLoading(true)

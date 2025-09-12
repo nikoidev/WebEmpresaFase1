@@ -19,11 +19,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const token = Cookies.get('authToken')
             if (token) {
+                // Intentar obtener usuario actual para validar token
                 const response = await adminApi.getCurrentUser()
                 setUser(response.data)
+            } else {
+                setUser(null)
             }
-        } catch (error) {
-            // Token inválido, limpiar
+        } catch (error: any) {
+            // Token inválido o backend no disponible, limpiar sesión
             Cookies.remove('authToken')
             Cookies.remove('user')
             setUser(null)

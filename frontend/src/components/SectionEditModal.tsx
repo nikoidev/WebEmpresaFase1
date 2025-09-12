@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Save } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 
@@ -21,21 +21,35 @@ export default function SectionEditModal({
     initialContent,
     onSave
 }: SectionEditModalProps) {
-    const [content, setContent] = useState(initialContent)
+    const [content, setContent] = useState(initialContent?.content_json || {})
     const [isSaving, setIsSaving] = useState(false)
+
+    // Actualizar contenido cuando cambie initialContent
+    useEffect(() => {
+        if (initialContent?.content_json) {
+            setContent(initialContent.content_json)
+        }
+    }, [initialContent])
 
     if (!isOpen) return null
 
     const handleSave = async () => {
         setIsSaving(true)
         try {
-            // Actualizar solo el contenido de esta sección
+            // Crear el contenido actualizado manteniendo la estructura completa
+            const updatedContentJson = {
+                ...initialContent.content_json,
+                ...content
+            }
+            
+            // Actualizar el contenido completo
             await adminApi.updatePageContent(pageKey, {
-                ...initialContent,
-                content_json: {
-                    ...initialContent.content_json,
-                    ...content
-                }
+                title: initialContent.title,
+                content_json: updatedContentJson,
+                meta_title: initialContent.meta_title,
+                meta_description: initialContent.meta_description,
+                meta_keywords: initialContent.meta_keywords,
+                is_active: initialContent.is_active
             })
             onSave()
             onClose()
