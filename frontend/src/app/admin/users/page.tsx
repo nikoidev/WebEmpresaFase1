@@ -35,6 +35,7 @@ interface UserFormData {
     role: UserRole
     is_staff: boolean
     is_superuser: boolean
+    is_active?: boolean // Solo para edición
     // username se establece automáticamente como email
 }
 
@@ -59,16 +60,9 @@ export default function UsersManagementPage() {
     const [error, setError] = useState('')
 
     // Estados para gestión de permisos
-    const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false)
-    const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<User | null>(null)
-    const [availablePermissions, setAvailablePermissions] = useState<any[]>([])
-    const [userPermissions, setUserPermissions] = useState<any[]>([])
-    const [permissionsLoading, setPermissionsLoading] = useState(false)
+    // Sistema simplificado - solo roles, sin permisos personalizados
     
-    // Estados para permisos en el modal de edición
-    const [showPermissionsSection, setShowPermissionsSection] = useState(false)
-    const [editingUserPermissions, setEditingUserPermissions] = useState<any[]>([])
-    const [availablePermissionsForEdit, setAvailablePermissionsForEdit] = useState<any[]>([])
+    // Sistema simplificado - solo manejo de roles
 
     useEffect(() => {
         loadUsers()
@@ -112,21 +106,11 @@ export default function UsersManagementPage() {
             password: '', // No pre-cargar password
             role: user.role,
             is_staff: user.is_staff,
-            is_superuser: user.is_superuser
+            is_superuser: user.is_superuser,
+            is_active: user.is_active
         })
         
-        // Cargar permisos disponibles y del usuario para el modal de edición
-        try {
-            const [availableResponse, userPermissionsResponse] = await Promise.all([
-                adminApi.getAvailablePermissions(),
-                adminApi.getUserPermissions(user.id)
-            ])
-            
-            setAvailablePermissionsForEdit(availableResponse.data.permissions)
-            setEditingUserPermissions(userPermissionsResponse.data)
-        } catch (error) {
-            console.error('Error loading permissions for edit:', error)
-        }
+        // Sistema simplificado - solo roles
         
         setIsModalOpen(true)
         setError('')
@@ -146,23 +130,7 @@ export default function UsersManagementPage() {
                 await adminApi.updateUser(editingUser.id, updateData)
                 console.log('User updated successfully')
                 
-                // Guardar permisos personalizados si hay cambios
-                if (editingUserPermissions.length > 0) {
-                    console.log('Updating user permissions:', editingUserPermissions)
-                    
-                    // Preparar datos para el bulk update
-                    const permissionsData = {
-                        user_id: editingUser.id,
-                        permissions: editingUserPermissions.map(p => ({
-                            permission: p.permission,
-                            resource: p.resource,
-                            is_granted: p.is_granted
-                        }))
-                    }
-                    
-                    await adminApi.setUserPermissionsBulk(editingUser.id, permissionsData)
-                    console.log('Permissions updated successfully')
-                }
+                // Sistema simplificado - permisos por rol únicamente
             } else {
                 // Crear nuevo usuario
                 console.log('Creating user with data:', formData)
@@ -171,8 +139,6 @@ export default function UsersManagementPage() {
             }
             
             setIsModalOpen(false)
-            setShowPermissionsSection(false)
-            setEditingUserPermissions([])
             loadUsers()
         } catch (error: any) {
             console.error('Error saving user:', error)
@@ -196,94 +162,31 @@ export default function UsersManagementPage() {
         }
     }
 
-    const handleManagePermissions = async (user: User) => {
-        setSelectedUserForPermissions(user)
-        setPermissionsLoading(true)
-        try {
-            // Cargar permisos disponibles y permisos del usuario
-            const [availableResponse, userPermissionsResponse] = await Promise.all([
-                adminApi.getAvailablePermissions(),
-                adminApi.getUserPermissions(user.id)
-            ])
-            
-            setAvailablePermissions(availableResponse.data.permissions)
-            setUserPermissions(userPermissionsResponse.data)
-            setIsPermissionsModalOpen(true)
-        } catch (error) {
-            console.error('Error loading permissions:', error)
-        } finally {
-            setPermissionsLoading(false)
+    const handleToggleUserStatus = async (user: User) => {
+        const action = user.is_active ? 'desactivar' : 'activar'
+        if (!confirm(`¿Estás seguro de que deseas ${action} al usuario "${user.username}"?`)) {
+            return
         }
-    }
 
-    const handlePermissionChange = async (permission: string, resource: string, isGranted: boolean) => {
-        if (!selectedUserForPermissions) return
-        
         try {
-            await adminApi.createUserPermission(selectedUserForPermissions.id, {
-                user_id: selectedUserForPermissions.id,
-                permission,
-                resource,
-                is_granted: isGranted
+            // Actualizar solo el estado activo del usuario
+            await adminApi.updateUser(user.id, { 
+                ...user, 
+                is_active: !user.is_active 
             })
-            
-            // Recargar permisos del usuario
-            const response = await adminApi.getUserPermissions(selectedUserForPermissions.id)
-            setUserPermissions(response.data)
-        } catch (error) {
-            console.error('Error updating permission:', error)
+            loadUsers()
+        } catch (error: any) {
+            alert(error.response?.data?.detail || `Error al ${action} usuario`)
         }
     }
 
-    const handleEditPermissionChange = (permission: string, resource: string, isGranted: boolean) => {
-        const permissionKey = `${permission}:${resource}`
-        
-        // Buscar si ya existe este permiso personalizado
-        const existingIndex = editingUserPermissions.findIndex(
-            p => p.permission === permission && p.resource === resource
-        )
-        
-        if (existingIndex >= 0) {
-            // Actualizar permiso existente
-            const updated = [...editingUserPermissions]
-            updated[existingIndex] = { ...updated[existingIndex], is_granted: isGranted }
-            setEditingUserPermissions(updated)
-        } else {
-            // Agregar nuevo permiso personalizado
-            const newPermission = {
-                permission,
-                resource,
-                is_granted: isGranted,
-                id: null // Nuevo permiso, se creará en el backend
-            }
-            setEditingUserPermissions([...editingUserPermissions, newPermission])
-        }
-    }
+    // Sistema simplificado - permisos basados en roles únicamente
 
-    const getUserPermissionStatus = (permission: string, resource: string) => {
-        // Verificar permisos personalizados primero
-        const customPermission = editingUserPermissions.find(
-            p => p.permission === permission && p.resource === resource
-        )
-        
-        if (customPermission) {
-            return customPermission.is_granted
-        }
-        
-        // Si no hay permiso personalizado, verificar permisos del rol
-        if (!editingUser) return false
-        
-        const rolePermissions = {
-            'super_admin': ['view', 'create', 'edit', 'delete', 'moderate', 'manage_users'],
-            'admin': ['view', 'create', 'edit', 'delete', 'moderate'],
-            'editor': ['view', 'create', 'edit'],
-            'moderator': ['view', 'moderate'],
-            'viewer': ['view']
-        }
-        
-        const userRolePermissions = rolePermissions[editingUser.role as keyof typeof rolePermissions] || []
-        return userRolePermissions.includes(permission)
-    }
+    // Sistema simplificado - sin permisos personalizados
+
+    // Función eliminada - sistema simplificado
+
+    // Función eliminada - sistema simplificado
 
     const getRoleColor = (role: UserRole) => {
         const colors = {
@@ -490,11 +393,19 @@ export default function UsersManagementPage() {
                                                         <Edit className="h-4 w-4" />
                                                     </button>
                                                     <button
-                                                        onClick={() => handleManagePermissions(user)}
-                                                        className="text-green-600 hover:text-green-900 p-1"
-                                                        title="Gestionar permisos"
+                                                        onClick={() => handleToggleUserStatus(user)}
+                                                        className={`p-1 ${
+                                                            user.is_active 
+                                                                ? 'text-yellow-600 hover:text-yellow-900' 
+                                                                : 'text-green-600 hover:text-green-900'
+                                                        }`}
+                                                        title={user.is_active ? 'Desactivar usuario' : 'Activar usuario'}
                                                     >
-                                                        <Shield className="h-4 w-4" />
+                                                        {user.is_active ? (
+                                                            <UserX className="h-4 w-4" />
+                                                        ) : (
+                                                            <UserCheck className="h-4 w-4" />
+                                                        )}
                                                     </button>
                                                     <button
                                                         onClick={() => handleDeleteUser(user)}
@@ -672,100 +583,35 @@ export default function UsersManagementPage() {
                                         />
                                         <span className="ml-2 text-sm text-gray-700">Es superusuario</span>
                                     </label>
+                                    {editingUser && (
+                                        <label className="flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.is_active !== false}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
+                                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <span className="ml-2 text-sm text-gray-700">Usuario activo</span>
+                                        </label>
+                                    )}
                                 </div>
 
-                                {/* Sección de Permisos Personalizados - Solo para edición */}
+                                {/* Sistema simplificado - Permisos automáticos por rol */}
                                 {editingUser && (
                                     <div className="border-t pt-4">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <h4 className="text-sm font-medium text-gray-900">
-                                                Permisos Personalizados
+                                        <div className="mb-3">
+                                            <h4 className="text-sm font-medium text-gray-900 mb-2">
+                                                Permisos por Rol
                                             </h4>
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPermissionsSection(!showPermissionsSection)}
-                                                className="text-sm text-blue-600 hover:text-blue-800"
-                                            >
-                                                {showPermissionsSection ? 'Ocultar' : 'Gestionar'} permisos
-                                            </button>
-                                        </div>
-                                        
-                                        {showPermissionsSection && (
-                                            <div className="space-y-3 max-h-60 overflow-y-auto border rounded-md p-3 bg-gray-50">
-                                                <p className="text-xs text-gray-600 mb-3">
-                                                    Los permisos personalizados sobreescribirán los permisos del rol. 
-                                                    Las casillas marcadas en <span className="font-semibold text-green-600">verde</span> indican permisos activos,
-                                                    las marcadas en <span className="font-semibold text-red-600">rojo</span> indican permisos denegados explícitamente.
-                                                </p>
-                                                
-                                                {availablePermissionsForEdit.map((permission: any) => (
-                                                    <div key={permission.value} className="border-b border-gray-200 pb-2 mb-2 last:border-b-0">
-                                                        <h5 className="text-sm font-medium text-gray-700 mb-2">
-                                                            {permission.name} ({permission.value})
-                                                        </h5>
-                                                        <p className="text-xs text-gray-500 mb-2">
-                                                            {permission.description}
-                                                        </p>
-                                                        
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            {permission.resources.slice(0, 6).map((resource: string) => {
-                                                                const isChecked = getUserPermissionStatus(permission.value, resource)
-                                                                const hasCustomPermission = editingUserPermissions.some(
-                                                                    p => p.permission === permission.value && p.resource === resource
-                                                                )
-                                                                
-                                                                return (
-                                                                    <label key={`${permission.value}-${resource}`} 
-                                                                           className="flex items-center text-xs">
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            checked={isChecked}
-                                                                            onChange={(e) => handleEditPermissionChange(
-                                                                                permission.value, 
-                                                                                resource, 
-                                                                                e.target.checked
-                                                                            )}
-                                                                            className={`rounded border-gray-300 focus:ring-blue-500 ${
-                                                                                hasCustomPermission 
-                                                                                    ? (isChecked ? 'text-green-600' : 'text-red-600')
-                                                                                    : 'text-blue-600'
-                                                                            }`}
-                                                                        />
-                                                                        <span className={`ml-1 ${
-                                                                            hasCustomPermission 
-                                                                                ? (isChecked ? 'text-green-700 font-medium' : 'text-red-700 font-medium')
-                                                                                : 'text-gray-600'
-                                                                        }`}>
-                                                                            {resource === '*' ? 'Todo' : resource}
-                                                                            {hasCustomPermission && (
-                                                                                <span className="ml-1">
-                                                                                    {isChecked ? '✓' : '✗'}
-                                                                                </span>
-                                                                            )}
-                                                                        </span>
-                                                                    </label>
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                                
-                                                {editingUserPermissions.length > 0 && (
-                                                    <div className="mt-3 pt-3 border-t border-gray-300">
-                                                        <p className="text-xs text-gray-700 font-medium mb-2">
-                                                            Permisos personalizados activos: {editingUserPermissions.filter(p => p.is_granted).length}
-                                                        </p>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setEditingUserPermissions([])}
-                                                            className="text-xs text-red-600 hover:text-red-800"
-                                                        >
-                                                            Limpiar todos los permisos personalizados
-                                                        </button>
-                                                    </div>
-                                                )}
+                                            <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-md">
+                                                <p className="mb-2">Los permisos se asignan automáticamente según el rol:</p>
+                                                <ul className="text-xs space-y-1">
+                                                    <li><strong>Administrador:</strong> Acceso completo al sistema</li>
+                                                    <li><strong>Editor:</strong> Puede editar contenido</li>
+                                                    <li><strong>Visualizador:</strong> Solo puede ver información</li>
+                                                </ul>
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
                                 )}
 
