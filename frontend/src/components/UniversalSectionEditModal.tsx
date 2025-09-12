@@ -1566,6 +1566,146 @@ export default function UniversalSectionEditModal({
                     </div>
                 )
 
+            case 'enterprise':
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-gradient-to-r from-primary-50 to-primary-100 border border-primary-200 rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-primary-900 mb-2">
+                                🚀 Editor de Sección Empresarial
+                            </h3>
+                            <p className="text-primary-700 text-sm">
+                                Personaliza la sección de llamada a la acción para planes empresariales.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Título Principal
+                                </label>
+                                <input
+                                    type="text"
+                                    value={content.enterprise_title || ''}
+                                    onChange={(e) => updateContent('enterprise_title', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="¿Necesitas algo más personalizado?"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Descripción
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    value={content.enterprise_description || ''}
+                                    onChange={(e) => updateContent('enterprise_description', e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Descripción de los planes empresariales"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="border-t pt-6">
+                            <h3 className="text-md font-semibold text-gray-900 mb-4">Características Destacadas</h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Característica 1
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.enterprise_feature1_number || ''}
+                                        onChange={(e) => updateContent('enterprise_feature1_number', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 mb-2"
+                                        placeholder="24/7"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={content.enterprise_feature1_text || ''}
+                                        onChange={(e) => updateContent('enterprise_feature1_text', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Soporte Dedicado"
+                                    />
+                                </div>
+
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Característica 2
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.enterprise_feature2_number || ''}
+                                        onChange={(e) => updateContent('enterprise_feature2_number', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 mb-2"
+                                        placeholder="100%"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={content.enterprise_feature2_text || ''}
+                                        onChange={(e) => updateContent('enterprise_feature2_text', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Personalizable"
+                                    />
+                                </div>
+
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Característica 3
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.enterprise_feature3_number || ''}
+                                        onChange={(e) => updateContent('enterprise_feature3_number', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 mb-2"
+                                        placeholder="SLA"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={content.enterprise_feature3_text || ''}
+                                        onChange={(e) => updateContent('enterprise_feature3_text', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Garantizado"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border-t pt-6">
+                            <h3 className="text-md font-semibold text-gray-900 mb-4">Botones de Acción</h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Botón Principal
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.enterprise_button_primary || ''}
+                                        onChange={(e) => updateContent('enterprise_button_primary', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Contactar Ventas"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Botón Secundario
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.enterprise_button_secondary || ''}
+                                        onChange={(e) => updateContent('enterprise_button_secondary', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Ver Demo"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+
             case 'faq':
                 return (
                     <div className="space-y-6">

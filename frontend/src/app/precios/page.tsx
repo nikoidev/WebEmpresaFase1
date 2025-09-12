@@ -261,22 +261,72 @@ export default function PreciosPage() {
                         })}
                     </div>
 
-                    {/* Enterprise CTA */}
-                    <div className="mt-16 bg-white rounded-2xl shadow-lg p-8 text-center">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                            ¿Necesitas algo más personalizado?
-                        </h3>
-                        <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                            Para instituciones con necesidades específicas, ofrecemos planes empresariales
-                            con características y soporte personalizado.
-                        </p>
-                        <a
-                            href="/contacto"
-                            className="inline-flex items-center bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
-                        >
-                            Contactar Ventas
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                        </a>
+                    {/* Enterprise CTA - Integrated Design */}
+                    <div className="mt-16 bg-white rounded-2xl shadow-lg p-8 text-center relative">
+                        <SectionEditButton 
+                            sectionName="Sección Empresarial"
+                            onEdit={() => handleSectionEdit('enterprise', 'Sección Empresarial')}
+                            position="top-right"
+                        />
+                        
+                        <div className="mb-8">
+                            <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-600 rounded-full mb-6 shadow-lg">
+                                <Star className="h-8 w-8 text-white" />
+                            </div>
+                            
+                            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                                {content?.enterprise_title || '¿Necesitas algo más personalizado?'}
+                            </h3>
+                            
+                            <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
+                                {content?.enterprise_description || 'Para instituciones con necesidades específicas, ofrecemos planes empresariales con características y soporte personalizado.'}
+                            </p>
+                        </div>
+
+                        {/* Features in a simple row */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                            <div className="text-center">
+                                <div className="text-4xl font-bold text-primary-600 mb-2">
+                                    {content?.enterprise_feature1_number || '24/7'}
+                                </div>
+                                <div className="text-gray-600 font-medium">
+                                    {content?.enterprise_feature1_text || 'Soporte Dedicado'}
+                                </div>
+                            </div>
+
+                            <div className="text-center">
+                                <div className="text-4xl font-bold text-primary-600 mb-2">
+                                    {content?.enterprise_feature2_number || '100%'}
+                                </div>
+                                <div className="text-gray-600 font-medium">
+                                    {content?.enterprise_feature2_text || 'Personalizable'}
+                                </div>
+                            </div>
+
+                            <div className="text-center">
+                                <div className="text-4xl font-bold text-primary-600 mb-2">
+                                    {content?.enterprise_feature3_number || 'SLA'}
+                                </div>
+                                <div className="text-gray-600 font-medium">
+                                    {content?.enterprise_feature3_text || 'Garantizado'}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CTA Buttons matching plan cards style */}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a
+                                href="/contacto"
+                                className="inline-flex items-center justify-center bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
+                            >
+                                {content?.enterprise_button_primary || 'Contactar Ventas'}
+                                <ArrowRight className="ml-2 h-5 w-5" />
+                            </a>
+                            
+                            <button className="inline-flex items-center justify-center bg-transparent border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                                {content?.enterprise_button_secondary || 'Ver Demo'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
