@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { adminApi } from '@/lib/api'
-import { Plus, Trash2, Building, Share2, Mail, Copyright, Link } from 'lucide-react'
+import { Plus, Trash2, Building, Share2, Mail, Copyright, Link, Edit, Settings } from 'lucide-react'
 
 interface SocialNetwork {
     name: string
@@ -42,7 +42,7 @@ interface FooterEditorProps {
 }
 
 export default function FooterEditor({ onClose, onSave, data, onChange, isStandalone = true }: FooterEditorProps) {
-    const [activeSection, setActiveSection] = useState<'company' | 'social' | 'support' | 'legal'>('company')
+    const [activeSection, setActiveSection] = useState<'company' | 'social' | 'support' | 'legal' | null>(null)
     const [content, setContent] = useState<FooterContent>({
         company: {
             name: 'SEVP',
@@ -50,13 +50,13 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
             description: 'Sistema Educativo Virtual Profesional - La plataforma más completa para transformar la gestión educativa de tu institución.'
         },
         social_networks: [
-            { name: 'Facebook', url: 'https://facebook.com/sevp', icon: 'facebook', platform: 'Facebook' },
-            { name: 'LinkedIn', url: 'https://linkedin.com/company/sevp', icon: 'linkedin', platform: 'LinkedIn' },
-            { name: 'Twitter', url: 'https://twitter.com/sevp', icon: 'twitter', platform: 'Twitter' }
+            { name: 'Facebook', url: 'https://facebook.com', icon: 'facebook', platform: 'Facebook' },
+            { name: 'Twitter', url: 'https://twitter.com', icon: 'twitter', platform: 'Twitter' },
+            { name: 'LinkedIn', url: 'https://linkedin.com', icon: 'linkedin', platform: 'LinkedIn' }
         ],
         support: {
             email: 'soporte@sevp.com',
-            phone: '+51 999 999 999',
+            phone: '+51 1 234-5678',
             hours: 'Lun - Vie: 9:00 - 18:00'
         },
         copyright: {
@@ -139,23 +139,18 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
     }
 
     const removeSocialNetwork = (index: number) => {
-        const networks = content.social_networks?.filter((_, i) => i !== index) || []
+        const networks = [...(content.social_networks || [])]
+        networks.splice(index, 1)
         updateContent('social_networks', networks)
     }
 
     const handleSave = async () => {
-        if (!isStandalone && onChange) {
-            // Modo integrado: solo actualizar el contenido sin guardar en DB
-            onChange(content)
-            return
-        }
-
-        // Modo standalone: guardar en DB
         setIsSaving(true)
         try {
+            // Enviar a la API como PageContent
             const pageData = {
                 page_key: 'footer',
-                title: 'Footer - SEVP',
+                title: 'Footer de la Página',
                 content_json: content,
                 meta_title: 'Footer',
                 meta_description: 'Configuración del footer de la página',
@@ -180,37 +175,104 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
     }
 
     const sections = [
-        { id: 'company', label: 'Información de la Empresa', icon: Building },
-        { id: 'social', label: 'Redes Sociales', icon: Share2 },
-        { id: 'support', label: 'Información de Soporte', icon: Mail },
-        { id: 'legal', label: 'Copyright y Enlaces Legales', icon: Copyright }
+        {
+            key: 'company',
+            name: 'Información de la Empresa',
+            description: 'Nombre, logo y descripción de la empresa',
+            color: 'bg-blue-500',
+            icon: Building
+        },
+        {
+            key: 'social',
+            name: 'Redes Sociales',
+            description: 'Enlaces a redes sociales y plataformas',
+            color: 'bg-green-500',
+            icon: Share2
+        },
+        {
+            key: 'support',
+            name: 'Información de Soporte',
+            description: 'Email, teléfono y horarios de atención',
+            color: 'bg-purple-500',
+            icon: Mail
+        },
+        {
+            key: 'legal',
+            name: 'Copyright y Enlaces Legales',
+            description: 'Derechos de autor y enlaces legales',
+            color: 'bg-orange-500',
+            icon: Copyright
+        }
     ]
+
+    const handleSectionEdit = (sectionKey: string) => {
+        setActiveSection(sectionKey as any)
+    }
+
+    const getPreviewContent = (sectionKey: string) => {
+        switch (sectionKey) {
+            case 'company':
+                return [
+                    `Empresa: ${content.company?.name || 'Sin configurar'}`,
+                    `Logo: ${content.company?.logo_letter || 'Sin configurar'}`,
+                    `Descripción: ${content.company?.description ? 'Configurada' : 'Sin configurar'}`
+                ]
+            case 'social':
+                const socialCount = content.social_networks?.length || 0
+                return [
+                    `Redes sociales: ${socialCount}`,
+                    ...(content.social_networks?.slice(0, 2).map(social => `• ${social.name}`) || [])
+                ]
+            case 'support':
+                return [
+                    `Email: ${content.support?.email || 'Sin configurar'}`,
+                    `Teléfono: ${content.support?.phone || 'Sin configurar'}`,
+                    `Horarios: ${content.support?.hours || 'Sin configurar'}`
+                ]
+            case 'legal':
+                return [
+                    `Copyright: ${content.copyright?.text || 'Sin configurar'}`,
+                    `Año: ${content.copyright?.year || 'Sin configurar'}`,
+                    `Enlaces: ${Object.keys(content.legal_links || {}).length} configurados`
+                ]
+            default:
+                return ['Sin información disponible']
+        }
+    }
 
     if (isLoading && isStandalone) {
         return (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
                 <div className="bg-white p-8 rounded-lg shadow-xl">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                        <p className="mt-4 text-gray-600">Cargando contenido del footer...</p>
-                    </div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-center text-gray-600">Cargando contenido del footer...</p>
                 </div>
             </div>
         )
     }
 
     const editorContent = (
-        <div className={isStandalone ? "h-full flex flex-col p-5" : "flex h-full"}>
+        <div className="p-6">
             {/* Header del modal (solo en modo standalone) */}
             {isStandalone && (
-                <div className="flex justify-between items-center pb-3 border-b flex-shrink-0 mb-4">
-                    <h3 className="text-xl font-bold text-gray-900">Editar Footer</h3>
+                <div className="flex justify-between items-center pb-3 border-b flex-shrink-0 mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Editor por Secciones - Footer</h2>
+                        <p className="text-gray-600">Configura las diferentes secciones del pie de página.</p>
+                    </div>
                     <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
                     >
                         ×
                     </button>
+                </div>
+            )}
+
+            {!isStandalone && (
+                <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Editor por Secciones - Footer</h2>
+                    <p className="text-gray-600">Configura las diferentes secciones del pie de página.</p>
                 </div>
             )}
 
@@ -221,35 +283,63 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
                 </div>
             )}
 
-            {/* Contenido principal con sidebar */}
-            <div className={`${isStandalone ? "flex-1 flex min-h-0" : "flex h-full"}`}>
-                {/* Sidebar */}
-                <div className="w-64 bg-gray-50 border-r border-gray-200 p-4 flex-shrink-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Secciones del Footer</h3>
-                    <nav className="space-y-2">
-                        {sections.map((section) => (
-                            <button
-                                key={section.id}
-                                onClick={() => setActiveSection(section.id as any)}
-                                className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                                    activeSection === section.id
-                                        ? 'bg-primary-100 text-primary-700 border border-primary-200'
-                                        : 'text-gray-600 hover:bg-gray-100'
-                                }`}
-                            >
-                                <section.icon size={16} />
-                                {section.label}
-                            </button>
-                        ))}
-                    </nav>
-                </div>
+            {/* Grid de tarjetas */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {sections.map((section) => {
+                    const IconComponent = section.icon
+                    
+                    return (
+                        <div
+                            key={section.key}
+                            className="bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                        >
+                            <div className="p-6">
+                                <div className={`${section.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
+                                    <IconComponent className="h-6 w-6 text-white" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{section.name}</h3>
+                                <p className="text-gray-600 text-sm mb-4">{section.description}</p>
+                                
+                                {/* Preview del contenido */}
+                                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                                    <div className="space-y-1">
+                                        {getPreviewContent(section.key).map((item, index) => (
+                                            <p key={index} className="text-xs text-gray-600 truncate">{item}</p>
+                                        ))}
+                                    </div>
+                                </div>
+                                
+                                <button
+                                    onClick={() => handleSectionEdit(section.key)}
+                                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg flex items-center justify-center transition-colors"
+                                >
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Editar Sección
+                                </button>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
 
-                {/* Content Editor */}
-                <div className="flex-1 p-6 overflow-y-auto">
+            {/* Formularios de edición - Solo se muestra el activo */}
+            {activeSection && (
+                <div className="mt-8 bg-white border rounded-lg shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-semibold text-gray-900">
+                            Editando: {sections.find(s => s.key === activeSection)?.name}
+                        </h3>
+                        <button
+                            onClick={() => setActiveSection(null)}
+                            className="text-gray-400 hover:text-gray-600"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                    
+                    {/* Contenido del formulario según sección activa */}
                     {activeSection === 'company' && (
-                        <div className="space-y-6">
-                            <h3 className="text-xl font-semibold text-gray-900">Información de la Empresa</h3>
-                            
+                        <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -272,7 +362,6 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
                                     </label>
                                     <input
                                         type="text"
-                                        maxLength={1}
                                         value={content.company?.logo_letter || ''}
                                         onChange={(e) => updateContent('company', {
                                             ...content.company,
@@ -280,10 +369,10 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
                                         })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                                         placeholder="S"
+                                        maxLength={1}
                                     />
                                 </div>
                             </div>
-
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Descripción de la empresa
@@ -294,136 +383,116 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
                                         ...content.company,
                                         description: e.target.value
                                     })}
-                                    rows={4}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                                    placeholder="Descripción de la empresa..."
+                                    rows={3}
+                                    placeholder="Descripción breve de la empresa..."
                                 />
                             </div>
                         </div>
                     )}
 
                     {activeSection === 'social' && (
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-xl font-semibold text-gray-900">Redes Sociales</h3>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <h4 className="font-medium text-gray-900">Redes Sociales</h4>
                                 <button
                                     onClick={addSocialNetwork}
-                                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2"
+                                    className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                                 >
-                                    <Plus size={16} />
+                                    <Plus className="h-4 w-4 mr-2" />
                                     Agregar Red Social
                                 </button>
                             </div>
-
                             <div className="space-y-4">
-                                {content.social_networks?.map((network, index) => (
-                                    <div key={index} className="border border-gray-200 rounded-lg p-4">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <h4 className="font-medium text-gray-900">{network.name || `Red Social ${index + 1}`}</h4>
-                                            <button
-                                                onClick={() => removeSocialNetwork(index)}
-                                                className="text-red-600 hover:text-red-800"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                        
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                {(content.social_networks || []).map((network, index) => (
+                                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                    Nombre de la Red
+                                                    Nombre
                                                 </label>
                                                 <input
                                                     type="text"
                                                     value={network.name}
                                                     onChange={(e) => updateSocialNetwork(index, 'name', e.target.value)}
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                                                    placeholder="Facebook"
                                                 />
                                             </div>
-                                            
                                             <div>
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                    Plataforma/Icono
+                                                    URL
+                                                </label>
+                                                <input
+                                                    type="url"
+                                                    value={network.url}
+                                                    onChange={(e) => updateSocialNetwork(index, 'url', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Plataforma
                                                 </label>
                                                 <select
-                                                    value={network.icon}
-                                                    onChange={(e) => {
-                                                        updateSocialNetwork(index, 'icon', e.target.value)
-                                                        updateSocialNetwork(index, 'platform', e.target.value)
-                                                    }}
+                                                    value={network.platform}
+                                                    onChange={(e) => updateSocialNetwork(index, 'platform', e.target.value)}
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                                                 >
                                                     {availablePlatforms.map((platform) => (
-                                                        <option key={platform.icon} value={platform.icon}>
+                                                        <option key={platform.name} value={platform.name}>
                                                             {platform.name}
                                                         </option>
                                                     ))}
-                                                    <option value="link">Personalizada</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                URL de la Red Social
-                                            </label>
-                                            <input
-                                                type="url"
-                                                value={network.url}
-                                                onChange={(e) => updateSocialNetwork(index, 'url', e.target.value)}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                                                placeholder="https://facebook.com/mi-empresa"
-                                            />
-                                        </div>
+                                        <button
+                                            onClick={() => removeSocialNetwork(index)}
+                                            className="flex items-center px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+                                        >
+                                            <Trash2 className="h-4 w-4 mr-1" />
+                                            Eliminar
+                                        </button>
                                     </div>
                                 ))}
                             </div>
-                            
-                            {(!content.social_networks || content.social_networks.length === 0) && (
-                                <div className="text-center py-8 text-gray-500">
-                                    No hay redes sociales configuradas. Haz clic en "Agregar Red Social" para comenzar.
-                                </div>
-                            )}
                         </div>
                     )}
 
                     {activeSection === 'support' && (
-                        <div className="space-y-6">
-                            <h3 className="text-xl font-semibold text-gray-900">Información de Soporte</h3>
-                            
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email de soporte
-                                </label>
-                                <input
-                                    type="email"
-                                    value={content.support?.email || ''}
-                                    onChange={(e) => updateContent('support', {
-                                        ...content.support,
-                                        email: e.target.value
-                                    })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                                    placeholder="soporte@empresa.com"
-                                />
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Email de soporte
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={content.support?.email || ''}
+                                        onChange={(e) => updateContent('support', {
+                                            ...content.support,
+                                            email: e.target.value
+                                        })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                        placeholder="soporte@sevp.com"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Teléfono de soporte
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.support?.phone || ''}
+                                        onChange={(e) => updateContent('support', {
+                                            ...content.support,
+                                            phone: e.target.value
+                                        })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                        placeholder="+51 1 234-5678"
+                                    />
+                                </div>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Teléfono de soporte
-                                </label>
-                                <input
-                                    type="tel"
-                                    value={content.support?.phone || ''}
-                                    onChange={(e) => updateContent('support', {
-                                        ...content.support,
-                                        phone: e.target.value
-                                    })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                                    placeholder="+51 999 999 999"
-                                />
-                            </div>
-
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Horarios de atención
@@ -443,25 +512,40 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
                     )}
 
                     {activeSection === 'legal' && (
-                        <div className="space-y-6">
-                            <h3 className="text-xl font-semibold text-gray-900">Copyright y Enlaces Legales</h3>
-                            
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Texto de copyright
-                                </label>
-                                <input
-                                    type="text"
-                                    value={content.copyright?.text || ''}
-                                    onChange={(e) => updateContent('copyright', {
-                                        ...content.copyright,
-                                        text: e.target.value
-                                    })}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                                    placeholder="Mi Empresa. Todos los derechos reservados."
-                                />
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Texto de copyright
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.copyright?.text || ''}
+                                        onChange={(e) => updateContent('copyright', {
+                                            ...content.copyright,
+                                            text: e.target.value
+                                        })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                        placeholder="SEVP. Todos los derechos reservados."
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Año
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={content.copyright?.year || new Date().getFullYear()}
+                                        onChange={(e) => updateContent('copyright', {
+                                            ...content.copyright,
+                                            year: parseInt(e.target.value)
+                                        })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                        min="2020"
+                                        max="2030"
+                                    />
+                                </div>
                             </div>
-
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -496,25 +580,25 @@ export default function FooterEditor({ onClose, onSave, data, onChange, isStanda
                             </div>
                         </div>
                     )}
-                </div>
-            </div>
 
-            {/* Botones de acción (solo en modo standalone) */}
-            {isStandalone && (
-                <div className="flex justify-end space-x-4 mt-auto pt-4 border-t flex-shrink-0">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
-                    >
-                        {isSaving ? 'Guardando y recargando...' : 'Guardar Cambios'}
-                    </button>
+                    {/* Botones de acción */}
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button
+                            onClick={() => setActiveSection(null)}
+                            className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                        >
+                            Cancelar
+                        </button>
+                        {isStandalone && (
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                            >
+                                {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                            </button>
+                        )}
+                    </div>
                 </div>
             )}
         </div>
