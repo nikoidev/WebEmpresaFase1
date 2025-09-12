@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Save } from 'lucide-react'
+import { X, Save, ImageIcon, Video } from 'lucide-react'
 import { adminApi } from '@/lib/api'
+import MediaSelector from './MediaSelector'
 
 interface SectionEditModalProps {
     isOpen: boolean
@@ -23,6 +24,50 @@ export default function SectionEditModal({
 }: SectionEditModalProps) {
     const [content, setContent] = useState(initialContent?.content_json || {})
     const [isSaving, setIsSaving] = useState(false)
+    const [mediaSelector, setMediaSelector] = useState<{
+        isOpen: boolean
+        type: 'image' | 'video'
+        field: string
+    }>({ isOpen: false, type: 'image', field: '' })
+
+    // Manejar selección de medios
+    const handleMediaSelect = (url: string, alt?: string) => {
+        const field = mediaSelector.field
+        if (field === 'hero.image_url') {
+            setContent({
+                ...content,
+                hero: {
+                    ...content.hero,
+                    image_url: url,
+                    video_url: '' // Limpiar video si se selecciona imagen
+                }
+            })
+        } else if (field === 'hero.video_url') {
+            setContent({
+                ...content,
+                hero: {
+                    ...content.hero,
+                    video_url: url,
+                    image_url: '' // Limpiar imagen si se selecciona video
+                }
+            })
+        } else if (field.startsWith('slideshow.')) {
+            // Manejar selección de archivos para slideshow
+            const index = parseInt(field.split('.')[1])
+            const newSlideshow = [...(content.hero?.slideshow || [])]
+            if (newSlideshow[index]) {
+                newSlideshow[index] = { ...newSlideshow[index], url }
+                setContent({
+                    ...content,
+                    hero: {
+                        ...content.hero,
+                        slideshow: newSlideshow
+                    }
+                })
+            }
+        }
+        setMediaSelector({ isOpen: false, type: 'image', field: '' })
+    }
 
     // Actualizar contenido cuando cambie initialContent
     useEffect(() => {
@@ -190,6 +235,212 @@ export default function SectionEditModal({
                                 />
                             </div>
                         </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Imagen (opcional)
+                                </label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={content.hero?.image_url || ''}
+                                        onChange={(e) => setContent({ 
+                                            ...content, 
+                                            hero: { 
+                                                ...content.hero, 
+                                                image_url: e.target.value,
+                                                video_url: e.target.value ? '' : content.hero?.video_url // Limpiar video si se añade imagen
+                                            }
+                                        })}
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                        placeholder="URL de imagen o selecciona de la galería"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setMediaSelector({ isOpen: true, type: 'image', field: 'hero.image_url' })}
+                                        className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                    >
+                                        <ImageIcon className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Video (opcional)
+                                </label>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={content.hero?.video_url || ''}
+                                        onChange={(e) => setContent({ 
+                                            ...content, 
+                                            hero: { 
+                                                ...content.hero, 
+                                                video_url: e.target.value,
+                                                image_url: e.target.value ? '' : content.hero?.image_url // Limpiar imagen si se añade video
+                                            }
+                                        })}
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                        placeholder="URL de video (YouTube, MP4, WebM) o selecciona de la galería"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setMediaSelector({ isOpen: true, type: 'video', field: 'hero.video_url' })}
+                                        className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                                    >
+                                        <Video className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Configuración del Slideshow */}
+                        <div className="border-t pt-6">
+                            <h4 className="text-md font-semibold text-gray-900 mb-4">Slideshow (Opcional)</h4>
+                            <p className="text-sm text-gray-600 mb-4">
+                                Configura múltiples imágenes/videos que se reproducirán automáticamente. 
+                                Esto reemplazará la imagen/video individual de arriba.
+                            </p>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Intervalo de cambio (segundos)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="30"
+                                        value={content.hero?.slideshow_interval || 5}
+                                        onChange={(e) => setContent({ 
+                                            ...content, 
+                                            hero: { 
+                                                ...content.hero, 
+                                                slideshow_interval: parseInt(e.target.value) || 5
+                                            }
+                                        })}
+                                        className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="block text-sm font-medium text-gray-700">
+                                            Archivos del Slideshow
+                                        </label>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const newSlide = { type: 'image' as 'image' | 'video', url: '', alt: '' }
+                                                setContent({
+                                                    ...content,
+                                                    hero: {
+                                                        ...content.hero,
+                                                        slideshow: [...(content.hero?.slideshow || []), newSlide]
+                                                    }
+                                                })
+                                            }}
+                                            className="px-3 py-1 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition-colors"
+                                        >
+                                            + Agregar Archivo
+                                        </button>
+                                    </div>
+
+                                    {content.hero?.slideshow && content.hero.slideshow.length > 0 ? (
+                                        <div className="space-y-3 max-h-64 overflow-y-auto">
+                                            {content.hero.slideshow.map((slide: any, index: number) => (
+                                                <div key={index} className="border border-gray-200 rounded-lg p-3">
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                        <div>
+                                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                                Tipo
+                                                            </label>
+                                                            <select
+                                                                value={slide.type || 'image'}
+                                                                onChange={(e) => {
+                                                                    const newSlideshow = [...content.hero.slideshow]
+                                                                    newSlideshow[index] = { ...newSlideshow[index], type: e.target.value as 'image' | 'video' }
+                                                                    setContent({ 
+                                                                        ...content, 
+                                                                        hero: { 
+                                                                            ...content.hero, 
+                                                                            slideshow: newSlideshow 
+                                                                        }
+                                                                    })
+                                                                }}
+                                                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500"
+                                                            >
+                                                                <option value="image">Imagen</option>
+                                                                <option value="video">Video</option>
+                                                            </select>
+                                                        </div>
+
+                                                        <div className="md:col-span-2">
+                                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                                URL
+                                                            </label>
+                                                            <div className="flex gap-1">
+                                                                <input
+                                                                    type="text"
+                                                                    value={slide.url || ''}
+                                                                    onChange={(e) => {
+                                                                        const newSlideshow = [...content.hero.slideshow]
+                                                                        newSlideshow[index] = { ...newSlideshow[index], url: e.target.value }
+                                                                        setContent({ 
+                                                                            ...content, 
+                                                                            hero: { 
+                                                                                ...content.hero, 
+                                                                                slideshow: newSlideshow 
+                                                                            }
+                                                                        })
+                                                                    }}
+                                                                    className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500"
+                                                                    placeholder={slide.type === 'video' ? 'URL de video (YouTube, MP4...)' : 'URL de imagen'}
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => setMediaSelector({ 
+                                                                        isOpen: true, 
+                                                                        type: slide.type, 
+                                                                        field: `slideshow.${index}.url` 
+                                                                    })}
+                                                                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                                                                >
+                                                                    {slide.type === 'video' ? <Video className="h-3 w-3" /> : <ImageIcon className="h-3 w-3" />}
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const newSlideshow = content.hero.slideshow.filter((_, i) => i !== index)
+                                                                        setContent({ 
+                                                                            ...content, 
+                                                                            hero: { 
+                                                                                ...content.hero, 
+                                                                                slideshow: newSlideshow 
+                                                                            }
+                                                                        })
+                                                                    }}
+                                                                    className="px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+                                                                    title="Eliminar"
+                                                                >
+                                                                    ×
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-500 italic">
+                                            No hay archivos en el slideshow. Usa la imagen/video individual arriba o agrega archivos aquí.
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )
 
@@ -236,6 +487,32 @@ export default function SectionEditModal({
                                                     rows={2}
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                                                 />
+                                            </div>
+                                            
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Ícono {index + 1}
+                                                </label>
+                                                <select
+                                                    value={feature.icon || 'Users'}
+                                                    onChange={(e) => {
+                                                        const newFeatures = [...content.features]
+                                                        newFeatures[index] = { ...newFeatures[index], icon: e.target.value }
+                                                        setContent({ ...content, features: newFeatures })
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                                                >
+                                                    <option value="Users">👥 Usuarios (Users)</option>
+                                                    <option value="BookOpen">📚 Libro (BookOpen)</option>
+                                                    <option value="Shield">🛡️ Escudo (Shield)</option>
+                                                    <option value="Zap">⚡ Rayo (Zap)</option>
+                                                    <option value="CheckCircle">✅ Check (CheckCircle)</option>
+                                                    <option value="Star">⭐ Estrella (Star)</option>
+                                                    <option value="Award">🏆 Premio (Award)</option>
+                                                    <option value="Heart">❤️ Corazón (Heart)</option>
+                                                    <option value="Target">🎯 Objetivo (Target)</option>
+                                                    <option value="Lightbulb">💡 Bombilla (Lightbulb)</option>
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -386,6 +663,15 @@ export default function SectionEditModal({
                     </div>
                 </div>
             </div>
+
+            {/* Media Selector */}
+            <MediaSelector
+                isOpen={mediaSelector.isOpen}
+                onClose={() => setMediaSelector({ isOpen: false, type: 'image', field: '' })}
+                onSelect={handleMediaSelect}
+                fileType={mediaSelector.type}
+                title={`Seleccionar ${mediaSelector.type === 'image' ? 'Imagen' : 'Video'}`}
+            />
         </div>
     )
 }

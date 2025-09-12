@@ -2,14 +2,47 @@
 
 import PublicLayout from '@/components/layout/PublicLayout'
 import { publicApi } from '@/lib/api'
-import { ArrowRight, BookOpen, CheckCircle, Shield, Star, Users, Zap } from 'lucide-react'
+import { ArrowRight, Award, BookOpen, CheckCircle, Heart, Lightbulb, Shield, Star, Target, Users, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import InlineEditButton from './InlineEditButton'
 import SectionEditButton from './SectionEditButton'
 import SectionEditModal from './SectionEditModal'
+import HeroSlideshow from './HeroSlideshow'
 
 // Definir interfaces para el contenido de la página de inicio
+interface SlideItem {
+    type: 'image' | 'video'
+    url: string
+    alt?: string
+}
+
+interface NestedHomepageContent {
+    hero?: {
+        title?: string
+        subtitle?: string
+        description?: string
+        button_text?: string
+        button_link?: string
+        image_url?: string
+        video_url?: string
+        slideshow?: SlideItem[]
+        slideshow_interval?: number
+    }
+    features?: Array<{
+        title: string
+        description: string
+        icon?: string
+        image?: string
+        is_active?: boolean
+    }>
+    call_to_action?: {
+        title: string
+        description: string
+        button_text: string
+        button_link: string
+    }
+}
 interface HomepageContent {
     hero_title?: string
     hero_subtitle?: string
@@ -50,6 +83,7 @@ interface HomepageContent {
 
 export default function HomePage() {
     const [content, setContent] = useState<HomepageContent | null>(null)
+    const [nestedContent, setNestedContent] = useState<NestedHomepageContent | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [editingSection, setEditingSection] = useState<'hero' | 'features' | 'cta' | null>(null)
     const [fullPageContent, setFullPageContent] = useState<any>(null)
@@ -64,6 +98,7 @@ export default function HomePage() {
             const response = await publicApi.getPageContent('homepage')
             console.log('Homepage content loaded successfully:', response.data)
             setContent(response.data.content_json)
+            setNestedContent(response.data.content_json)
             setFullPageContent(response.data) // Guardar la respuesta completa para edición
         } catch (error: any) {
             console.error('Error loading homepage content:', error)
@@ -112,6 +147,51 @@ export default function HomePage() {
         setEditingSection(null)
     }
 
+    // Función para detectar el tipo de archivo basándose en la URL
+    const detectFileType = (url: string): 'image' | 'video' => {
+        if (!url) return 'image'
+        
+        const isYouTube = url.includes('youtube.com') || url.includes('youtu.be')
+        const isVideo = isYouTube || 
+                       url.includes('.mp4') || 
+                       url.includes('.webm') || 
+                       url.includes('.ogg') ||
+                       url.includes('.mov') ||
+                       url.includes('.avi') ||
+                       url.includes('.wmv')
+        
+        return isVideo ? 'video' : 'image'
+    }
+
+    // Preparar slides para el slideshow
+    const prepareSlides = (): SlideItem[] => {
+        const slides: SlideItem[] = []
+        
+        // Si hay slideshow configurado, usarlo
+        if (nestedContent?.hero?.slideshow && nestedContent.hero.slideshow.length > 0) {
+            return nestedContent.hero.slideshow
+        }
+        
+        // Si no hay slideshow, usar imagen/video individual
+        if (nestedContent?.hero?.image_url) {
+            slides.push({
+                type: detectFileType(nestedContent.hero.image_url),
+                url: nestedContent.hero.image_url,
+                alt: 'SEVP Platform'
+            })
+        }
+        
+        if (nestedContent?.hero?.video_url) {
+            slides.push({
+                type: detectFileType(nestedContent.hero.video_url),
+                url: nestedContent.hero.video_url,
+                alt: 'SEVP Platform Video'
+            })
+        }
+        
+        return slides
+    }
+
     return (
         <PublicLayout>
             {/* Hero Section */}
@@ -149,27 +229,11 @@ export default function HomePage() {
                                 </Link>
                             </div>
                         </div>
-                        <div className="relative">
-                            {content?.hero_image ? (
-                                <img
-                                    src={content.hero_image}
-                                    alt="SEVP Platform"
-                                    className="rounded-lg shadow-2xl"
-                                />
-                            ) : content?.hero_video ? (
-                                <video
-                                    src={content.hero_video}
-                                    className="rounded-lg shadow-2xl w-full h-96 object-cover"
-                                    autoPlay
-                                    muted
-                                    loop
-                                />
-                            ) : (
-                                <div className="bg-white/10 rounded-lg h-96 flex items-center justify-center">
-                                    <BookOpen className="h-32 w-32 text-white/50" />
-                                </div>
-                            )}
-                        </div>
+                        <HeroSlideshow 
+                            slides={prepareSlides()}
+                            autoPlayInterval={nestedContent?.hero?.slideshow_interval || 5}
+                            className=""
+                        />
                     </div>
                 </div>
             </section>
@@ -202,6 +266,10 @@ export default function HomePage() {
                                     case 'Zap': return Zap
                                     case 'CheckCircle': return CheckCircle
                                     case 'Star': return Star
+                                    case 'Award': return Award
+                                    case 'Heart': return Heart
+                                    case 'Target': return Target
+                                    case 'Lightbulb': return Lightbulb
                                     default: return Users
                                 }
                             }
