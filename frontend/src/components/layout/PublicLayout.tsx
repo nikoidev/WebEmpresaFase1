@@ -3,6 +3,8 @@
 import { LogIn, Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { InlineEditProvider } from '@/contexts/InlineEditContext'
 
 interface PublicLayoutProps {
     children: React.ReactNode
@@ -21,7 +23,9 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
     ]
 
     return (
-        <div className="min-h-screen bg-white">
+        <AuthProvider>
+            <InlineEditProvider>
+                <div className="min-h-screen bg-white">
             {/* Header */}
             <header className="bg-white shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -201,6 +205,8 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                     </div>
                 </div>
             </footer>
-        </div>
+                </div>
+            </InlineEditProvider>
+        </AuthProvider>
     )
 }

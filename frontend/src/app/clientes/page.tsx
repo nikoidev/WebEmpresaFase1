@@ -1,19 +1,90 @@
-import PublicLayout from '@/components/layout/PublicLayout'
-import { Building, GraduationCap, School, Users } from 'lucide-react'
-import type { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-    title: 'Clientes - SEVP | Sistema Educativo Virtual Profesional',
-    description: 'Descubre las instituciones educativas que confían en SEVP para transformar su educación digital.',
-    keywords: ['SEVP', 'clientes', 'instituciones', 'educación', 'casos de éxito'],
+import PublicLayout from '@/components/layout/PublicLayout'
+import { publicApi } from '@/lib/api'
+import { Building, GraduationCap, School, Users } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import InlineEditButton from '@/components/InlineEditButton'
+
+// Definir tipos para el contenido de Clientes
+interface ClientType {
+    name: string
+    logo: string
+    country: string
+    students: string
+    since: string
+}
+
+interface Testimonial {
+    quote: string
+    author: string
+    position: string
+    institution: string
+    country: string
+    logo: string
+    rating: number
+}
+
+interface SuccessMetric {
+    number: string
+    label: string
+    icon?: string
+}
+
+interface ClientsContent {
+    hero?: {
+        title?: string
+        subtitle?: string
+        description?: string
+    }
+    testimonials?: Testimonial[]
+    clients?: ClientType[]
+    stats?: SuccessMetric[]
 }
 
 export default function ClientesPage() {
-    const clientTypes = [
+    const [content, setContent] = useState<ClientsContent | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+
+    useEffect(() => {
+        loadContent()
+    }, [])
+
+    const loadContent = async () => {
+        try {
+            const response = await publicApi.getPageContent('clients')
+            console.log('Clientes content loaded:', response.data)
+            setContent(response.data.content_json)
+        } catch (error) {
+            console.error('Error loading clientes content:', error)
+            // Fallback content
+            setContent({
+                hero_title: 'Nuestros Clientes',
+                hero_description: 'Más de 1,500 instituciones educativas confían en SEVP para transformar su educación digital',
+                client_types: []
+            })
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    // Iconos por defecto
+    const getIcon = (iconName: string) => {
+        switch (iconName) {
+            case 'GraduationCap': return GraduationCap
+            case 'School': return School
+            case 'Building': return Building
+            case 'Users': return Users
+            default: return Users
+        }
+    }
+
+    // Fallback data
+    const defaultClientTypes = [
         {
             title: 'Universidades',
             description: 'Instituciones de educación superior que han digitalizado completamente sus procesos académicos.',
-            icon: GraduationCap,
+            icon: 'GraduationCap',
             count: '250+',
             color: 'bg-blue-500',
             examples: ['Universidad Nacional', 'Instituto Tecnológico', 'Universidad Privada del Norte']
@@ -21,7 +92,7 @@ export default function ClientesPage() {
         {
             title: 'Colegios',
             description: 'Centros educativos de primaria y secundaria que ofrecen experiencias de aprendizaje innovadoras.',
-            icon: School,
+            icon: 'School',
             count: '800+',
             color: 'bg-green-500',
             examples: ['Colegio San Patricio', 'Instituto María Auxiliadora', 'Colegio Internacional']
@@ -29,7 +100,7 @@ export default function ClientesPage() {
         {
             title: 'Centros de Capacitación',
             description: 'Institutos especializados en formación profesional y capacitación empresarial.',
-            icon: Building,
+            icon: 'Building',
             count: '300+',
             color: 'bg-purple-500',
             examples: ['Centro TECSUP', 'Instituto CIBERTEC', 'Academia de Liderazgo']
@@ -37,14 +108,14 @@ export default function ClientesPage() {
         {
             title: 'Organizaciones',
             description: 'Empresas y ONGs que utilizan nuestra plataforma para capacitación interna.',
-            icon: Users,
+            icon: 'Users',
             count: '150+',
             color: 'bg-orange-500',
             examples: ['Fundación Educativa', 'Corporativo Global', 'ONG Desarrollo Social']
         }
     ]
 
-    const testimonials = [
+    const defaultTestimonials = [
         {
             quote: "SEVP transformó completamente la forma en que nuestros estudiantes aprenden. La plataforma es intuitiva y poderosa.",
             author: "Dr. María González",
@@ -68,12 +139,26 @@ export default function ClientesPage() {
         }
     ]
 
-    const successMetrics = [
+    const defaultSuccessMetrics = [
         { metric: '98%', label: 'Satisfacción del Cliente' },
         { metric: '45%', label: 'Reducción en Costos Operativos' },
         { metric: '300%', label: 'Aumento en Engagement' },
         { metric: '24/7', label: 'Soporte Técnico' }
     ]
+
+    const clientTypes = content?.clients || defaultClientTypes
+    const testimonials = content?.testimonials || defaultTestimonials
+    const successMetrics = content?.stats || defaultSuccessMetrics
+
+    if (isLoading) {
+        return (
+            <PublicLayout>
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+                </div>
+            </PublicLayout>
+        )
+    }
 
     return (
         <PublicLayout>
@@ -82,28 +167,37 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                            Nuestros Clientes
+                            {content?.hero?.title || 'Nuestros Clientes'}
                         </h1>
                         <p className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto">
-                            Más de 1,500 instituciones educativas confían en SEVP para transformar su educación digital
+                            {content?.hero?.description || 'Más de 1,500 instituciones educativas confían en SEVP para transformar su educación digital'}
                         </p>
                         <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                            <div>
-                                <div className="text-3xl md:text-4xl font-bold">1,500+</div>
-                                <div className="text-primary-100">Instituciones</div>
-                            </div>
-                            <div>
-                                <div className="text-3xl md:text-4xl font-bold">50K+</div>
-                                <div className="text-primary-100">Estudiantes</div>
-                            </div>
-                            <div>
-                                <div className="text-3xl md:text-4xl font-bold">8</div>
-                                <div className="text-primary-100">Países</div>
-                            </div>
-                            <div>
-                                <div className="text-3xl md:text-4xl font-bold">5</div>
-                                <div className="text-primary-100">Años</div>
-                            </div>
+                            {content?.stats?.slice(0, 4).map((stat, index) => (
+                                <div key={index}>
+                                    <div className="text-3xl md:text-4xl font-bold">{stat.number}</div>
+                                    <div className="text-primary-100">{stat.label}</div>
+                                </div>
+                            )) || (
+                                <>
+                                    <div>
+                                        <div className="text-3xl md:text-4xl font-bold">1,500+</div>
+                                        <div className="text-primary-100">Instituciones</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-3xl md:text-4xl font-bold">50K+</div>
+                                        <div className="text-primary-100">Estudiantes</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-3xl md:text-4xl font-bold">8</div>
+                                        <div className="text-primary-100">Países</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-3xl md:text-4xl font-bold">5</div>
+                                        <div className="text-primary-100">Años</div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -114,34 +208,26 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Tipos de Instituciones
+                            Nuestros Clientes
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Desde universidades hasta centros de capacitación, adaptamos SEVP a las necesidades específicas de cada institución
+                            {content?.hero?.subtitle || 'Instituciones que confían en SEVP para transformar la educación'}
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {clientTypes.map((type) => (
-                            <div key={type.title} className="bg-gray-50 rounded-lg p-8 hover:shadow-lg transition-shadow">
-                                <div className={`${type.color} w-16 h-16 rounded-lg flex items-center justify-center mb-6`}>
-                                    <type.icon className="h-8 w-8 text-white" />
+                        {clientTypes.map((client, index) => (
+                            <div key={client.name} className="bg-gray-50 rounded-lg p-8 hover:shadow-lg transition-shadow">
+                                <div className="bg-blue-500 w-16 h-16 rounded-lg flex items-center justify-center mb-6">
+                                    <Building className="h-8 w-8 text-white" />
                                 </div>
                                 <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-2xl font-bold text-gray-900">{type.title}</h3>
-                                    <span className="text-3xl font-bold text-primary-600">{type.count}</span>
+                                    <h3 className="text-2xl font-bold text-gray-900">{client.name}</h3>
+                                    <span className="text-lg font-bold text-primary-600">{client.students}</span>
                                 </div>
-                                <p className="text-gray-600 mb-6">{type.description}</p>
-                                <div>
-                                    <h4 className="font-semibold text-gray-900 mb-2">Ejemplos:</h4>
-                                    <ul className="text-sm text-gray-600 space-y-1">
-                                        {type.examples.map((example) => (
-                                            <li key={example} className="flex items-center">
-                                                <div className="w-2 h-2 bg-primary-600 rounded-full mr-2"></div>
-                                                {example}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                <p className="text-gray-600 mb-4">{client.country}</p>
+                                <div className="text-sm text-gray-500">
+                                    Cliente desde: {client.since}
                                 </div>
                             </div>
                         ))}
@@ -196,9 +282,9 @@ export default function ClientesPage() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        {successMetrics.map((item) => (
-                            <div key={item.label} className="text-center">
-                                <div className="text-4xl md:text-5xl font-bold mb-2">{item.metric}</div>
+                        {successMetrics.map((item, index) => (
+                            <div key={index} className="text-center">
+                                <div className="text-4xl md:text-5xl font-bold mb-2">{item.number}</div>
                                 <div className="text-primary-100">{item.label}</div>
                             </div>
                         ))}
@@ -213,8 +299,7 @@ export default function ClientesPage() {
                         ¿Listo para Unirte a Nuestros Clientes Exitosos?
                     </h2>
                     <p className="text-xl text-gray-600 mb-8">
-                        Únete a más de 1,500 instituciones que ya están transformando la educación con SEVP. 
-                        Comenzar es fácil y nuestro equipo te acompañará en cada paso.
+                        Únete a más de 1,500 instituciones que ya están transformando la educación con SEVP. Comenzar es fácil y nuestro equipo te acompañará en cada paso.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
@@ -232,6 +317,13 @@ export default function ClientesPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Botón de edición inline */}
+            <InlineEditButton 
+                pageKey="clients" 
+                onContentUpdate={loadContent}
+                tooltip="Editar página de clientes (Ctrl+E)"
+            />
         </PublicLayout>
     )
 }

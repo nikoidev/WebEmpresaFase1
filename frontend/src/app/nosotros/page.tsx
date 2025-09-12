@@ -4,6 +4,7 @@ import PublicLayout from '@/components/layout/PublicLayout'
 import { Award, Heart, Target, Users } from 'lucide-react'
 import { publicApi } from '@/lib/api'
 import { useEffect, useState } from 'react'
+import InlineEditButton from '@/components/InlineEditButton'
 
 // Metadata se maneja desde layout.tsx para client components
 
@@ -11,21 +12,21 @@ export default function NosotrosPage() {
     const [aboutContent, setAboutContent] = useState<any>(null)
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
-        const loadContent = async () => {
-            try {
-                console.log('🔄 Cargando contenido de /nosotros...')
-                const response = await publicApi.getPageContent('about')
-                console.log('✅ Contenido cargado:', response.data)
-                setAboutContent(response.data.content_json)
-            } catch (error) {
-                console.error('❌ Error loading about content:', error)
-                // Usar contenido por defecto si falla
-            } finally {
-                setLoading(false)
-            }
+    const loadContent = async () => {
+        try {
+            console.log('🔄 Cargando contenido de /nosotros...')
+            const response = await publicApi.getPageContent('about')
+            console.log('✅ Contenido cargado:', response.data)
+            setAboutContent(response.data.content_json)
+        } catch (error) {
+            console.error('❌ Error loading about content:', error)
+            // Usar contenido por defecto si falla
+        } finally {
+            setLoading(false)
         }
-        
+    }
+
+    useEffect(() => {
         loadContent()
     }, [])
 
@@ -248,6 +249,13 @@ export default function NosotrosPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Botón de edición inline */}
+            <InlineEditButton 
+                pageKey="about" 
+                onContentUpdate={loadContent}
+                tooltip="Editar página nosotros (Ctrl+E)"
+            />
         </PublicLayout>
     )
 }

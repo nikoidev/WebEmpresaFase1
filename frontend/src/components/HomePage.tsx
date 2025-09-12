@@ -2,14 +2,57 @@
 
 import PublicLayout from '@/components/layout/PublicLayout'
 import { publicApi } from '@/lib/api'
-import { HomepageContent } from '@/types'
 import { ArrowRight, BookOpen, CheckCircle, Shield, Star, Users, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import InlineEditButton from './InlineEditButton'
+import SectionEditButton from './SectionEditButton'
+import SectionEditModal from './SectionEditModal'
+
+// Definir interfaces para el contenido de la página de inicio
+interface HomepageContent {
+    hero_title?: string
+    hero_subtitle?: string
+    hero_description?: string
+    hero_button_text?: string
+    hero_button_link?: string
+    hero_image?: string
+    hero_video?: string
+    features?: Array<{
+        title: string
+        description: string
+        icon?: string
+        image?: string
+        is_active?: boolean
+    }>
+    testimonials?: Array<{
+        name: string
+        position: string
+        company: string
+        content: string
+        image?: string
+        rating?: number
+        is_featured?: boolean
+    }>
+    stats?: {
+        clients?: number
+        projects?: number
+        experience?: number
+        satisfaction?: number
+    }
+    call_to_action?: {
+        title: string
+        description: string
+        button_text: string
+        button_link: string
+    }
+}
 
 export default function HomePage() {
     const [content, setContent] = useState<HomepageContent | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [editingSection, setEditingSection] = useState<'hero' | 'features' | 'cta' | null>(null)
+    const [fullPageContent, setFullPageContent] = useState<any>(null)
 
     useEffect(() => {
         loadContent()
@@ -18,9 +61,10 @@ export default function HomePage() {
     const loadContent = async () => {
         try {
             console.log('Attempting to load homepage content from:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002')
-            const response = await publicApi.getHomepageContent()
+            const response = await publicApi.getPageContent('homepage')
             console.log('Homepage content loaded successfully:', response.data)
-            setContent(response.data)
+            setContent(response.data.content_json)
+            setFullPageContent(response.data) // Guardar la respuesta completa para edición
         } catch (error: any) {
             console.error('Error loading homepage content:', error)
             console.error('Error details:', {
@@ -29,11 +73,14 @@ export default function HomePage() {
                 response: error.response?.data,
                 status: error.response?.status
             })
-            // Set empty content to avoid infinite loading
+            // Set default content
             setContent({
-                featured_articles: [],
-                featured_testimonials: [],
-                company_info: null
+                hero_title: 'Sistema Educativo Virtual Profesional',
+                hero_subtitle: 'Transformamos la educación con tecnología',
+                hero_description: 'La plataforma educativa más completa para transformar tu institución educativa',
+                features: [],
+                testimonials: [],
+                stats: {}
             })
         } finally {
             setIsLoading(false)
@@ -50,27 +97,48 @@ export default function HomePage() {
         )
     }
 
-    const companyInfo = content?.company_info
+    const handleContentUpdate = () => {
+        // Recargar contenido después de editar
+        loadContent()
+    }
+
+    const handleSectionEdit = (section: 'hero' | 'features' | 'cta') => {
+        console.log(`🎯 Editando sección: ${section}`)
+        setEditingSection(section)
+    }
+
+    const handleSectionSave = () => {
+        loadContent() // Recargar contenido después de guardar
+        setEditingSection(null)
+    }
 
     return (
         <PublicLayout>
             {/* Hero Section */}
-            <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
+            <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white relative">
+                <SectionEditButton 
+                    sectionName="Sección Hero"
+                    onEdit={() => handleSectionEdit('hero')}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div>
                             <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                                {companyInfo?.tagline || 'Sistema Educativo Virtual Profesional'}
+                                {content?.hero_title || 'Sistema Educativo Virtual Profesional'}
                             </h1>
-                            <p className="text-xl md:text-2xl mb-8 text-primary-100">
-                                La plataforma educativa más completa para transformar tu institución educativa
+                            <p className="text-xl md:text-2xl mb-4 text-primary-100">
+                                {content?.hero_subtitle || 'Transformamos la educación con tecnología'}
+                            </p>
+                            <p className="text-lg mb-8 text-primary-200">
+                                {content?.hero_description || 'La plataforma educativa más completa para transformar tu institución educativa'}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Link
-                                    href="/precios"
+                                    href={content?.hero_button_link || "/precios"}
                                     className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
                                 >
-                                    Ver Planes
+                                    {content?.hero_button_text || 'Ver Planes'}
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                                 <Link
@@ -82,11 +150,19 @@ export default function HomePage() {
                             </div>
                         </div>
                         <div className="relative">
-                            {companyInfo?.hero_image ? (
+                            {content?.hero_image ? (
                                 <img
-                                    src={companyInfo.hero_image}
+                                    src={content.hero_image}
                                     alt="SEVP Platform"
                                     className="rounded-lg shadow-2xl"
+                                />
+                            ) : content?.hero_video ? (
+                                <video
+                                    src={content.hero_video}
+                                    className="rounded-lg shadow-2xl w-full h-96 object-cover"
+                                    autoPlay
+                                    muted
+                                    loop
                                 />
                             ) : (
                                 <div className="bg-white/10 rounded-lg h-96 flex items-center justify-center">
@@ -99,7 +175,12 @@ export default function HomePage() {
             </section>
 
             {/* Features Section */}
-            <section className="py-24 bg-gray-50">
+            <section className="py-24 bg-gray-50 relative">
+                <SectionEditButton 
+                    sectionName="Características"
+                    onEdit={() => handleSectionEdit('features')}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -238,7 +319,12 @@ export default function HomePage() {
             )}
 
             {/* CTA Section */}
-            <section className="py-24 bg-primary-600">
+            <section className="py-24 bg-primary-600 relative">
+                <SectionEditButton 
+                    sectionName="Llamada a la Acción"
+                    onEdit={() => handleSectionEdit('cta')}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
                         ¿Listo para transformar tu institución educativa?
@@ -264,6 +350,25 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+
+            {/* Botón de edición inline general */}
+            <InlineEditButton 
+                pageKey="homepage" 
+                onContentUpdate={handleContentUpdate}
+                tooltip="Editar página completa (Ctrl+E)"
+            />
+
+            {/* Modal de edición por sección */}
+            {editingSection && fullPageContent && (
+                <SectionEditModal
+                    isOpen={!!editingSection}
+                    onClose={() => setEditingSection(null)}
+                    sectionType={editingSection}
+                    pageKey="homepage"
+                    initialContent={fullPageContent}
+                    onSave={handleSectionSave}
+                />
+            )}
         </PublicLayout>
     )
 }
