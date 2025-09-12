@@ -173,10 +173,10 @@ export default function ContactoPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                            {content?.hero?.title || 'Contáctanos'}
+                            {content?.hero_title || 'Contáctanos'}
                         </h1>
                         <p className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto">
-                            {content?.hero?.description || '¿Listo para transformar tu institución educativa? Estamos aquí para ayudarte a dar el siguiente paso'}
+                            {content?.hero_description || '¿Listo para transformar tu institución educativa? Estamos aquí para ayudarte a dar el siguiente paso'}
                         </p>
                     </div>
                 </div>
@@ -215,10 +215,10 @@ export default function ContactoPage() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Envíanos un Mensaje
+                            {content?.form_title || 'Envíanos un Mensaje'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Completa el formulario y nuestro equipo se pondrá en contacto contigo en las próximas 24 horas
+                            {content?.form_description || 'Completa el formulario y nuestro equipo se pondrá en contacto contigo en las próximas 24 horas'}
                         </p>
                     </div>
 
@@ -331,7 +331,7 @@ export default function ContactoPage() {
                                     disabled={isSubmitting}
                                     className="bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
                                 >
-                                    {isSubmitting ? 'Enviando...' : 'Enviar Mensaje'}
+                                    {isSubmitting ? 'Enviando...' : (content?.form_button_text || 'Enviar Mensaje')}
                                 </button>
                             </div>
                         </form>

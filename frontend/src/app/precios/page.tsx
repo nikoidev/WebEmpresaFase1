@@ -115,10 +115,10 @@ export default function PreciosPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                            {content?.hero?.title || 'Planes y Precios'}
+                            {content?.hero_title || 'Planes y Precios'}
                         </h1>
                         <p className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto">
-                            {content?.hero?.description || 'Elige el plan perfecto para tu institución educativa'}
+                            {content?.hero_description || 'Elige el plan perfecto para tu institución educativa'}
                         </p>
                     </div>
                 </div>
@@ -141,7 +141,7 @@ export default function PreciosPage() {
                                     : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
-                                Mensual
+                                {content?.pricing_monthly_label || 'Mensual'}
                             </button>
                             <button
                                 onClick={() => setIsYearly(true)}
@@ -150,7 +150,7 @@ export default function PreciosPage() {
                                     : 'text-gray-600 hover:text-gray-900'
                                     }`}
                             >
-                                Anual
+                                {content?.pricing_yearly_label || 'Anual'}
                                 <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
                                     Ahorra hasta 20%
                                 </span>
@@ -291,10 +291,10 @@ export default function PreciosPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Preguntas Frecuentes
+                            {content?.faq_title || 'Preguntas Frecuentes'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Respuestas a las dudas más comunes sobre nuestros planes
+                            {content?.faq_description || 'Respuestas a las dudas más comunes sobre nuestros planes'}
                         </p>
                     </div>
 

@@ -190,10 +190,10 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                            {content?.hero?.title || 'Nuestros Clientes'}
+                            {content?.hero_title || 'Nuestros Clientes'}
                         </h1>
                         <p className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto">
-                            {content?.hero?.description || 'Más de 1,500 instituciones educativas confían en SEVP para transformar su educación digital'}
+                            {content?.hero_description || 'Más de 1,500 instituciones educativas confían en SEVP para transformar su educación digital'}
                         </p>
                         <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                             {content?.stats?.slice(0, 4).map((stat, index) => (
@@ -236,10 +236,10 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Nuestros Clientes
+                            {content?.client_types_title || 'Nuestros Clientes'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            {content?.hero?.subtitle || 'Instituciones que confían en SEVP para transformar la educación'}
+                            {content?.client_types_description || 'Instituciones que confían en SEVP para transformar la educación'}
                         </p>
                     </div>
 
@@ -273,10 +273,10 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Lo que Dicen Nuestros Clientes
+                            {content?.testimonials_title || 'Lo que Dicen Nuestros Clientes'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Testimonios reales de líderes educativos que han transformado sus instituciones con SEVP
+                            {content?.testimonials_description || 'Testimonios reales de líderes educativos que han transformado sus instituciones con SEVP'}
                         </p>
                     </div>
 
@@ -312,10 +312,10 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                            Resultados Comprobados
+                            {content?.metrics_title || 'Resultados Comprobados'}
                         </h2>
                         <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-                            Los números que demuestran el impacto real de SEVP en nuestros clientes
+                            {content?.metrics_description || 'Los números que demuestran el impacto real de SEVP en nuestros clientes'}
                         </p>
                     </div>
 

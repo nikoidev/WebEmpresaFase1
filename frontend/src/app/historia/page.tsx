@@ -132,7 +132,7 @@ export default function HistoriaPage() {
         }
     ]
 
-    const milestones = content?.timeline || defaultMilestones
+    const milestones = content?.milestones || defaultMilestones
 
     if (isLoading) {
         return (
@@ -156,10 +156,10 @@ export default function HistoriaPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                            {content?.hero?.title || 'Nuestra Historia'}
+                            {content?.hero_title || 'Nuestra Historia'}
                         </h1>
                         <p className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto">
-                            {content?.hero?.description || 'Un viaje de innovación, crecimiento y transformación educativa que comenzó con un sueño'}
+                            {content?.hero_description || 'Un viaje de innovación, crecimiento y transformación educativa que comenzó con un sueño'}
                         </p>
                     </div>
                 </div>
@@ -177,10 +177,10 @@ export default function HistoriaPage() {
                         <Clock className="h-10 w-10 text-primary-600" />
                     </div>
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                        Todo Comenzó con una Visión
+                        {content?.intro_title || 'Todo Comenzó con una Visión'}
                     </h2>
                     <p className="text-xl text-gray-600 mb-8">
-                        {content?.hero?.subtitle || 'En 2018, un grupo de educadores y tecnólogos se unió con una misión clara: hacer que la tecnología educativa de alta calidad fuera accesible para todas las instituciones, sin importar su tamaño o presupuesto.'}
+                        {content?.intro_description || 'En 2018, un grupo de educadores y tecnólogos se unió con una misión clara: hacer que la tecnología educativa de alta calidad fuera accesible para todas las instituciones, sin importar su tamaño o presupuesto.'}
                     </p>
                     <p className="text-lg text-gray-600">
                         Lo que comenzó como un proyecto de fin de semana se ha convertido en la plataforma educativa más innovadora de América Latina, transformando la forma en que millones de estudiantes aprenden cada día.
@@ -198,10 +198,10 @@ export default function HistoriaPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Hitos Importantes
+                            {content?.timeline_title || 'Hitos Importantes'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Los momentos que definieron nuestro camino hacia la excelencia educativa
+                            {content?.timeline_description || 'Los momentos que definieron nuestro camino hacia la excelencia educativa'}
                         </p>
                     </div>
 
@@ -252,10 +252,10 @@ export default function HistoriaPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                            Nuestro Impacto en Números
+                            {content?.impact_title || 'Nuestro Impacto en Números'}
                         </h2>
                         <p className="text-xl text-primary-100 max-w-3xl mx-auto">
-                            Los resultados de años de dedicación y trabajo arduo
+                            {content?.impact_description || 'Los resultados de años de dedicación y trabajo arduo'}
                         </p>
                     </div>
 
@@ -298,26 +298,26 @@ export default function HistoriaPage() {
                 />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                        Mirando hacia el Futuro
+                        {content?.future_title || 'Mirando hacia el Futuro'}
                     </h2>
                     <p className="text-xl text-gray-600 mb-8">
-                        Estamos apenas comenzando. Nuestro objetivo para los próximos años es clara: democratizar el acceso a educación de calidad mundial para cada estudiante en América Latina y más allá.
+                        {content?.future_description || 'Estamos apenas comenzando. Nuestro objetivo para los próximos años es clara: democratizar el acceso a educación de calidad mundial para cada estudiante en América Latina y más allá.'}
                     </p>
                     <p className="text-lg text-gray-600 mb-8">
-                        Con nuevas tecnologías como IA, realidad virtual y análisis predictivo, estamos construyendo el futuro de la educación, un estudiante a la vez.
+                        {content?.future_vision || 'Con nuevas tecnologías como IA, realidad virtual y análisis predictivo, estamos construyendo el futuro de la educación, un estudiante a la vez.'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
-                            href="/nosotros"
+                            href={content?.future_button_link || '/nosotros'}
                             className="bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-flex items-center justify-center"
                         >
-                            Conoce al Equipo
+                            {content?.future_button_text || 'Conoce al Equipo'}
                         </a>
                         <a
-                            href="/contacto"
+                            href={content?.future_secondary_link || '/contacto'}
                             className="border-2 border-primary-600 text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-primary-600 hover:text-white transition-colors inline-flex items-center justify-center"
                         >
-                            Únete a Nosotros
+                            {content?.future_secondary_text || 'Únete a Nosotros'}
                         </a>
                     </div>
                 </div>
