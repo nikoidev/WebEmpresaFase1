@@ -1,12 +1,36 @@
 'use client'
 
 import PublicLayout from '@/components/layout/PublicLayout'
+import { publicApi } from '@/lib/api'
 import { Clock, Mail, MapPin, Phone } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import InlineEditButton from '@/components/InlineEditButton'
 
-// No se puede usar metadata en componentes 'use client'
+// Definir tipos para el contenido de Contacto
+interface ContactContent {
+    hero?: {
+        title?: string
+        description?: string
+    }
+    contact_info?: {
+        email?: string
+        phone?: string
+        address?: string
+        hours?: string
+        email_description?: string
+        phone_description?: string
+        address_description?: string
+        hours_description?: string
+    }
+    faqs?: {
+        question: string
+        answer: string
+    }[]
+}
 
 export default function ContactoPage() {
+    const [content, setContent] = useState<ContactContent | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -17,6 +41,36 @@ export default function ContactoPage() {
     })
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
+    useEffect(() => {
+        loadContent()
+    }, [])
+
+    const loadContent = async () => {
+        try {
+            const response = await publicApi.getPageContent('contact')
+            console.log('Contact content loaded:', response.data)
+            setContent(response.data.content_json)
+        } catch (error) {
+            console.error('Error loading contact content:', error)
+            // Usar contenido fallback
+            setContent({
+                hero: {
+                    title: 'Contáctanos',
+                    description: '¿Listo para transformar tu institución educativa? Estamos aquí para ayudarte a dar el siguiente paso'
+                },
+                contact_info: {
+                    email: 'contacto@sevp.com',
+                    phone: '+51 1 234-5678',
+                    address: 'Lima, Perú',
+                    hours: '9:00 AM - 6:00 PM'
+                },
+                faqs: []
+            })
+        } finally {
+            setIsLoading(false)
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -56,28 +110,38 @@ export default function ContactoPage() {
         {
             icon: Mail,
             title: 'Email',
-            value: 'contacto@sevp.com',
-            description: 'Respuesta en 24 horas'
+            value: content?.contact_info?.email || 'contacto@sevp.com',
+            description: content?.contact_info?.email_description || 'Respuesta en 24 horas'
         },
         {
             icon: Phone,
             title: 'Teléfono',
-            value: '+51 1 234-5678',
-            description: 'Lun - Vie, 9am - 6pm'
+            value: content?.contact_info?.phone || '+51 1 234-5678',
+            description: content?.contact_info?.phone_description || 'Lun - Vie, 9am - 6pm'
         },
         {
             icon: MapPin,
             title: 'Oficina',
-            value: 'Lima, Perú',
-            description: 'San Isidro, Lima 27'
+            value: content?.contact_info?.address || 'Lima, Perú',
+            description: content?.contact_info?.address_description || 'San Isidro, Lima 27'
         },
         {
             icon: Clock,
             title: 'Horario',
-            value: '9:00 AM - 6:00 PM',
-            description: 'Zona horaria GMT-5'
+            value: content?.contact_info?.hours || '9:00 AM - 6:00 PM',
+            description: content?.contact_info?.hours_description || 'Zona horaria GMT-5'
         }
     ]
+
+    if (isLoading) {
+        return (
+            <PublicLayout>
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+                </div>
+            </PublicLayout>
+        )
+    }
 
     return (
         <PublicLayout>
@@ -86,10 +150,10 @@ export default function ContactoPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                            Contáctanos
+                            {content?.hero?.title || 'Contáctanos'}
                         </h1>
                         <p className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto">
-                            ¿Listo para transformar tu institución educativa? Estamos aquí para ayudarte a dar el siguiente paso
+                            {content?.hero?.description || '¿Listo para transformar tu institución educativa? Estamos aquí para ayudarte a dar el siguiente paso'}
                         </p>
                     </div>
                 </div>
@@ -255,45 +319,65 @@ export default function ContactoPage() {
                     </div>
 
                     <div className="space-y-8">
-                        <div className="border-b border-gray-200 pb-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                ¿Cuánto tiempo toma implementar SEVP?
-                            </h3>
-                            <p className="text-gray-600">
-                                La implementación básica puede completarse en 2-4 semanas, incluyendo migración de datos, 
-                                capacitación del equipo y configuración personalizada.
-                            </p>
-                        </div>
-                        <div className="border-b border-gray-200 pb-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                ¿Ofrecen soporte técnico en español?
-                            </h3>
-                            <p className="text-gray-600">
-                                Sí, nuestro equipo de soporte habla español y está disponible 24/7 para ayudarte 
-                                con cualquier consulta técnica o administrativa.
-                            </p>
-                        </div>
-                        <div className="border-b border-gray-200 pb-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                ¿Puedo migrar desde otra plataforma?
-                            </h3>
-                            <p className="text-gray-600">
-                                Absolutamente. Tenemos experiencia migrando desde todas las plataformas principales 
-                                y nuestro equipo se encarga de todo el proceso sin pérdida de datos.
-                            </p>
-                        </div>
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                ¿Hay contratos de permanencia mínima?
-                            </h3>
-                            <p className="text-gray-600">
-                                No requerimos contratos de permanencia mínima. Puedes cancelar tu suscripción 
-                                en cualquier momento con 30 días de anticipación.
-                            </p>
-                        </div>
+                        {content?.faqs?.map((faq, index) => (
+                            <div key={index} className={`border-b border-gray-200 pb-6 ${index === content.faqs!.length - 1 ? 'border-b-0' : ''}`}>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                    {faq.question}
+                                </h3>
+                                <p className="text-gray-600">
+                                    {faq.answer}
+                                </p>
+                            </div>
+                        )) || (
+                            <>
+                                <div className="border-b border-gray-200 pb-6">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                        ¿Cuánto tiempo toma implementar SEVP?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        La implementación básica puede completarse en 2-4 semanas, incluyendo migración de datos, 
+                                        capacitación del equipo y configuración personalizada.
+                                    </p>
+                                </div>
+                                <div className="border-b border-gray-200 pb-6">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                        ¿Ofrecen soporte técnico en español?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        Sí, nuestro equipo de soporte habla español y está disponible 24/7 para ayudarte 
+                                        con cualquier consulta técnica o administrativa.
+                                    </p>
+                                </div>
+                                <div className="border-b border-gray-200 pb-6">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                        ¿Puedo migrar desde otra plataforma?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        Absolutamente. Tenemos experiencia migrando desde todas las plataformas principales 
+                                        y nuestro equipo se encarga de todo el proceso sin pérdida de datos.
+                                    </p>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                        ¿Hay contratos de permanencia mínima?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        No requerimos contratos de permanencia mínima. Puedes cancelar tu suscripción 
+                                        en cualquier momento con 30 días de anticipación.
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
+
+            {/* Botón de edición inline */}
+            <InlineEditButton 
+                pageKey="contact" 
+                onContentUpdate={loadContent}
+                tooltip="Editar página de contacto (Ctrl+E)"
+            />
         </PublicLayout>
     )
 }

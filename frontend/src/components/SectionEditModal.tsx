@@ -10,7 +10,7 @@ interface SectionEditModalProps {
     sectionType: 'hero' | 'features' | 'cta'
     pageKey: string
     initialContent: any
-    onSave: () => void
+    onSave: () => Promise<void>
 }
 
 export default function SectionEditModal({
@@ -37,9 +37,13 @@ export default function SectionEditModal({
         setIsSaving(true)
         try {
             // Crear el contenido actualizado manteniendo la estructura completa
-            const updatedContentJson = {
-                ...initialContent.content_json,
-                ...content
+            let updatedContentJson = { ...initialContent.content_json }
+            
+            // Mapear el sectionType al nombre correcto en la estructura
+            if (sectionType === 'cta') {
+                updatedContentJson.call_to_action = content.call_to_action
+            } else {
+                updatedContentJson[sectionType] = content[sectionType]
             }
             
             // Actualizar el contenido completo
@@ -51,9 +55,23 @@ export default function SectionEditModal({
                 meta_keywords: initialContent.meta_keywords,
                 is_active: initialContent.is_active
             })
-            onSave()
+            
+            // Llamar onSave ANTES de cerrar el modal para recargar contenido
+            await onSave()
             onClose()
-            alert('✅ Sección actualizada exitosamente')
+            
+            // Mostrar notificación temporal en lugar de alert
+            const notification = document.createElement('div')
+            notification.innerHTML = '✅ Sección actualizada exitosamente'
+            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg z-50 shadow-lg'
+            document.body.appendChild(notification)
+            
+            // Remover notificación después de 3 segundos
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification)
+                }
+            }, 3000)
         } catch (error) {
             console.error('Error saving section:', error)
             alert('❌ Error al guardar la sección')
@@ -326,7 +344,7 @@ export default function SectionEditModal({
                             className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 flex items-center gap-2 disabled:opacity-50"
                         >
                             <Save size={16} />
-                            {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                            {isSaving ? 'Guardando y recargando...' : 'Guardar Cambios'}
                         </button>
                     </div>
                 </div>

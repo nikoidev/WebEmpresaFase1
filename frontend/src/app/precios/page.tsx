@@ -5,14 +5,30 @@ import { publicApi } from '@/lib/api'
 import { ServicePlan } from '@/types'
 import { ArrowRight, Check, Star } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import InlineEditButton from '@/components/InlineEditButton'
+
+// Definir tipos para el contenido de Precios
+interface PricingContent {
+    hero?: {
+        title?: string
+        subtitle?: string
+        description?: string
+    }
+    faqs?: {
+        question: string
+        answer: string
+    }[]
+}
 
 export default function PreciosPage() {
     const [plans, setPlans] = useState<ServicePlan[]>([])
+    const [content, setContent] = useState<PricingContent | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [isYearly, setIsYearly] = useState(false)
 
     useEffect(() => {
         loadPlans()
+        loadContent()
     }, [])
 
     const loadPlans = async () => {
@@ -23,6 +39,24 @@ export default function PreciosPage() {
             console.error('Error loading plans:', error)
         } finally {
             setIsLoading(false)
+        }
+    }
+
+    const loadContent = async () => {
+        try {
+            const response = await publicApi.getPageContent('pricing')
+            console.log('Pricing content loaded:', response.data)
+            setContent(response.data.content_json)
+        } catch (error) {
+            console.error('Error loading pricing content:', error)
+            // Usar contenido fallback
+            setContent({
+                hero: {
+                    title: 'Planes y Precios',
+                    description: 'Elige el plan perfecto para tu institución educativa'
+                },
+                faqs: []
+            })
         }
     }
 
@@ -58,10 +92,10 @@ export default function PreciosPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                            Planes y Precios
+                            {content?.hero?.title || 'Planes y Precios'}
                         </h1>
                         <p className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto">
-                            Elige el plan perfecto para tu institución educativa
+                            {content?.hero?.description || 'Elige el plan perfecto para tu institución educativa'}
                         </p>
                     </div>
                 </div>
@@ -232,48 +266,68 @@ export default function PreciosPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                                ¿Puedo cambiar de plan en cualquier momento?
-                            </h3>
-                            <p className="text-gray-600">
-                                Sí, puedes actualizar o cambiar tu plan en cualquier momento desde
-                                el panel de administración. Los cambios se aplicarán inmediatamente.
-                            </p>
-                        </div>
+                        {content?.faqs?.map((faq, index) => (
+                            <div key={index}>
+                                <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                    {faq.question}
+                                </h3>
+                                <p className="text-gray-600">
+                                    {faq.answer}
+                                </p>
+                            </div>
+                        )) || (
+                            <>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                        ¿Puedo cambiar de plan en cualquier momento?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        Sí, puedes actualizar o cambiar tu plan en cualquier momento desde
+                                        el panel de administración. Los cambios se aplicarán inmediatamente.
+                                    </p>
+                                </div>
 
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                                ¿Ofrecen descuentos para instituciones sin fines de lucro?
-                            </h3>
-                            <p className="text-gray-600">
-                                Sí, ofrecemos descuentos especiales para instituciones educativas
-                                sin fines de lucro. Contacta a nuestro equipo de ventas para más información.
-                            </p>
-                        </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                        ¿Ofrecen descuentos para instituciones sin fines de lucro?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        Sí, ofrecemos descuentos especiales para instituciones educativas
+                                        sin fines de lucro. Contacta a nuestro equipo de ventas para más información.
+                                    </p>
+                                </div>
 
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                                ¿Qué incluye el soporte técnico?
-                            </h3>
-                            <p className="text-gray-600">
-                                Todos los planes incluyen soporte por email. Los planes Premium y
-                                Enterprise incluyen soporte telefónico y chat en vivo.
-                            </p>
-                        </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                        ¿Qué incluye el soporte técnico?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        Todos los planes incluyen soporte por email. Los planes Premium y
+                                        Enterprise incluyen soporte telefónico y chat en vivo.
+                                    </p>
+                                </div>
 
-                        <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                                ¿Hay período de prueba gratuito?
-                            </h3>
-                            <p className="text-gray-600">
-                                Sí, ofrecemos 14 días de prueba gratuita para que puedas explorar
-                                todas las funcionalidades antes de comprometerte.
-                            </p>
-                        </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                                        ¿Hay período de prueba gratuito?
+                                    </h3>
+                                    <p className="text-gray-600">
+                                        Sí, ofrecemos 14 días de prueba gratuita para que puedas explorar
+                                        todas las funcionalidades antes de comprometerte.
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
+
+            {/* Botón de edición inline */}
+            <InlineEditButton 
+                pageKey="pricing" 
+                onContentUpdate={loadContent}
+                tooltip="Editar página de precios (Ctrl+E)"
+            />
         </PublicLayout>
     )
 }
