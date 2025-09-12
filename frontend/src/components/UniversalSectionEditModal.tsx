@@ -1285,6 +1285,234 @@ export default function UniversalSectionEditModal({
                     </div>
                 )
 
+            case 'features':
+                const features = content.features || []
+                
+                const addFeature = () => {
+                    const newFeatures = [...features, {
+                        title: 'Nueva característica',
+                        description: 'Descripción de la característica',
+                        icon: '🚀',
+                        is_active: true
+                    }]
+                    updateContent('features', newFeatures)
+                }
+
+                const updateFeature = (index: number, field: string, value: any) => {
+                    const newFeatures = [...features]
+                    newFeatures[index] = { ...newFeatures[index], [field]: value }
+                    updateContent('features', newFeatures)
+                }
+
+                const removeFeature = (index: number) => {
+                    const newFeatures = features.filter((_: any, i: number) => i !== index)
+                    updateContent('features', newFeatures)
+                }
+
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                                ⭐ Editor de Características
+                            </h3>
+                            <p className="text-blue-700 text-sm">
+                                Gestiona las características principales del sistema que se muestran en la homepage.
+                            </p>
+                        </div>
+
+                        <div className="border-t pt-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-lg font-semibold text-gray-900">Características</h4>
+                                <button
+                                    onClick={addFeature}
+                                    className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Agregar Característica
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {features.map((feature: any, index: number) => (
+                                    <div key={index} className="bg-gray-50 rounded-lg p-4 border">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h5 className="font-medium text-gray-900">Característica #{index + 1}</h5>
+                                            <button
+                                                onClick={() => removeFeature(index)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                title="Eliminar característica"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Título
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={feature.title || ''}
+                                                    onChange={(e) => updateFeature(index, 'title', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                    placeholder="Título de la característica"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Icono
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={feature.icon || ''}
+                                                    onChange={(e) => updateFeature(index, 'icon', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                    placeholder="🚀 (emoji o código de icono)"
+                                                />
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="mt-4">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                Descripción
+                                            </label>
+                                            <textarea
+                                                rows={3}
+                                                value={feature.description || ''}
+                                                onChange={(e) => updateFeature(index, 'description', e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                placeholder="Descripción detallada de la característica..."
+                                            />
+                                        </div>
+
+                                        <div className="mt-4 flex items-center">
+                                            <label className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={feature.is_active !== false}
+                                                    onChange={(e) => updateFeature(index, 'is_active', e.target.checked)}
+                                                    className="mr-2 text-primary-600 focus:ring-primary-500"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700">Activa</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {features.length === 0 && (
+                                <div className="text-center py-8 text-gray-500">
+                                    <div className="text-4xl mb-2">⭐</div>
+                                    <p>No hay características configuradas.</p>
+                                    <p className="text-sm">Haz clic en "Agregar Característica" para comenzar.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+
+            case 'stats':
+                const stats = content.stats || {}
+                
+                const updateStat = (key: string, value: string) => {
+                    updateContent(`stats.${key}`, value)
+                }
+
+                const addStat = () => {
+                    const newKey = `stat_${Date.now()}`
+                    updateStat(newKey, '0')
+                }
+
+                const removeStat = (key: string) => {
+                    const newStats = { ...stats }
+                    delete newStats[key]
+                    updateContent('stats', newStats)
+                }
+
+                return (
+                    <div className="space-y-6">
+                        <div className="bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-green-900 mb-2">
+                                📊 Editor de Estadísticas
+                            </h3>
+                            <p className="text-green-700 text-sm">
+                                Gestiona las estadísticas de impacto que se muestran en la homepage.
+                            </p>
+                        </div>
+
+                        <div className="border-t pt-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-lg font-semibold text-gray-900">Estadísticas</h4>
+                                <button
+                                    onClick={addStat}
+                                    className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium transition-colors"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Agregar Estadística
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {Object.entries(stats).map(([key, value]) => (
+                                    <div key={key} className="bg-gray-50 rounded-lg p-4 border">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h5 className="font-medium text-gray-900">Estadística: {key}</h5>
+                                            <button
+                                                onClick={() => removeStat(key)}
+                                                className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                                title="Eliminar estadística"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Clave
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={key}
+                                                    onChange={(e) => {
+                                                        const newStats = { ...stats }
+                                                        delete newStats[key]
+                                                        newStats[e.target.value] = value
+                                                        updateContent('stats', newStats)
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                    placeholder="clave_estadistica"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Valor
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={value as string}
+                                                    onChange={(e) => updateStat(key, e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                                    placeholder="1000+"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {Object.keys(stats).length === 0 && (
+                                <div className="text-center py-8 text-gray-500">
+                                    <div className="text-4xl mb-2">📊</div>
+                                    <p>No hay estadísticas configuradas.</p>
+                                    <p className="text-sm">Haz clic en "Agregar Estadística" para comenzar.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )
+
             case 'cta':
                 const cta = content.call_to_action || {}
                 return (

@@ -11,15 +11,13 @@ import uvicorn
 import sys
 
 # Importar routers
-from routers import auth, news, plans, testimonials, faqs, company, contact, page_content, media
+from routers import auth, plans, company, contact, page_content
 from database import engine, Base
 from config import settings
 
 # Importar todos los modelos para que SQLAlchemy los reconozca
-from models import user
-from models import company as company_models, news as news_models, plans as plans_models
-from models import testimonials as testimonials_models, faqs as faqs_models
-from models import page_content as page_content_models, media as media_models
+from models import user, company as company_models, plans as plans_models
+from models import page_content as page_content_models
 
 # Crear tablas al iniciar
 @asynccontextmanager
@@ -74,14 +72,10 @@ app.add_middleware(
 
 # Incluir routers
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
-app.include_router(news.router, prefix="/api", tags=["news"])
 app.include_router(plans.router, prefix="/api", tags=["plans"])
-app.include_router(testimonials.router, prefix="/api", tags=["testimonials"])
-app.include_router(faqs.router, prefix="/api", tags=["faqs"])
 app.include_router(company.router, prefix="/api", tags=["company"])
 app.include_router(contact.router, prefix="/api", tags=["contact"])
 app.include_router(page_content.router, prefix="/api", tags=["page-content"])
-app.include_router(media.router, tags=["media"])
 
 @app.get("/")
 async def root():

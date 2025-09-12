@@ -16,12 +16,7 @@ from schemas.auth import (
     LoginRequest, Token, UserResponse, UserCreate, UserUpdate, 
     UserListResponse, PermissionSchema
 )
-from schemas.user_permissions import (
-    UserPermissionCreate, UserPermissionResponse, UserPermissionsSet,
-    PermissionDefinition, AvailablePermissions
-)
 from models.user import User, UserRole, Permission
-from models.user_permissions import UserPermission
 
 router = APIRouter()
 
@@ -93,9 +88,7 @@ async def verify_token(
 # ===== GESTIÓN DE USUARIOS =====
 
 def get_user_permissions_list(user: User) -> List[PermissionSchema]:
-    """Obtiene la lista de permisos del usuario incluyendo personalizados"""
-    permissions = []
-    
+    """Obtiene la lista de permisos del usuario basada en su rol"""
     if user.is_superuser or user.role == UserRole.SUPER_ADMIN:
         return [p for p in PermissionSchema]
     
@@ -107,11 +100,7 @@ def get_user_permissions_list(user: User) -> List[PermissionSchema]:
         UserRole.VIEWER: [PermissionSchema.VIEW]
     }
     
-    base_permissions = role_permissions.get(user.role, [])
-    
-    # Verificar permisos personalizados y ajustar la lista
-    # Por ahora devolvemos los permisos base - los personalizados se manejan en el modelo
-    return base_permissions
+    return role_permissions.get(user.role, [])
 
 @router.get("/users/", response_model=UserListResponse)
 async def get_users(
@@ -300,199 +289,3 @@ async def delete_user(
     db.commit()
     
     return {"message": "Usuario eliminado exitosamente"}
-
-# ===== GESTIÓN DE PERMISOS PERSONALIZADOS =====
-
-@router.get("/permissions/available/", response_model=AvailablePermissions)
-async def get_available_permissions(
-    current_user: User = Depends(get_current_admin_user)
-):
-    """Obtiene lista de permisos disponibles en el sistema"""
-    if not current_user.can_manage_users():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permisos para gestionar permisos"
-        )
-    
-    permissions = [
-        PermissionDefinition(
-            name="Ver", 
-            value="view", 
-            description="Permiso para ver contenido",
-            resources=["*", "news", "users", "pages", "plans", "testimonials", "faqs", "company"]
-        ),
-        PermissionDefinition(
-            name="Crear", 
-            value="create", 
-            description="Permiso para crear nuevo contenido",
-            resources=["*", "news", "users", "pages", "plans", "testimonials", "faqs"]
-        ),
-        PermissionDefinition(
-            name="Editar", 
-            value="edit", 
-            description="Permiso para editar contenido existente",
-            resources=["*", "news", "users", "pages", "plans", "testimonials", "faqs", "company"]
-        ),
-        PermissionDefinition(
-            name="Eliminar", 
-            value="delete", 
-            description="Permiso para eliminar contenido",
-            resources=["*", "news", "users", "pages", "plans", "testimonials", "faqs"]
-        ),
-        PermissionDefinition(
-            name="Moderar", 
-            value="moderate", 
-            description="Permiso para moderar contenido y comentarios",
-            resources=["*", "news", "testimonials", "comments"]
-        ),
-        PermissionDefinition(
-            name="Gestionar Usuarios", 
-            value="manage_users", 
-            description="Permiso para gestionar otros usuarios del sistema",
-            resources=["*"]
-        )
-    ]
-    
-    resources = ["*", "news", "users", "pages", "plans", "testimonials", "faqs", "company", "comments"]
-    
-    return AvailablePermissions(permissions=permissions, resources=resources)
-
-@router.get("/users/{user_id}/permissions/", response_model=List[UserPermissionResponse])
-async def get_user_permissions(
-    user_id: int,
-    current_user: User = Depends(get_current_admin_user),
-    db: Session = Depends(get_db)
-):
-    """Obtiene permisos personalizados de un usuario"""
-    if not current_user.can_manage_users():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permisos para gestionar permisos"
-        )
-    
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado"
-        )
-    
-    permissions = db.query(UserPermission).filter(UserPermission.user_id == user_id).all()
-    return permissions
-
-@router.post("/users/{user_id}/permissions/", response_model=UserPermissionResponse)
-async def create_user_permission(
-    user_id: int,
-    permission_data: UserPermissionCreate,
-    current_user: User = Depends(get_current_admin_user),
-    db: Session = Depends(get_db)
-):
-    """Crea un permiso personalizado para un usuario"""
-    if not current_user.can_manage_users():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permisos para gestionar permisos"
-        )
-    
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado"
-        )
-    
-    # Verificar si el permiso ya existe
-    existing = db.query(UserPermission).filter(
-        UserPermission.user_id == user_id,
-        UserPermission.permission == permission_data.permission,
-        UserPermission.resource == permission_data.resource
-    ).first()
-    
-    if existing:
-        # Actualizar el existente
-        existing.is_granted = permission_data.is_granted
-        db.commit()
-        db.refresh(existing)
-        return existing
-    else:
-        # Crear nuevo
-        permission = UserPermission(
-            user_id=user_id,
-            permission=permission_data.permission,
-            resource=permission_data.resource,
-            is_granted=permission_data.is_granted
-        )
-        db.add(permission)
-        db.commit()
-        db.refresh(permission)
-        return permission
-
-@router.put("/users/{user_id}/permissions/bulk/")
-async def set_user_permissions_bulk(
-    user_id: int,
-    permissions_data: UserPermissionsSet,
-    current_user: User = Depends(get_current_admin_user),
-    db: Session = Depends(get_db)
-):
-    """Establece múltiples permisos de un usuario (reemplaza los existentes)"""
-    if not current_user.can_manage_users():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permisos para gestionar permisos"
-        )
-    
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Usuario no encontrado"
-        )
-    
-    # Eliminar permisos existentes
-    db.query(UserPermission).filter(UserPermission.user_id == user_id).delete()
-    
-    # Crear nuevos permisos
-    new_permissions = []
-    for perm_data in permissions_data.permissions:
-        permission = UserPermission(
-            user_id=user_id,
-            permission=perm_data["permission"],
-            resource=perm_data.get("resource", "*"),
-            is_granted=perm_data.get("is_granted", True)
-        )
-        new_permissions.append(permission)
-        db.add(permission)
-    
-    db.commit()
-    
-    return {"message": f"Permisos actualizados para usuario {user_id}", "count": len(new_permissions)}
-
-@router.delete("/users/{user_id}/permissions/{permission_id}/")
-async def delete_user_permission(
-    user_id: int,
-    permission_id: int,
-    current_user: User = Depends(get_current_admin_user),
-    db: Session = Depends(get_db)
-):
-    """Elimina un permiso personalizado de un usuario"""
-    if not current_user.can_manage_users():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permisos para gestionar permisos"
-        )
-    
-    permission = db.query(UserPermission).filter(
-        UserPermission.id == permission_id,
-        UserPermission.user_id == user_id
-    ).first()
-    
-    if not permission:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Permiso no encontrado"
-        )
-    
-    db.delete(permission)
-    db.commit()
-    
-    return {"message": "Permiso eliminado exitosamente"}

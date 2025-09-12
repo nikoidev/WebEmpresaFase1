@@ -3,15 +3,7 @@
 import { adminApi } from '@/lib/api'
 import DevFileInfo from '@/components/DevFileInfo'
 import AdminLayout from '@/components/layout/AdminLayout'
-import HomepageEditor from '@/components/content-editors/HomepageEditor'
-import AboutEditor from '@/components/content-editors/AboutEditor'
-import NewsEditor from '@/components/content-editors/NewsEditor'
-import TestimonialsEditor from '@/components/content-editors/TestimonialsEditor'
-import FAQsEditor from '@/components/content-editors/FAQsEditor'
-import PricesEditor from '@/components/content-editors/PricesEditor'
-import ClientsEditor from '@/components/content-editors/ClientsEditor'
-import HistoryEditor from '@/components/content-editors/HistoryEditor'
-import ContactEditor from '@/components/content-editors/ContactEditor'
+import SectionBasedHomepageEditor from '@/components/content-editors/SectionBasedHomepageEditor'
 import FooterEditor from '@/components/content-editors/FooterEditor'
 import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 import SectionBasedAboutEditor from '@/components/content-editors/SectionBasedAboutEditor'
@@ -69,42 +61,42 @@ export default function ContentManagementPage() {
         {
             key: 'homepage',
             name: 'Página de Inicio',
-            description: 'Contenido principal de la homepage',
+            description: 'Contenido principal de la homepage - Sistema por secciones',
             icon: Home,
             color: 'bg-blue-500'
         },
         {
             key: 'about',
             name: 'Nosotros',
-            description: 'Información sobre la empresa',
+            description: 'Información sobre la empresa - Sistema por secciones',
             icon: Users,
             color: 'bg-green-500'
         },
         {
             key: 'history',
             name: 'Historia',
-            description: 'Historia de la empresa',
+            description: 'Historia de la empresa - Sistema por secciones',
             icon: History,
             color: 'bg-purple-500'
         },
         {
             key: 'clients',
             name: 'Clientes',
-            description: 'Información de clientes',
+            description: 'Información de clientes - Sistema por secciones',
             icon: Globe,
             color: 'bg-orange-500'
         },
         {
-            key: 'prices',
+            key: 'pricing',
             name: 'Precios',
-            description: 'Planes y precios de servicios',
+            description: 'Planes y precios de servicios - Sistema por secciones',
             icon: DollarSign,
             color: 'bg-yellow-500'
         },
         {
             key: 'contact',
             name: 'Contacto',
-            description: 'Información de contacto',
+            description: 'Información de contacto - Sistema por secciones',
             icon: Mail,
             color: 'bg-red-500'
         },
@@ -114,27 +106,6 @@ export default function ContentManagementPage() {
             description: 'Estadísticas y métricas globales compartidas',
             icon: Globe,
             color: 'bg-indigo-500'
-        },
-        {
-            key: 'news',
-            name: 'Noticias',
-            description: 'Artículos y noticias del blog',
-            icon: FileText,
-            color: 'bg-cyan-500'
-        },
-        {
-            key: 'testimonials',
-            name: 'Testimonios',
-            description: 'Testimonios de clientes',
-            icon: Users,
-            color: 'bg-pink-500'
-        },
-        {
-            key: 'faqs',
-            name: 'FAQs',
-            description: 'Preguntas frecuentes',
-            icon: Help,
-            color: 'bg-teal-500'
         },
         {
             key: 'footer',
@@ -253,96 +224,81 @@ export default function ContentManagementPage() {
                 }
             case 'about':
                 return {
-                    mission: 'Nuestra misión...',
-                    vision: 'Nuestra visión...',
+                    hero: {
+                        title: 'Sobre Nosotros',
+                        subtitle: 'Quiénes somos y qué nos motiva'
+                    },
+                    mission: '',
                     values: [],
                     team: []
                 }
-            case 'news':
+            case 'pricing':
                 return {
-                    articles: []
-                }
-            case 'testimonials':
-                return {
-                    testimonials: []
-                }
-            case 'faqs':
-                return {
-                    faqs: [],
-                    categories: ['General', 'Servicios', 'Precios', 'Soporte']
-                }
-            case 'prices':
-                return {
-                    plans: [],
-                    general_info: {
-                        title: 'Nuestros Planes',
-                        subtitle: 'Elige el plan que mejor se adapte a tus necesidades'
-                    }
+                    hero: {
+                        title: 'Planes y Precios',
+                        subtitle: 'Elige el plan perfecto para tu institución educativa'
+                    },
+                    enterprise: {},
+                    faqs: []
                 }
             case 'clients':
                 return {
-                    clients: [],
-                    page_content: {
+                    hero: {
                         title: 'Nuestros Clientes',
-                        subtitle: 'Empresas que confían en nosotros',
-                        description: 'Trabajamos con empresas de diferentes sectores, brindando soluciones tecnológicas de calidad.'
+                        subtitle: 'Instituciones que confían en nosotros'
                     },
-                    stats: {
-                        total_clients: 0,
-                        years_experience: 0,
-                        success_rate: 0
-                    }
+                    clients: [],
+                    testimonials: [],
+                    metrics: []
                 }
             case 'history':
                 return {
-                    page_content: {
+                    hero: {
                         title: 'Nuestra Historia',
-                        subtitle: 'Un viaje de innovación y crecimiento',
-                        intro_text: 'Desde nuestros inicios, hemos estado comprometidos con la excelencia y la innovación tecnológica.'
+                        subtitle: 'Un viaje de innovación y crecimiento'
                     },
-                    milestones: [],
-                    company_stats: {
-                        founded_year: '',
-                        employees_count: 0,
-                        projects_completed: 0,
-                        countries_served: 0
-                    }
+                    intro: {},
+                    timeline: [],
+                    impact: [],
+                    future: {}
                 }
             case 'contact':
                 return {
-                    page_content: {
+                    hero: {
                         title: 'Contáctanos',
-                        subtitle: 'Estamos aquí para ayudarte',
-                        description: 'Ponte en contacto con nosotros para cualquier consulta o solicitud de información.'
+                        subtitle: 'Estamos aquí para ayudarte'
                     },
-                    contact_info: {
-                        address: '',
-                        city: '',
-                        country: '',
-                        phone: '',
-                        email: '',
-                        business_hours: {
-                            monday_friday: '9:00 AM - 6:00 PM',
-                            saturday: '9:00 AM - 12:00 PM',
-                            sunday: 'Cerrado'
+                    contact_items: [
+                        {
+                            id: 'email',
+                            icon: 'Mail',
+                            title: 'Email',
+                            value: 'contacto@sevp.com',
+                            description: 'Respuesta en 24 horas'
+                        },
+                        {
+                            id: 'phone',
+                            icon: 'Phone',
+                            title: 'Teléfono',
+                            value: '+51 1 234-5678',
+                            description: 'Lun - Vie, 9am - 6pm'
+                        },
+                        {
+                            id: 'whatsapp',
+                            icon: 'Smartphone',
+                            title: 'WhatsApp',
+                            value: '+51 999 888 777',
+                            description: 'Respuesta inmediata'
+                        },
+                        {
+                            id: 'address',
+                            icon: 'MapPin',
+                            title: 'Oficina',
+                            value: 'Lima, Perú',
+                            description: 'San Isidro, Lima 27'
                         }
-                    },
-                    social_media: [],
-                    map_settings: {
-                        show_map: false
-                    },
-                    contact_form_settings: {
-                        show_form: true,
-                        form_title: 'Envíanos un mensaje',
-                        success_message: 'Gracias por tu mensaje. Te responderemos pronto.',
-                        fields: {
-                            name_required: true,
-                            email_required: true,
-                            phone_required: false,
-                            subject_required: true,
-                            message_required: true
-                        }
-                    }
+                    ],
+                    form: {}
                 }
             case 'company':
                 return {
@@ -358,6 +314,24 @@ export default function ContentManagementPage() {
                         { number: '300%', label: 'Aumento en Engagement', description: 'Incremento en engagement estudiantil' },
                         { number: '24/7', label: 'Soporte Técnico', description: 'Disponibilidad de soporte' }
                     ]
+                }
+            case 'footer':
+                return {
+                    company_info: {
+                        name: 'SEVP',
+                        description: 'Sistema Educativo Virtual Profesional',
+                        logo: ''
+                    },
+                    contact_info: {
+                        address: 'Lima, Perú',
+                        phone: '+51 1 234-5678',
+                        email: 'contacto@sevp.com'
+                    },
+                    social_networks: [],
+                    links: {
+                        quick_links: [],
+                        legal_links: []
+                    }
                 }
             default:
                 return {}
@@ -385,12 +359,11 @@ export default function ContentManagementPage() {
             'about': '/nosotros',
             'history': '/historia',
             'clients': '/clientes',
-            'prices': '/precios',
+            'pricing': '/precios',
             'contact': '/contacto',
-            // Estas páginas dinámicas se gestionan desde el admin pero no tienen página pública dedicada
-            'news': '/admin/news',
-            'testimonials': '/admin/testimonials',
-            'faqs': '/admin/faqs'
+            // Páginas especiales
+            'company': '/admin/content', // Solo disponible en admin
+            'footer': '/' // Footer aparece en todas las páginas
         }
         return urlMap[pageKey] || `/${pageKey}`
     }
@@ -399,7 +372,7 @@ export default function ContentManagementPage() {
         switch (formData.page_key) {
             case 'homepage':
                 return (
-                    <HomepageEditor
+                    <SectionBasedHomepageEditor
                         content={formData.content_json}
                         onChange={(content) => setFormData({ ...formData, content_json: content })}
                     />
@@ -411,28 +384,7 @@ export default function ContentManagementPage() {
                         onChange={(content) => setFormData({ ...formData, content_json: content })}
                     />
                 )
-            case 'news':
-                return (
-                    <NewsEditor
-                        data={formData.content_json}
-                        onChange={(data) => setFormData({ ...formData, content_json: data })}
-                    />
-                )
-            case 'testimonials':
-                return (
-                    <TestimonialsEditor
-                        data={formData.content_json}
-                        onChange={(data) => setFormData({ ...formData, content_json: data })}
-                    />
-                )
-            case 'faqs':
-                return (
-                    <FAQsEditor
-                        data={formData.content_json}
-                        onChange={(data) => setFormData({ ...formData, content_json: data })}
-                    />
-                )
-            case 'prices':
+            case 'pricing':
                 return (
                     <SectionBasedPricesEditor
                         data={formData.content_json}

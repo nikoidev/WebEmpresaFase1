@@ -24,23 +24,31 @@ export default function HeroSlideshow({
     const [isPlaying, setIsPlaying] = useState(true)
     const [isHovered, setIsHovered] = useState(false)
 
+    // Filtrar slides con URLs válidas (no que apunten a /api/media)
+    const validSlides = slides.filter(slide => {
+        if (!slide.url) return false
+        // Filtrar URLs que apunten al endpoint eliminado
+        if (slide.url.includes('/api/media/')) return false
+        return true
+    })
+
     // Función para ir al siguiente slide
     const nextSlide = useCallback(() => {
-        setCurrentSlide((prev) => (prev + 1) % slides.length)
-    }, [slides.length])
+        setCurrentSlide((prev) => (prev + 1) % validSlides.length)
+    }, [validSlides.length])
 
     // Función para ir al slide anterior
     const prevSlide = useCallback(() => {
-        setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
-    }, [slides.length])
+        setCurrentSlide((prev) => (prev - 1 + validSlides.length) % validSlides.length)
+    }, [validSlides.length])
 
     // Auto-play funcionalidad
     useEffect(() => {
-        if (!isPlaying || isHovered || slides.length <= 1) return
+        if (!isPlaying || isHovered || validSlides.length <= 1) return
 
         const interval = setInterval(nextSlide, autoPlayInterval * 1000)
         return () => clearInterval(interval)
-    }, [isPlaying, isHovered, nextSlide, autoPlayInterval, slides.length])
+    }, [isPlaying, isHovered, nextSlide, autoPlayInterval, validSlides.length])
 
     // Función para renderizar YouTube embed
     const renderYouTubeEmbed = (url: string) => {
@@ -65,19 +73,20 @@ export default function HeroSlideshow({
         )
     }
 
-    // Si no hay slides, mostrar placeholder
-    if (!slides || slides.length === 0) {
+    // Si no hay slides válidos, mostrar placeholder
+    if (!validSlides || validSlides.length === 0) {
         return (
             <div className={`bg-white/10 rounded-lg h-96 flex items-center justify-center ${className}`}>
                 <div className="text-center text-white/50">
                     <Play className="h-16 w-16 mx-auto mb-2" />
-                    <p>No hay contenido multimedia</p>
+                    <p>No hay contenido multimedia válido</p>
+                    <p className="text-sm mt-2">Configure imágenes o videos en el administrador</p>
                 </div>
             </div>
         )
     }
 
-    const currentSlideData = slides[currentSlide]
+    const currentSlideData = validSlides[currentSlide]
     
     // Detectar automáticamente el tipo si no está especificado correctamente
     const isYouTube = currentSlideData.url.includes('youtube.com') || currentSlideData.url.includes('youtu.be')
@@ -183,9 +192,9 @@ export default function HeroSlideshow({
             )}
 
             {/* Indicadores de posición */}
-            {slides.length > 1 && (
+            {validSlides.length > 1 && (
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-                    {slides.map((_, index) => (
+                    {validSlides.map((_, index) => (
                         <button
                             key={index}
                             onClick={() => setCurrentSlide(index)}

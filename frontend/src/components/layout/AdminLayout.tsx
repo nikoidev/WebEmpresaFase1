@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
+import { InlineEditProvider } from '@/contexts/InlineEditContext'
 import { BarChart3, DollarSign, FileText, HelpCircle, Home, LogOut, Menu, MessageSquare, Settings, Users, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -48,7 +49,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
 
     return (
-        <div className="h-screen bg-gray-50 flex">
+        <InlineEditProvider>
+            <div className="h-screen bg-gray-50 flex">
             {/* Sidebar */}
             <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:relative lg:flex lg:flex-col`}>
                 <div className="flex items-center justify-center h-16 bg-gray-800 px-4 border-b border-gray-700">
@@ -164,6 +166,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <div className="absolute inset-0 bg-gray-600 opacity-75"></div>
                 </div>
             )}
-        </div>
+            </div>
+        </InlineEditProvider>
     )
 }
