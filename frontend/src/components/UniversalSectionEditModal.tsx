@@ -145,14 +145,8 @@ export default function UniversalSectionEditModal({
                             </label>
                             <input
                                 type="text"
-                                value={sectionData.title || content.hero_title || ''}
-                                onChange={(e) => {
-                                    if (content.hero) {
-                                        updateContent('hero.title', e.target.value)
-                                    } else {
-                                        updateContent('hero_title', e.target.value)
-                                    }
-                                }}
+                                value={content.hero_title || ''}
+                                onChange={(e) => updateContent('hero_title', e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 placeholder="Título del hero"
                             />
@@ -164,33 +158,21 @@ export default function UniversalSectionEditModal({
                             </label>
                             <input
                                 type="text"
-                                value={sectionData.subtitle || content.hero_subtitle || ''}
-                                onChange={(e) => {
-                                    if (content.hero) {
-                                        updateContent('hero.subtitle', e.target.value)
-                                    } else {
-                                        updateContent('hero_subtitle', e.target.value)
-                                    }
-                                }}
+                                value={content.hero_subtitle || ''}
+                                onChange={(e) => updateContent('hero_subtitle', e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 placeholder="Subtítulo del hero"
                             />
                         </div>
-
+                        
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Descripción
                             </label>
                             <textarea
                                 rows={4}
-                                value={sectionData.description || content.hero_description || ''}
-                                onChange={(e) => {
-                                    if (content.hero) {
-                                        updateContent('hero.description', e.target.value)
-                                    } else {
-                                        updateContent('hero_description', e.target.value)
-                                    }
-                                }}
+                                value={content.hero_description || ''}
+                                onChange={(e) => updateContent('hero_description', e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                 placeholder="Descripción del hero"
                             />
@@ -773,14 +755,26 @@ export default function UniversalSectionEditModal({
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción de la Introducción
+                                Primer Párrafo (Descripción Principal)
                             </label>
                             <textarea
                                 rows={4}
                                 value={content.intro_description || ''}
                                 onChange={(e) => updateContent('intro_description', e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Descripción de la introducción a la historia"
+                                placeholder="Descripción principal de la introducción a la historia"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Segundo Párrafo (Descripción Adicional)
+                            </label>
+                            <textarea
+                                rows={4}
+                                value={content.intro_subtitle || ''}
+                                onChange={(e) => updateContent('intro_subtitle', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Descripción adicional o continuación de la historia"
                             />
                         </div>
                     </div>

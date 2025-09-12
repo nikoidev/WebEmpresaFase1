@@ -183,7 +183,7 @@ export default function HistoriaPage() {
                         {content?.intro_description || 'En 2018, un grupo de educadores y tecnólogos se unió con una misión clara: hacer que la tecnología educativa de alta calidad fuera accesible para todas las instituciones, sin importar su tamaño o presupuesto.'}
                     </p>
                     <p className="text-lg text-gray-600">
-                        Lo que comenzó como un proyecto de fin de semana se ha convertido en la plataforma educativa más innovadora de América Latina, transformando la forma en que millones de estudiantes aprenden cada día.
+                        {content?.intro_subtitle || 'Lo que comenzó como un proyecto de fin de semana se ha convertido en la plataforma educativa más innovadora de América Latina, transformando la forma en que millones de estudiantes aprenden cada día.'}
                     </p>
                 </div>
             </section>
