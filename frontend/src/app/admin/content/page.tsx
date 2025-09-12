@@ -13,6 +13,8 @@ import ClientsEditor from '@/components/content-editors/ClientsEditor'
 import HistoryEditor from '@/components/content-editors/HistoryEditor'
 import ContactEditor from '@/components/content-editors/ContactEditor'
 import FooterEditor from '@/components/content-editors/FooterEditor'
+import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
+import SectionBasedAboutEditor from '@/components/content-editors/SectionBasedAboutEditor'
 import {
     Edit,
     Eye,
@@ -377,7 +379,7 @@ export default function ContentManagementPage() {
                 )
             case 'about':
                 return (
-                    <AboutEditor
+                    <SectionBasedAboutEditor
                         content={formData.content_json}
                         onChange={(content) => setFormData({ ...formData, content_json: content })}
                     />

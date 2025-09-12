@@ -5,12 +5,17 @@ import { Award, Heart, Target, Users } from 'lucide-react'
 import { publicApi } from '@/lib/api'
 import { useEffect, useState } from 'react'
 import InlineEditButton from '@/components/InlineEditButton'
+import SectionEditButton from '@/components/SectionEditButton'
+import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 
 // Metadata se maneja desde layout.tsx para client components
 
 export default function NosotrosPage() {
     const [aboutContent, setAboutContent] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [editingSection, setEditingSection] = useState<string | null>(null)
+    const [editingSectionName, setEditingSectionName] = useState<string>('')
+    const [fullPageContent, setFullPageContent] = useState<any>(null)
 
     const loadContent = async () => {
         try {
@@ -18,12 +23,25 @@ export default function NosotrosPage() {
             const response = await publicApi.getPageContent('about')
             console.log('✅ Contenido cargado:', response.data)
             setAboutContent(response.data.content_json)
+            setFullPageContent(response.data)
         } catch (error) {
             console.error('❌ Error loading about content:', error)
             // Usar contenido por defecto si falla
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleSectionEdit = (sectionType: string, sectionName: string) => {
+        setEditingSection(sectionType)
+        setEditingSectionName(sectionName)
+    }
+
+    const handleSectionSave = async () => {
+        // Recargar contenido después de guardar
+        await loadContent()
+        setEditingSection(null)
+        setEditingSectionName('')
     }
 
     useEffect(() => {
@@ -33,21 +51,31 @@ export default function NosotrosPage() {
     return (
         <PublicLayout>
             {/* Hero Section */}
-            <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24">
+            <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24 relative">
+                <SectionEditButton 
+                    sectionName="Sección Hero"
+                    onEdit={() => handleSectionEdit('hero', 'Sección Hero')}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-                            Nosotros
+                            {aboutContent?.hero_title || 'Nosotros'}
                         </h1>
                         <p className="text-xl md:text-2xl text-primary-100 max-w-3xl mx-auto">
-                            Somos un equipo apasionado por transformar la educación a través de la tecnología
+                            {aboutContent?.hero_subtitle || aboutContent?.hero_description || 'Somos un equipo apasionado por transformar la educación a través de la tecnología'}
                         </p>
                     </div>
                 </div>
             </section>
 
             {/* Mission & Vision */}
-            <section className="py-24 bg-white">
+            <section className="py-24 bg-white relative">
+                <SectionEditButton 
+                    sectionName="Misión y Visión"
+                    onEdit={() => handleSectionEdit('mission', 'Misión y Visión')}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
                         <div>
@@ -80,14 +108,19 @@ export default function NosotrosPage() {
             </section>
 
             {/* Values */}
-            <section className="py-24 bg-gray-50">
+            <section className="py-24 bg-gray-50 relative">
+                <SectionEditButton 
+                    sectionName="Valores"
+                    onEdit={() => handleSectionEdit('values', 'Valores')}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Nuestros Valores
+                            {aboutContent?.values_title || 'Nuestros Valores'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Los principios que guían cada decisión que tomamos
+                            {aboutContent?.values_description || 'Los principios que guían cada decisión que tomamos'}
                         </p>
                     </div>
 
@@ -151,14 +184,19 @@ export default function NosotrosPage() {
             </section>
 
             {/* Team */}
-            <section className="py-24 bg-white">
+            <section className="py-24 bg-white relative">
+                <SectionEditButton 
+                    sectionName="Equipo"
+                    onEdit={() => handleSectionEdit('team', 'Equipo')}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Nuestro Equipo
+                            {aboutContent?.team_title || 'Nuestro Equipo'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            Profesionales apasionados por la educación y la tecnología
+                            {aboutContent?.team_description || 'Profesionales apasionados por la educación y la tecnología'}
                         </p>
                     </div>
 
@@ -224,38 +262,48 @@ export default function NosotrosPage() {
             </section>
 
             {/* Call to Action */}
-            <section className="py-24 bg-primary-600">
+            <section className="py-24 bg-primary-600 relative">
+                <SectionEditButton 
+                    sectionName="Llamada a la Acción"
+                    onEdit={() => handleSectionEdit('cta', 'Llamada a la Acción')}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                        ¿Quieres formar parte de nuestra misión?
+                        {aboutContent?.call_to_action?.title || '¿Quieres formar parte de nuestra misión?'}
                     </h2>
                     <p className="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
-                        Estamos siempre buscando personas talentosas y apasionadas que quieran
-                        ayudarnos a transformar la educación.
+                        {aboutContent?.call_to_action?.description || 'Estamos siempre buscando personas talentosas y apasionadas que quieran ayudarnos a transformar la educación.'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
-                            href="/contacto"
+                            href={aboutContent?.call_to_action?.primary_button_link || "/contacto"}
                             className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
                         >
-                            Únete al Equipo
+                            {aboutContent?.call_to_action?.primary_button_text || 'Únete al Equipo'}
                         </a>
                         <a
-                            href="/contacto"
+                            href={aboutContent?.call_to_action?.secondary_button_link || "/contacto"}
                             className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
                         >
-                            Contáctanos
+                            {aboutContent?.call_to_action?.secondary_button_text || 'Contáctanos'}
                         </a>
                     </div>
                 </div>
             </section>
 
-            {/* Botón de edición inline */}
-            <InlineEditButton 
-                pageKey="about" 
-                onContentUpdate={loadContent}
-                tooltip="Editar página nosotros (Ctrl+E)"
-            />
+            {/* Modal de edición por sección */}
+            {editingSection && fullPageContent && (
+                <UniversalSectionEditModal
+                    isOpen={!!editingSection}
+                    onClose={() => setEditingSection(null)}
+                    sectionType={editingSection}
+                    sectionName={editingSectionName}
+                    pageKey="about"
+                    initialContent={fullPageContent}
+                    onSave={handleSectionSave}
+                />
+            )}
         </PublicLayout>
     )
 }

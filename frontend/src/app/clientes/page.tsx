@@ -5,6 +5,9 @@ import { publicApi } from '@/lib/api'
 import { Building, GraduationCap, School, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import InlineEditButton from '@/components/InlineEditButton'
+import SectionEditButton from '@/components/SectionEditButton'
+import ClientsEditor from '@/components/content-editors/ClientsEditor'
+import { adminApi } from '@/lib/api'
 
 // Definir tipos para el contenido de Clientes
 interface ClientType {
@@ -45,6 +48,9 @@ interface ClientsContent {
 export default function ClientesPage() {
     const [content, setContent] = useState<ClientsContent | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [isEditing, setIsEditing] = useState(false)
+    const [fullPageContent, setFullPageContent] = useState<any>(null)
+    const [isSaving, setIsSaving] = useState(false)
 
     useEffect(() => {
         loadContent()
@@ -55,6 +61,7 @@ export default function ClientesPage() {
             const response = await publicApi.getPageContent('clients')
             console.log('Clientes content loaded:', response.data)
             setContent(response.data.content_json)
+            setFullPageContent(response.data)
         } catch (error) {
             console.error('Error loading clientes content:', error)
             // Fallback content
@@ -66,6 +73,45 @@ export default function ClientesPage() {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const handleSectionEdit = () => {
+        setIsEditing(true)
+    }
+
+    const handleSave = async () => {
+        if (!fullPageContent) return
+        
+        setIsSaving(true)
+        try {
+            await adminApi.updatePageContent('clients', fullPageContent)
+            setIsEditing(false)
+            await loadContent()
+            
+            const notification = document.createElement('div')
+            notification.innerHTML = '✅ Contenido actualizado exitosamente'
+            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg z-50 shadow-lg'
+            document.body.appendChild(notification)
+            
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification)
+                }
+            }, 3000)
+        } catch (error) {
+            console.error('Error saving content:', error)
+            alert('❌ Error al guardar el contenido')
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+    const handleContentChange = (data: any) => {
+        setFullPageContent({
+            ...fullPageContent,
+            content_json: data
+        })
+        setContent(data)
     }
 
     // Iconos por defecto
@@ -163,7 +209,12 @@ export default function ClientesPage() {
     return (
         <PublicLayout>
             {/* Hero Section */}
-            <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24">
+            <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24 relative">
+                <SectionEditButton 
+                    sectionName="Sección Hero"
+                    onEdit={handleSectionEdit}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold mb-6">
@@ -204,7 +255,12 @@ export default function ClientesPage() {
             </section>
 
             {/* Client Types */}
-            <section className="py-24 bg-white">
+            <section className="py-24 bg-white relative">
+                <SectionEditButton 
+                    sectionName="Tipos de Clientes"
+                    onEdit={handleSectionEdit}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -236,7 +292,12 @@ export default function ClientesPage() {
             </section>
 
             {/* Testimonials */}
-            <section className="py-24 bg-gray-50">
+            <section className="py-24 bg-gray-50 relative">
+                <SectionEditButton 
+                    sectionName="Testimonios"
+                    onEdit={handleSectionEdit}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -270,7 +331,12 @@ export default function ClientesPage() {
             </section>
 
             {/* Success Metrics */}
-            <section className="py-24 bg-primary-600 text-white">
+            <section className="py-24 bg-primary-600 text-white relative">
+                <SectionEditButton 
+                    sectionName="Métricas de Éxito"
+                    onEdit={handleSectionEdit}
+                    position="top-right"
+                />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -293,7 +359,12 @@ export default function ClientesPage() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-24 bg-white">
+            <section className="py-24 bg-white relative">
+                <SectionEditButton 
+                    sectionName="Llamada a la Acción"
+                    onEdit={handleSectionEdit}
+                    position="top-right"
+                />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                         ¿Listo para Unirte a Nuestros Clientes Exitosos?
@@ -318,12 +389,45 @@ export default function ClientesPage() {
                 </div>
             </section>
 
-            {/* Botón de edición inline */}
-            <InlineEditButton 
-                pageKey="clients" 
-                onContentUpdate={loadContent}
-                tooltip="Editar página de clientes (Ctrl+E)"
-            />
+            {/* Modal de edición */}
+            {isEditing && fullPageContent && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+                    <div className="w-full max-w-6xl h-[80vh] shadow-lg rounded-md bg-white flex flex-col">
+                        <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
+                            <h3 className="text-xl font-bold text-gray-900">Editar Página Clientes</h3>
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        
+                        <div className="flex-1 overflow-hidden">
+                            <ClientsEditor
+                                data={content || {}}
+                                onChange={handleContentChange}
+                            />
+                        </div>
+                        
+                        <div className="flex justify-end space-x-4 p-6 border-t flex-shrink-0">
+                            <button
+                                onClick={() => setIsEditing(false)}
+                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
+                            >
+                                {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </PublicLayout>
     )
 }
