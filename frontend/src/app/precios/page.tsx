@@ -80,14 +80,15 @@ export default function PreciosPage() {
 
     const formatPrice = (plan: ServicePlan) => {
         if (isYearly && plan.price_yearly) {
+            const monthlySavings = Number(plan.monthly_savings) || 0
             return {
                 price: (plan.price_yearly / 12).toFixed(0),
                 period: '/mes',
-                savings: `Ahorras $${plan.monthly_savings.toFixed(0)}/mes`
+                savings: `Ahorras €${monthlySavings.toFixed(1)}/mes`
             }
         }
         return {
-            price: plan.price_monthly.toString(),
+            price: Number(plan.price_monthly).toFixed(1),
             period: '/mes',
             savings: null
         }
@@ -136,22 +137,29 @@ export default function PreciosPage() {
                         <div className="inline-flex items-center bg-white rounded-lg p-1 shadow-md">
                             <button
                                 onClick={() => setIsYearly(false)}
-                                className={`px-6 py-3 rounded-md font-medium transition-colors ${!isYearly
+                                className={`px-6 py-3 rounded-md font-medium transition-all duration-300 ${!isYearly
                                     ? 'bg-primary-600 text-white'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                    : 'text-black hover:bg-primary-600 hover:text-white'
                                     }`}
                             >
-                                {content?.pricing_monthly_label || 'Mensual'}
+                                <span className={`transition-colors duration-300 ${!isYearly ? 'text-white' : 'text-black'}`}>
+                                    {content?.pricing_monthly_label || 'Mensual'}
+                                </span>
                             </button>
                             <button
                                 onClick={() => setIsYearly(true)}
-                                className={`px-6 py-3 rounded-md font-medium transition-colors ${isYearly
+                                className={`px-6 py-3 rounded-md font-medium transition-all duration-300 ${isYearly
                                     ? 'bg-primary-600 text-white'
-                                    : 'text-gray-600 hover:text-gray-900'
+                                    : 'text-black hover:bg-primary-600 hover:text-white'
                                     }`}
                             >
-                                {content?.pricing_yearly_label || 'Anual'}
-                                <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                                <span className={`transition-colors duration-300 ${isYearly ? 'text-white' : 'text-black'}`}>
+                                    {content?.pricing_yearly_label || 'Anual'}
+                                </span>
+                                <span className={`ml-2 text-xs px-2 py-1 rounded-full transition-all duration-300 ${isYearly
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-green-100 text-green-800'
+                                    }`}>
                                     Ahorra hasta 20%
                                 </span>
                             </button>
@@ -165,21 +173,21 @@ export default function PreciosPage() {
                             return (
                                 <div
                                     key={plan.id}
-                                    className={`bg-white rounded-2xl shadow-lg overflow-hidden ${plan.is_popular
-                                        ? 'ring-2 ring-primary-500 relative'
+                                    className={`bg-white rounded-2xl shadow-lg overflow-hidden relative ${plan.is_popular
+                                        ? 'ring-2 ring-primary-500'
                                         : ''
                                         }`}
                                 >
                                     {plan.is_popular && (
-                                        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                            <div className="bg-primary-500 text-white px-4 py-1 rounded-full text-sm font-medium flex items-center">
-                                                <Star className="h-4 w-4 mr-1" />
+                                        <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-10">
+                                            <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center shadow-lg">
+                                                <Star className="h-4 w-4 mr-1 fill-current" />
                                                 Más Popular
                                             </div>
                                         </div>
                                     )}
 
-                                    <div className="p-8">
+                                    <div className={`p-8 ${plan.is_popular ? 'pt-12' : ''}`}>
                                         {/* Plan Header */}
                                         <div className="text-center mb-8">
                                             <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -191,7 +199,7 @@ export default function PreciosPage() {
 
                                             <div className="mb-4">
                                                 <span className="text-4xl font-bold text-gray-900">
-                                                    ${pricing.price}
+                                                    €{pricing.price}
                                                 </span>
                                                 <span className="text-gray-600">
                                                     {pricing.period}

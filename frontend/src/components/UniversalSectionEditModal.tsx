@@ -4,6 +4,177 @@ import { useState, useEffect } from 'react'
 import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 
+// Componente específico para el editor de precios
+const PricingEditor = ({ content, updateContent }: { content: any, updateContent: any }) => {
+    const [plans, setPlans] = useState<any[]>([])
+    const [loadingPlans, setLoadingPlans] = useState(true)
+    
+    // Cargar planes cuando se abre el modal
+    useEffect(() => {
+        const loadPlans = async () => {
+            try {
+                const response = await adminApi.plans.list()
+                setPlans(response.data)
+            } catch (error) {
+                console.error('Error loading plans:', error)
+            } finally {
+                setLoadingPlans(false)
+            }
+        }
+        loadPlans()
+    }, [])
+    
+    const updatePlan = async (planId: number, field: string, value: any) => {
+        try {
+            await adminApi.plans.update(planId, { [field]: value })
+            // Actualizar estado local
+            setPlans(prev => prev.map(plan => 
+                plan.id === planId ? { ...plan, [field]: value } : plan
+            ))
+        } catch (error) {
+            console.error('Error updating plan:', error)
+        }
+    }
+    
+    return (
+        <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-4">
+                <h3 className="text-lg font-semibold text-blue-900 mb-2">
+                    💰 Editor de Planes y Precios
+                </h3>
+                <p className="text-blue-700 text-sm">
+                    Configura los planes de servicio, precios y características.
+                </p>
+            </div>
+
+            {/* Configuración de etiquetas */}
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Etiqueta Mensual
+                    </label>
+                    <input
+                        type="text"
+                        value={content.pricing_monthly_label || ''}
+                        onChange={(e) => updateContent('pricing_monthly_label', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Mensual"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Etiqueta Anual
+                    </label>
+                    <input
+                        type="text"
+                        value={content.pricing_yearly_label || ''}
+                        onChange={(e) => updateContent('pricing_yearly_label', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        placeholder="Anual"
+                    />
+                </div>
+            </div>
+
+            {/* Editor de planes */}
+            <div className="border-t pt-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4">Planes de Servicio</h4>
+                
+                {loadingPlans ? (
+                    <div className="text-center py-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+                        <p className="text-gray-500 mt-2">Cargando planes...</p>
+                    </div>
+                ) : (
+                    <div className="space-y-6">
+                        {plans.map((plan) => (
+                            <div key={plan.id} className="bg-gray-50 rounded-lg p-4 border">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h5 className="font-semibold text-gray-900">{plan.name}</h5>
+                                    <div className="flex items-center space-x-2">
+                                        <label className="flex items-center bg-white px-3 py-1 rounded-md border">
+                                            <input
+                                                type="checkbox"
+                                                checked={plan.is_popular || false}
+                                                onChange={(e) => updatePlan(plan.id, 'is_popular', e.target.checked)}
+                                                className="mr-2 text-primary-600 focus:ring-primary-500"
+                                            />
+                                            <span className="text-sm font-medium text-gray-700">⭐ Más Popular</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Nombre del Plan
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={plan.name || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'name', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Descripción
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={plan.description || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'description', e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Precio Mensual (€)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={plan.price_monthly || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'price_monthly', parseFloat(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Precio Anual (€)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={plan.price_yearly || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'price_yearly', parseFloat(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Ahorro Mensual (€)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={plan.monthly_savings || ''}
+                                            onChange={(e) => updatePlan(plan.id, 'monthly_savings', parseFloat(e.target.value))}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
 // Función para sincronizar stats entre páginas
 const syncStatsAcrossPages = async (stats: any[], isGlobalStats: boolean = true) => {
     try {
@@ -1511,60 +1682,7 @@ export default function UniversalSectionEditModal({
 
             // Editores para página Precios
             case 'pricing':
-                return (
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Título de Planes y Precios
-                            </label>
-                            <input
-                                type="text"
-                                value={content.pricing_title || ''}
-                                onChange={(e) => updateContent('pricing_title', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Planes y Precios"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción de Planes
-                            </label>
-                            <textarea
-                                rows={3}
-                                value={content.pricing_description || ''}
-                                onChange={(e) => updateContent('pricing_description', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Descripción de los planes y precios"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Etiqueta Anual
-                                </label>
-                                <input
-                                    type="text"
-                                    value={content.pricing_yearly_label || ''}
-                                    onChange={(e) => updateContent('pricing_yearly_label', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="Anual"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Etiqueta Mensual
-                                </label>
-                                <input
-                                    type="text"
-                                    value={content.pricing_monthly_label || ''}
-                                    onChange={(e) => updateContent('pricing_monthly_label', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="Mensual"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                )
+                return <PricingEditor content={content} updateContent={updateContent} />
 
             case 'enterprise':
                 return (
