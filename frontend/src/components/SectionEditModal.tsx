@@ -42,6 +42,13 @@ export default function SectionEditModal({
             // Mapear el sectionType al nombre correcto en la estructura
             if (sectionType === 'cta') {
                 updatedContentJson.call_to_action = content.call_to_action
+            } else if (sectionType === 'hero') {
+                updatedContentJson.hero = content.hero
+            } else if (sectionType === 'features') {
+                updatedContentJson.features = content.features
+                // También actualizar metadatos de features si existen
+                if (content.features_title) updatedContentJson.features_title = content.features_title
+                if (content.features_description) updatedContentJson.features_description = content.features_description
             } else {
                 updatedContentJson[sectionType] = content[sectionType]
             }
@@ -93,8 +100,14 @@ export default function SectionEditModal({
                             </label>
                             <input
                                 type="text"
-                                value={content.hero_title || ''}
-                                onChange={(e) => setContent({ ...content, hero_title: e.target.value })}
+                                value={content.hero?.title || ''}
+                                onChange={(e) => setContent({ 
+                                    ...content, 
+                                    hero: { 
+                                        ...content.hero, 
+                                        title: e.target.value 
+                                    }
+                                })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                                 placeholder="Sistema Educativo Virtual Profesional"
                             />
@@ -106,8 +119,14 @@ export default function SectionEditModal({
                             </label>
                             <input
                                 type="text"
-                                value={content.hero_subtitle || ''}
-                                onChange={(e) => setContent({ ...content, hero_subtitle: e.target.value })}
+                                value={content.hero?.subtitle || ''}
+                                onChange={(e) => setContent({ 
+                                    ...content, 
+                                    hero: { 
+                                        ...content.hero, 
+                                        subtitle: e.target.value 
+                                    }
+                                })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                                 placeholder="Transformamos la educación con tecnología"
                             />
@@ -118,8 +137,14 @@ export default function SectionEditModal({
                                 Descripción
                             </label>
                             <textarea
-                                value={content.hero_description || ''}
-                                onChange={(e) => setContent({ ...content, hero_description: e.target.value })}
+                                value={content.hero?.description || ''}
+                                onChange={(e) => setContent({ 
+                                    ...content, 
+                                    hero: { 
+                                        ...content.hero, 
+                                        description: e.target.value 
+                                    }
+                                })}
                                 rows={3}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                                 placeholder="La plataforma educativa más completa..."
@@ -133,8 +158,14 @@ export default function SectionEditModal({
                                 </label>
                                 <input
                                     type="text"
-                                    value={content.hero_button_text || ''}
-                                    onChange={(e) => setContent({ ...content, hero_button_text: e.target.value })}
+                                    value={content.hero?.button_text || ''}
+                                    onChange={(e) => setContent({ 
+                                        ...content, 
+                                        hero: { 
+                                            ...content.hero, 
+                                            button_text: e.target.value 
+                                        }
+                                    })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                                     placeholder="Ver Planes"
                                 />
@@ -146,8 +177,14 @@ export default function SectionEditModal({
                                 </label>
                                 <input
                                     type="text"
-                                    value={content.hero_button_link || ''}
-                                    onChange={(e) => setContent({ ...content, hero_button_link: e.target.value })}
+                                    value={content.hero?.button_link || ''}
+                                    onChange={(e) => setContent({ 
+                                        ...content, 
+                                        hero: { 
+                                            ...content.hero, 
+                                            button_link: e.target.value 
+                                        }
+                                    })}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                                     placeholder="/precios"
                                 />

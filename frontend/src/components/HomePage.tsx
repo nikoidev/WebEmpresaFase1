@@ -125,20 +125,20 @@ export default function HomePage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div>
                             <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                                {content?.hero_title || 'Sistema Educativo Virtual Profesional'}
+                                {content?.hero?.title || 'Sistema Educativo Virtual Profesional'}
                             </h1>
                             <p className="text-xl md:text-2xl mb-4 text-primary-100">
-                                {content?.hero_subtitle || 'Transformamos la educación con tecnología'}
+                                {content?.hero?.subtitle || 'Transformamos la educación con tecnología'}
                             </p>
                             <p className="text-lg mb-8 text-primary-200">
-                                {content?.hero_description || 'La plataforma educativa más completa para transformar tu institución educativa'}
+                                {content?.hero?.description || 'La plataforma educativa más completa para transformar tu institución educativa'}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Link
-                                    href={content?.hero_button_link || "/precios"}
+                                    href={content?.hero?.button_link || "/precios"}
                                     className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
                                 >
-                                    {content?.hero_button_text || 'Ver Planes'}
+                                    {content?.hero?.button_text || 'Ver Planes'}
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                                 <Link
