@@ -5,7 +5,6 @@ import { publicApi } from '@/lib/api'
 import { ArrowRight, Award, BookOpen, CheckCircle, Heart, Lightbulb, Shield, Star, Target, Users, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import InlineEditButton from './InlineEditButton'
 import SectionEditButton from './SectionEditButton'
 import SectionEditModal from './SectionEditModal'
 import HeroSlideshow from './HeroSlideshow'
@@ -452,12 +451,6 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Botón de edición inline general */}
-            <InlineEditButton 
-                pageKey="homepage" 
-                onContentUpdate={handleContentUpdate}
-                tooltip="Editar página completa (Ctrl+E)"
-            />
 
             {/* Modal de edición por sección */}
             {editingSection && fullPageContent && (

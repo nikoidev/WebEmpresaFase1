@@ -12,6 +12,7 @@ import PricesEditor from '@/components/content-editors/PricesEditor'
 import ClientsEditor from '@/components/content-editors/ClientsEditor'
 import HistoryEditor from '@/components/content-editors/HistoryEditor'
 import ContactEditor from '@/components/content-editors/ContactEditor'
+import FooterEditor from '@/components/content-editors/FooterEditor'
 import {
     Edit,
     Eye,
@@ -24,7 +25,8 @@ import {
     Save,
     Users,
     DollarSign,
-    HelpCircle as Help
+    HelpCircle as Help,
+    Layout
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -119,6 +121,13 @@ export default function ContentManagementPage() {
             description: 'Preguntas frecuentes',
             icon: Help,
             color: 'bg-teal-500'
+        },
+        {
+            key: 'footer',
+            name: 'Footer',
+            description: 'Configuración del pie de página',
+            icon: Layout,
+            color: 'bg-gray-500'
         }
     ]
 
@@ -426,6 +435,14 @@ export default function ContentManagementPage() {
                     <ContactEditor
                         data={formData.content_json}
                         onChange={(data) => setFormData({ ...formData, content_json: data })}
+                    />
+                )
+            case 'footer':
+                return (
+                    <FooterEditor
+                        data={formData.content_json}
+                        onChange={(data) => setFormData({ ...formData, content_json: data })}
+                        isStandalone={false}
                     />
                 )
             default:
