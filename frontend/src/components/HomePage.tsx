@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react'
 import SectionEditButton from './SectionEditButton'
 import SectionEditModal from './SectionEditModal'
 import HeroSlideshow from './HeroSlideshow'
+import DevFileInfo from './DevFileInfo'
 
 // Definir interfaces para el contenido de la página de inicio
 interface SlideItem {
@@ -193,6 +194,7 @@ export default function HomePage() {
 
     return (
         <PublicLayout>
+            <DevFileInfo filePath="frontend/src/components/HomePage.tsx" />
             {/* Hero Section */}
             <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white relative">
                 <SectionEditButton 

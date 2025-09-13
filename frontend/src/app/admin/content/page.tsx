@@ -3,15 +3,8 @@
 import { adminApi } from '@/lib/api'
 import DevFileInfo from '@/components/DevFileInfo'
 import AdminLayout from '@/components/layout/AdminLayout'
-import SectionBasedHomepageEditor from '@/components/content-editors/SectionBasedHomepageEditor'
-import FooterEditor from '@/components/content-editors/FooterEditor'
 import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
-import SectionBasedAboutEditor from '@/components/content-editors/SectionBasedAboutEditor'
-import SectionBasedHistoryEditor from '@/components/content-editors/SectionBasedHistoryEditor'
-import SectionBasedClientsEditor from '@/components/content-editors/SectionBasedClientsEditor'
-import SectionBasedPricesEditor from '@/components/content-editors/SectionBasedPricesEditor'
-import SectionBasedContactEditor from '@/components/content-editors/SectionBasedContactEditor'
-import CompanyEditor from '@/components/content-editors/CompanyEditor'
+import SectionEditModal from '@/components/SectionEditModal'
 import {
     Edit,
     Eye,
@@ -47,6 +40,9 @@ export default function ContentManagementPage() {
     const [loading, setLoading] = useState(true)
     const [showModal, setShowModal] = useState(false)
     const [editingPage, setEditingPage] = useState<PageContent | null>(null)
+    const [editingSection, setEditingSection] = useState<string | null>(null)
+    const [editingSectionName, setEditingSectionName] = useState<string>('')
+    const [isSaving, setIsSaving] = useState(false)
     const [formData, setFormData] = useState({
         page_key: '',
         title: '',
@@ -179,6 +175,28 @@ export default function ContentManagementPage() {
             console.error('❌ Error response:', error.response)
             console.error('❌ Error data:', error.response?.data)
             alert('❌ Error al guardar la página. Revisa la consola para más detalles.')
+        }
+    }
+
+    const handleSectionEdit = (sectionType: string, sectionName: string) => {
+        setEditingSection(sectionType)
+        setEditingSectionName(sectionName)
+    }
+
+    const handleHomepageSectionEdit = (section: 'hero' | 'features' | 'cta') => {
+        setEditingSection(section)
+        setEditingSectionName(`Sección ${section}`)
+    }
+
+    const handleSectionSave = async () => {
+        setIsSaving(true)
+        try {
+            // Recargar contenido después de guardar
+            await fetchPages()
+            setEditingSection(null)
+            setEditingSectionName('')
+        } finally {
+            setIsSaving(false)
         }
     }
 
@@ -368,99 +386,201 @@ export default function ContentManagementPage() {
         return urlMap[pageKey] || `/${pageKey}`
     }
 
-    const renderEditor = () => {
-        switch (formData.page_key) {
+    const getSectionsForPage = (pageKey: string) => {
+        switch (pageKey) {
             case 'homepage':
-                return (
-                    <SectionBasedHomepageEditor
-                        content={formData.content_json}
-                        onChange={(content) => setFormData({ ...formData, content_json: content })}
-                    />
-                )
+                return [
+                    { key: 'hero', name: 'Sección Hero' },
+                    { key: 'features', name: 'Características' },
+                    { key: 'cta', name: 'Llamada a la Acción' }
+                ]
             case 'about':
-                return (
-                    <SectionBasedAboutEditor
-                        content={formData.content_json}
-                        onChange={(content) => setFormData({ ...formData, content_json: content })}
-                    />
-                )
-            case 'pricing':
-                return (
-                    <SectionBasedPricesEditor
-                        data={formData.content_json}
-                        onChange={(data) => setFormData({ ...formData, content_json: data })}
-                    />
-                )
-            case 'clients':
-                return (
-                    <SectionBasedClientsEditor
-                        data={formData.content_json}
-                        onChange={(data) => setFormData({ ...formData, content_json: data })}
-                    />
-                )
+                return [
+                    { key: 'hero', name: 'Sección Hero' },
+                    { key: 'mission', name: 'Misión' },
+                    { key: 'values', name: 'Valores' },
+                    { key: 'team', name: 'Equipo' },
+                    { key: 'cta', name: 'Llamada a la Acción' }
+                ]
             case 'history':
-                return (
-                    <SectionBasedHistoryEditor
-                        data={formData.content_json}
-                        onChange={(data) => setFormData({ ...formData, content_json: data })}
-                        metaData={{
-                            meta_title: formData.meta_title,
-                            meta_description: formData.meta_description,
-                            meta_keywords: formData.meta_keywords
-                        }}
-                        onMetaChange={(meta) => setFormData({ ...formData, ...meta })}
-                    />
-                )
+                return [
+                    { key: 'hero', name: 'Sección Hero' },
+                    { key: 'intro', name: 'Introducción' },
+                    { key: 'timeline', name: 'Línea de Tiempo' },
+                    { key: 'global_stats', name: 'Números de Impacto' },
+                    { key: 'future', name: 'Visión Futura' }
+                ]
+            case 'clients':
+                return [
+                    { key: 'hero', name: 'Sección Hero' },
+                    { key: 'client_types', name: 'Tipos de Clientes' },
+                    { key: 'success_metrics', name: 'Métricas de Éxito' },
+                    { key: 'testimonials', name: 'Testimonios' },
+                    { key: 'cta', name: 'Llamada a la Acción' }
+                ]
+            case 'pricing':
+                return [
+                    { key: 'hero', name: 'Sección Hero' },
+                    { key: 'plans', name: 'Planes de Servicios' },
+                    { key: 'enterprise', name: 'Solución Enterprise' },
+                    { key: 'faq', name: 'Preguntas Frecuentes' }
+                ]
             case 'contact':
-                return (
-                    <SectionBasedContactEditor
-                        data={formData.content_json}
-                        onChange={(data) => setFormData({ ...formData, content_json: data })}
-                    />
-                )
+                return [
+                    { key: 'hero', name: 'Sección Hero' },
+                    { key: 'contact_info', name: 'Información de Contacto' },
+                    { key: 'form', name: 'Formulario de Contacto' }
+                ]
             case 'company':
-                return (
-                    <CompanyEditor
-                        content={formData.content_json}
-                        onChange={(content) => setFormData({ ...formData, content_json: content })}
-                    />
-                )
+                return [
+                    { key: 'global_stats', name: 'Estadísticas Globales' },
+                    { key: 'success_metrics', name: 'Métricas de Éxito' }
+                ]
             case 'footer':
-                return (
-                    <FooterEditor
-                        data={formData.content_json}
-                        onChange={(data) => setFormData({ ...formData, content_json: data })}
-                        isStandalone={false}
-                    />
-                )
+                return [
+                    { key: 'company_info', name: 'Información de la Empresa' },
+                    { key: 'contact_info', name: 'Información de Contacto' },
+                    { key: 'social_networks', name: 'Redes Sociales' },
+                    { key: 'links', name: 'Enlaces' }
+                ]
             default:
-                return (
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Contenido (JSON)
-                            </label>
-                            <textarea
-                                value={JSON.stringify(formData.content_json, null, 2)}
-                                onChange={(e) => {
-                                    try {
-                                        const parsed = JSON.parse(e.target.value)
-                                        setFormData({ ...formData, content_json: parsed })
-                                    } catch (error) {
-                                        // Mantener el valor aunque no sea JSON válido para permitir edición
-                                    }
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                                rows={10}
-                                placeholder="Contenido en formato JSON..."
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                                El contenido debe estar en formato JSON válido
+                return []
+        }
+    }
+
+    const renderEditor = () => {
+        const sections = getSectionsForPage(formData.page_key)
+        
+        if (sections.length === 0) {
+            return (
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Contenido (JSON)
+                        </label>
+                        <textarea
+                            value={JSON.stringify(formData.content_json, null, 2)}
+                            onChange={(e) => {
+                                try {
+                                    const parsed = JSON.parse(e.target.value)
+                                    setFormData({ ...formData, content_json: parsed })
+                                } catch (error) {
+                                    // Mantener el valor aunque no sea JSON válido para permitir edición
+                                }
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            rows={10}
+                            placeholder="Contenido en formato JSON..."
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                            El contenido debe estar en formato JSON válido
+                        </p>
+                    </div>
+                </div>
+            )
+        }
+
+        return (
+            <div className="p-4 bg-gradient-to-br from-gray-50 to-white">
+                {/* Header más compacto */}
+                <div className="mb-4 text-center">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mb-3">
+                        <Edit className="h-6 w-6 text-white" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-1">
+                        Secciones Editables
+                    </h3>
+                    <p className="text-base font-medium text-blue-600 mb-2">
+                        {getPageName(formData.page_key)}
+                    </p>
+                    <p className="text-sm text-gray-600 max-w-xl mx-auto">
+                        Cada sección utiliza el mismo editor avanzado que las páginas públicas.
+                    </p>
+                </div>
+                
+                {/* Grid de secciones más compacto */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                    {sections.map((section, index) => {
+                        // Colores dinámicos para cada sección
+                        const colors = [
+                            { bg: 'bg-gradient-to-br from-blue-500 to-blue-600', border: 'border-blue-200', hover: 'hover:border-blue-300' },
+                            { bg: 'bg-gradient-to-br from-green-500 to-green-600', border: 'border-green-200', hover: 'hover:border-green-300' },
+                            { bg: 'bg-gradient-to-br from-purple-500 to-purple-600', border: 'border-purple-200', hover: 'hover:border-purple-300' },
+                            { bg: 'bg-gradient-to-br from-orange-500 to-orange-600', border: 'border-orange-200', hover: 'hover:border-orange-300' },
+                            { bg: 'bg-gradient-to-br from-red-500 to-red-600', border: 'border-red-200', hover: 'hover:border-red-300' }
+                        ]
+                        const colorScheme = colors[index % colors.length]
+                        
+                        return (
+                            <div 
+                                key={section.key} 
+                                className={`bg-white border-2 ${colorScheme.border} ${colorScheme.hover} rounded-lg p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1`}
+                            >
+                                <div className="text-center">
+                                    {/* Icono más pequeño */}
+                                    <div className={`${colorScheme.bg} w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md`}>
+                                        <Edit className="h-5 w-5 text-white" />
+                                    </div>
+                                    
+                                    {/* Información más compacta */}
+                                    <h4 className="text-lg font-bold text-gray-900 mb-1">
+                                        {section.name}
+                                    </h4>
+                                    <p className="text-xs text-gray-500 mb-3 font-medium">
+                                        {section.key}
+                                    </p>
+                                    
+                                    {/* Botón más compacto */}
+                                    <button
+                                        onClick={() => {
+                                            if (formData.page_key === 'homepage') {
+                                                handleHomepageSectionEdit(section.key as 'hero' | 'features' | 'cta')
+                                            } else {
+                                                handleSectionEdit(section.key, section.name)
+                                            }
+                                        }}
+                                        className={`w-full ${colorScheme.bg} text-white font-semibold py-2 px-3 rounded-md hover:shadow-md transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 text-sm`}
+                                    >
+                                        <Edit className="h-4 w-4" />
+                                        Editar
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+
+                {/* Panel de información más compacto */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <div className="bg-blue-100 p-2 rounded-full flex-shrink-0">
+                            <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <h4 className="text-base font-bold text-blue-900 mb-1">
+                                💡 Editor Avanzado por Secciones
+                            </h4>
+                            <p className="text-blue-800 text-sm leading-relaxed mb-2">
+                                Cada sección cuenta con un editor especializado con campos específicos y sincronización automática.
                             </p>
+                            <div className="flex flex-wrap gap-1">
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    ✨ WYSIWYG
+                                </span>
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    🔄 Auto-sync
+                                </span>
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                    📱 Responsive
+                                </span>
+                            </div>
                         </div>
                     </div>
-                )
-        }
+                </div>
+            </div>
+        )
     }
 
     if (loading) {
@@ -560,7 +680,7 @@ export default function ContentManagementPage() {
                 {/* Modal */}
                 {showModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                        <div className="bg-white rounded-lg shadow-lg w-full max-w-7xl h-[90vh] flex flex-col">
+                        <div className="bg-white rounded-lg shadow-lg w-full max-w-6xl max-h-[85vh] flex flex-col">
                             {/* Header */}
                             <div className="border-b border-gray-200 p-6">
                                 <div className="flex items-center justify-between">
@@ -620,7 +740,7 @@ export default function ContentManagementPage() {
                             </div>
 
                             {/* Content Editor */}
-                            <div className="flex-1 overflow-hidden">
+                            <div className="flex-1 overflow-y-auto">
                                 {renderEditor()}
                             </div>
 
@@ -648,6 +768,33 @@ export default function ContentManagementPage() {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* Modal de edición por sección - igual que en las páginas públicas */}
+                {editingSection && editingPage && (
+                    <>
+                        {editingPage.page_key === 'homepage' ? (
+                            <SectionEditModal
+                                isOpen={!!editingSection}
+                                onClose={() => setEditingSection(null)}
+                                sectionType={editingSection}
+                                pageKey={editingPage.page_key}
+                                initialContent={editingPage}
+                                onSave={handleSectionSave}
+                            />
+                        ) : (
+                            <UniversalSectionEditModal
+                                isOpen={!!editingSection}
+                                onClose={() => setEditingSection(null)}
+                                sectionType={editingSection}
+                                sectionName={editingSectionName}
+                                pageKey={editingPage.page_key}
+                                initialContent={editingPage}
+                                onSave={handleSectionSave}
+                                isSaving={isSaving}
+                            />
+                        )}
+                    </>
                 )}
             </div>
         </AdminLayout>

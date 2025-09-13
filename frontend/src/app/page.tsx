@@ -1,5 +1,11 @@
 import HomePage from '@/components/HomePage'
+import DevFileInfo from '@/components/DevFileInfo'
 
 export default function Page() {
-    return <HomePage />
+    return (
+        <>
+            <DevFileInfo filePath="frontend/src/app/page.tsx" />
+            <HomePage />
+        </>
+    )
 }

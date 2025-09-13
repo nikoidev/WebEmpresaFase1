@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import InlineEditButton from '@/components/InlineEditButton'
 import SectionEditButton from '@/components/SectionEditButton'
 import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
+import DevFileInfo from '@/components/DevFileInfo'
 
 // Definir tipos para el contenido de Contacto
 interface ContactContent {
@@ -190,6 +191,7 @@ export default function ContactoPage() {
 
     return (
         <PublicLayout>
+            <DevFileInfo filePath="frontend/src/app/contacto/page.tsx" />
             {/* Hero Section */}
             <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24 relative">
                 <SectionEditButton 
