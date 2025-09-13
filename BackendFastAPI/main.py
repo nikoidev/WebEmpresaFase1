@@ -98,7 +98,6 @@ async def get_homepage_content():
     return {
         "featured_articles": [],
         "featured_testimonials": [], 
-        "company_info": None,
         "stats": {
             "total_clients": 0,
             "total_projects": 0,
