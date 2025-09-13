@@ -3,10 +3,10 @@ Script para crear usuario administrador
 """
 
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
+from db.session import SessionLocal, engine
 from models.user import User
-from auth.security import get_password_hash
-from database import Base
+from security.core import get_password_hash
+from db.base import Base
 
 def create_admin_user():
     """Crea usuario administrador por defecto"""

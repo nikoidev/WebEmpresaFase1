@@ -3,6 +3,7 @@
  * Aplica el layout público a todas las rutas dentro del grupo (public)
  */
 
+import { AuthProvider } from '@/contexts/AuthContext'
 import PublicLayout from '@/components/layout/PublicLayout'
 
 interface PublicGroupLayoutProps {
@@ -11,8 +12,10 @@ interface PublicGroupLayoutProps {
 
 export default function PublicGroupLayout({ children }: PublicGroupLayoutProps) {
   return (
-    <PublicLayout>
-      {children}
-    </PublicLayout>
+    <AuthProvider>
+      <PublicLayout>
+        {children}
+      </PublicLayout>
+    </AuthProvider>
   )
 }
