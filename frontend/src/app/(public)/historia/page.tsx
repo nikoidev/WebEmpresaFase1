@@ -1,6 +1,5 @@
 'use client'
 
-import PublicLayout from '@/components/layout/PublicLayout'
 import { publicApi } from '@/lib/api'
 import { Clock, MapPin, Trophy, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -137,16 +136,14 @@ export default function HistoriaPage() {
 
     if (isLoading) {
         return (
-            <PublicLayout>
-                <div className="min-h-screen flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
-                </div>
-            </PublicLayout>
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+            </div>
         )
     }
 
     return (
-        <PublicLayout>
+        <>
             <DevFileInfo filePath="frontend/src/app/historia/page.tsx" />
             {/* Hero Section */}
             <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24 relative">
@@ -337,6 +334,6 @@ export default function HistoriaPage() {
                     onSave={handleSectionSave}
                 />
             )}
-        </PublicLayout>
+        </>
     )
 }

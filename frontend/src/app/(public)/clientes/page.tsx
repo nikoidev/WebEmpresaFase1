@@ -1,6 +1,5 @@
 'use client'
 
-import PublicLayout from '@/components/layout/PublicLayout'
 import { publicApi } from '@/lib/api'
 import { Building, GraduationCap, School, Users, BookOpen, Award, Globe, Heart } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -177,16 +176,14 @@ export default function ClientesPage() {
 
     if (isLoading) {
         return (
-            <PublicLayout>
-                <div className="min-h-screen flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
-                </div>
-            </PublicLayout>
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+            </div>
         )
     }
 
     return (
-        <PublicLayout>
+        <>
             <DevFileInfo filePath="frontend/src/app/clientes/page.tsx" />
             {/* Hero Section */}
             <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24 relative">
@@ -399,6 +396,6 @@ export default function ClientesPage() {
                     onSave={handleSectionSave}
                 />
             )}
-        </PublicLayout>
+        </>
     )
 }

@@ -10,17 +10,19 @@ import type {
     User
 } from '@/types'
 
-// Authentication
+// Authentication - Actualizado para backend estándar
 export const login = async (credentials: LoginFormData) => {
-    return await api.post('/api/auth/login/', credentials)
+    return await api.post('/api/v1/auth/login/', credentials)
 }
 
 export const logout = async () => {
-    return await api.post('/api/auth/logout/')
+    // No hay endpoint de logout en el backend actual
+    localStorage.removeItem('access_token')
+    return Promise.resolve()
 }
 
 export const getCurrentUser = async (): Promise<{ data: User }> => {
-    return await api.get('/api/auth/user/')
+    return await api.get('/api/v1/auth/me/')
 }
 
 // News Management
@@ -118,21 +120,21 @@ export const updateCompanyInfo = async (id: number, info: Partial<CompanyInfo>) 
     return await api.put(`/api/admin/company/${id}/`, info)
 }
 
-// Page Content Management
+// Page Content Management - Actualizado para backend estándar
 export const getPageContents = async () => {
-    return await api.get('/api/admin/pages/')
+    return await api.get('/api/v1/page-content/admin/')
 }
 
 export const getPageContent = async (pageKey: string) => {
-    return await api.get(`/api/admin/pages/${pageKey}/`)
+    return await api.get(`/api/v1/page-content/admin/${pageKey}/`)
 }
 
 export const createPageContent = async (content: any) => {
-    return await api.post('/api/admin/pages/', content)
+    return await api.post('/api/v1/page-content/admin/', content)
 }
 
 export const updatePageContent = async (pageKey: string, content: any) => {
-    return await api.put(`/api/admin/pages/${pageKey}/`, content)
+    return await api.put(`/api/v1/page-content/admin/${pageKey}/`, content)
 }
 
 // Contact Messages Management

@@ -1,6 +1,5 @@
 'use client'
 
-import PublicLayout from '@/components/layout/PublicLayout'
 import { Award, Heart, Target, Users } from 'lucide-react'
 import { publicApi } from '@/lib/api'
 import { useEffect, useState } from 'react'
@@ -50,7 +49,7 @@ export default function NosotrosPage() {
     }, [])
 
     return (
-        <PublicLayout>
+        <>
             <DevFileInfo filePath="frontend/src/app/nosotros/page.tsx" />
             {/* Hero Section */}
             <section className="bg-gradient-to-br from-primary-600 to-primary-800 text-white py-24 relative">
@@ -306,6 +305,6 @@ export default function NosotrosPage() {
                     onSave={handleSectionSave}
                 />
             )}
-        </PublicLayout>
+        </>
     )
 }
