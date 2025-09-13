@@ -188,6 +188,11 @@ export default function ContentManagementPage() {
         setEditingSectionName(`Sección ${section}`)
     }
 
+    const handleUniversalSectionEdit = (sectionType: string, sectionName: string) => {
+        setEditingSection(sectionType)
+        setEditingSectionName(sectionName)
+    }
+
     const handleSectionSave = async () => {
         setIsSaving(true)
         try {
@@ -397,7 +402,7 @@ export default function ContentManagementPage() {
             case 'about':
                 return [
                     { key: 'hero', name: 'Sección Hero' },
-                    { key: 'mission', name: 'Misión' },
+                    { key: 'mission', name: 'Misión y Visión' },
                     { key: 'values', name: 'Valores' },
                     { key: 'team', name: 'Equipo' },
                     { key: 'cta', name: 'Llamada a la Acción' }
@@ -407,29 +412,30 @@ export default function ContentManagementPage() {
                     { key: 'hero', name: 'Sección Hero' },
                     { key: 'intro', name: 'Introducción' },
                     { key: 'timeline', name: 'Línea de Tiempo' },
-                    { key: 'global_stats', name: 'Números de Impacto' },
-                    { key: 'future', name: 'Visión Futura' }
+                    { key: 'impact', name: 'Números de Impacto' },
+                    { key: 'future', name: 'Visión de Futuro' }
                 ]
             case 'clients':
                 return [
                     { key: 'hero', name: 'Sección Hero' },
                     { key: 'client_types', name: 'Tipos de Clientes' },
-                    { key: 'success_metrics', name: 'Métricas de Éxito' },
                     { key: 'testimonials', name: 'Testimonios' },
+                    { key: 'metrics', name: 'Métricas de Éxito' },
                     { key: 'cta', name: 'Llamada a la Acción' }
                 ]
             case 'pricing':
                 return [
                     { key: 'hero', name: 'Sección Hero' },
-                    { key: 'plans', name: 'Planes de Servicios' },
-                    { key: 'enterprise', name: 'Solución Enterprise' },
+                    { key: 'pricing', name: 'Planes y Precios' },
+                    { key: 'enterprise', name: 'Sección Empresarial' },
                     { key: 'faq', name: 'Preguntas Frecuentes' }
                 ]
             case 'contact':
                 return [
                     { key: 'hero', name: 'Sección Hero' },
                     { key: 'contact_info', name: 'Información de Contacto' },
-                    { key: 'form', name: 'Formulario de Contacto' }
+                    { key: 'form', name: 'Formulario de Contacto' },
+                    { key: 'faq', name: 'Preguntas Frecuentes' }
                 ]
             case 'company':
                 return [
@@ -536,7 +542,7 @@ export default function ContentManagementPage() {
                                             if (formData.page_key === 'homepage') {
                                                 handleHomepageSectionEdit(section.key as 'hero' | 'features' | 'cta')
                                             } else {
-                                                handleSectionEdit(section.key, section.name)
+                                                handleUniversalSectionEdit(section.key, section.name)
                                             }
                                         }}
                                         className={`w-full ${colorScheme.bg} text-white font-semibold py-2 px-3 rounded-md hover:shadow-md transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 text-sm`}
