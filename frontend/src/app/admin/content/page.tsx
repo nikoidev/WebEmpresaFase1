@@ -96,13 +96,6 @@ export default function ContentManagementPage() {
             color: 'bg-red-500'
         },
         {
-            key: 'company',
-            name: 'Datos de la Empresa',
-            description: 'Estadísticas y métricas globales compartidas',
-            icon: Globe,
-            color: 'bg-indigo-500'
-        },
-        {
             key: 'footer',
             name: 'Footer',
             description: 'Configuración del pie de página',
@@ -322,21 +315,6 @@ export default function ContentManagementPage() {
                     ],
                     form: {}
                 }
-            case 'company':
-                return {
-                    global_stats: [
-                        { number: '500+', label: 'Instituciones', description: 'Instituciones educativas que confían en nosotros' },
-                        { number: '100K+', label: 'Estudiantes', description: 'Estudiantes activos en nuestra plataforma' },
-                        { number: '15', label: 'Países', description: 'Países donde operamos' },
-                        { number: '99.9%', label: 'Satisfacción', description: 'Índice de satisfacción de clientes' }
-                    ],
-                    success_metrics: [
-                        { number: '98%', label: 'Satisfacción del Cliente', description: 'Clientes satisfechos con nuestro servicio' },
-                        { number: '45%', label: 'Reducción en Costos', description: 'Reducción promedio en costos operativos' },
-                        { number: '300%', label: 'Aumento en Engagement', description: 'Incremento en engagement estudiantil' },
-                        { number: '24/7', label: 'Soporte Técnico', description: 'Disponibilidad de soporte' }
-                    ]
-                }
             case 'footer':
                 return {
                     company_info: {
@@ -384,7 +362,6 @@ export default function ContentManagementPage() {
             'pricing': '/precios',
             'contact': '/contacto',
             // Páginas especiales
-            'company': '/admin/content', // Solo disponible en admin
             'footer': '/' // Footer aparece en todas las páginas
         }
         return urlMap[pageKey] || `/${pageKey}`
@@ -435,11 +412,6 @@ export default function ContentManagementPage() {
                     { key: 'contact_info', name: 'Información de Contacto' },
                     { key: 'form', name: 'Formulario de Contacto' },
                     { key: 'faq', name: 'Preguntas Frecuentes' }
-                ]
-            case 'company':
-                return [
-                    { key: 'global_stats', name: 'Estadísticas Globales' },
-                    { key: 'success_metrics', name: 'Métricas de Éxito' }
                 ]
             case 'footer':
                 return [
