@@ -1,34 +1,37 @@
 """
 FastAPI Backend para Web Empresa
-Migración desde Django REST Framework
+Estructura estándar de FastAPI con versionado de API
 """
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from contextlib import asynccontextmanager
 import uvicorn
 import sys
 
-# Importar routers
-from routers import auth, plans, company, contact, page_content
-from database import engine, Base
-from config import settings
+# Importar configuración y database
+from core.config import settings
+from db.session import engine, test_connection
+from db.base import Base
+
+# Importar API router
+from api.v1.api import api_router
 
 # Importar todos los modelos para que SQLAlchemy los reconozca
-from models import user, company as company_models, plans as plans_models
-from models import page_content as page_content_models
+import models.user
+import models.page_content
+import models.contact
+import models.plans
 
 # Crear tablas al iniciar
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     try:
-        from database import test_connection
         print("🔄 Starting FastAPI Backend...")
         print(f"🐍 Python Environment: {sys.executable}")
         print(f"🌐 Server URL: http://localhost:8002")
-        print(f"📖 API Documentation: http://localhost:8002/api/docs")
+        print(f"📖 API Documentation: http://localhost:8002/docs")
         print(f"🗄️ Database URL: {settings.DATABASE_URL}")
         
         # Test database connection
@@ -50,10 +53,10 @@ async def lifespan(app: FastAPI):
 # Crear aplicación FastAPI
 app = FastAPI(
     title="Web Empresa API",
-    description="API para gestión de contenido empresarial con FastAPI",
-    version="2.0.0",
-    docs_url="/api/docs",
-    redoc_url="/api/redoc",
+    description="API para gestión de contenido empresarial con FastAPI - Estructura Estándar",
+    version="3.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
     lifespan=lifespan
 )
 
@@ -70,19 +73,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Incluir routers
-app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
-app.include_router(plans.router, prefix="/api", tags=["plans"])
-app.include_router(company.router, prefix="/api", tags=["company"])
-app.include_router(contact.router, prefix="/api", tags=["contact"])
-app.include_router(page_content.router, prefix="/api", tags=["page-content"])
+# Incluir API router con versionado
+app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():
     return {
         "message": "Web Empresa FastAPI Backend",
-        "version": "2.0.0",
-        "docs": "/api/docs",
+        "version": "3.0.0",
+        "architecture": "Standard FastAPI Structure",
+        "api_version": "v1",
+        "docs": "/docs",
         "status": "running"
     }
 
@@ -90,6 +91,7 @@ async def root():
 async def health_check():
     return {"status": "healthy", "database": "connected"}
 
+# Endpoint de compatibilidad para el frontend
 @app.get("/api/public/homepage/")
 async def get_homepage_content():
     """Endpoint para contenido de homepage que espera el frontend"""

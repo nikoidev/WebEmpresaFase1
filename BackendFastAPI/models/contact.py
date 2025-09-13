@@ -1,46 +1,11 @@
 """
-Modelos para información de empresa y mensajes de contacto
+Modelo de mensajes de contacto
 """
 
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from database import Base
-
-class CompanyInfo(Base):
-    """Modelo de información de la empresa (singleton)"""
-    __tablename__ = "website_content_companyinfo"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    
-    # Información básica
-    company_name = Column(String(200), nullable=False)
-    tagline = Column(String(255), default="")
-    description = Column(Text, default="")
-    
-    # Información de contacto
-    email = Column(String(254), nullable=False)
-    phone = Column(String(20), default="")
-    address = Column(Text, default="")
-    
-    # Redes sociales
-    website = Column(String(200), default="")
-    linkedin = Column(String(200), default="")
-    twitter = Column(String(200), default="")
-    facebook = Column(String(200), default="")
-    instagram = Column(String(200), default="")
-    
-    # Imágenes
-    logo = Column(String(255), nullable=True)  # URL o path del logo
-    hero_image = Column(String(255), nullable=True)  # Imagen principal
-    
-    # SEO
-    meta_title = Column(String(60), default="")
-    meta_description = Column(String(160), default="")
-    
-    def __repr__(self):
-        return f"<CompanyInfo {self.company_name}>"
-
+from db.base import Base
 
 class ContactMessage(Base):
     """Modelo de mensaje de contacto"""

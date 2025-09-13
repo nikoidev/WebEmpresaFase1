@@ -5,7 +5,7 @@ Modelo de Usuario para autenticación
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SQLEnum
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from database import Base
+from db.base import Base
 import enum
 
 class UserRole(enum.Enum):

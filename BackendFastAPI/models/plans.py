@@ -4,7 +4,7 @@ Modelo de planes de servicio
 
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, DECIMAL, JSON
 from sqlalchemy.sql import func
-from database import Base
+from db.base import Base
 
 class ServicePlan(Base):
     """Modelo de plan de servicio"""

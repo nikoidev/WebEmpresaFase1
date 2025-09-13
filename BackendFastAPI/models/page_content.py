@@ -4,7 +4,7 @@ Modelo para contenido de páginas editables
 
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, JSON
 from sqlalchemy.sql import func
-from database import Base
+from db.base import Base
 
 class PageContent(Base):
     """Modelo para contenido editable de páginas"""
@@ -31,6 +31,3 @@ class PageContent(Base):
     
     def __repr__(self):
         return f"<PageContent {self.page_key}: {self.title}>"
-
-
-# ContactMessage ya existe en models/company.py

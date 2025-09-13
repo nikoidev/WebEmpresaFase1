@@ -1,19 +1,22 @@
 """
-Esquemas Pydantic para validación de datos
+Esquemas Pydantic para Web Empresa
 """
 
-from .auth import Token, TokenData, UserCreate, UserResponse, LoginRequest
-from .plans import ServicePlanCreate, ServicePlanUpdate, ServicePlanResponse
-from .company import CompanyInfoUpdate, CompanyInfoResponse, ContactMessageCreate, ContactMessageResponse
+from .auth import LoginRequest, Token, TokenData
+from .user import UserCreate, UserUpdate, UserResponse, UserListResponse, UserRoleSchema, PermissionSchema
 from .page_content import PageContentCreate, PageContentUpdate, PageContentResponse
+from .contact import ContactMessageCreate, ContactMessageUpdate, ContactMessageResponse
+from .plans import ServicePlanCreate, ServicePlanUpdate, ServicePlanResponse
 
 __all__ = [
     # Auth
-    "Token", "TokenData", "UserCreate", "UserResponse", "LoginRequest",
-    # Plans
-    "ServicePlanCreate", "ServicePlanUpdate", "ServicePlanResponse", 
-    # Company
-    "CompanyInfoUpdate", "CompanyInfoResponse", "ContactMessageCreate", "ContactMessageResponse",
+    "LoginRequest", "Token", "TokenData",
+    # User
+    "UserCreate", "UserUpdate", "UserResponse", "UserListResponse", "UserRoleSchema", "PermissionSchema",
     # Page Content
-    "PageContentCreate", "PageContentUpdate", "PageContentResponse"
+    "PageContentCreate", "PageContentUpdate", "PageContentResponse",
+    # Contact
+    "ContactMessageCreate", "ContactMessageUpdate", "ContactMessageResponse",
+    # Plans
+    "ServicePlanCreate", "ServicePlanUpdate", "ServicePlanResponse"
 ]

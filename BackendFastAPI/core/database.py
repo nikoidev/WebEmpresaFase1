@@ -5,7 +5,7 @@ Configuración de base de datos SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from config import settings
+from .config import settings
 
 # Crear engine de base de datos
 engine = create_engine(

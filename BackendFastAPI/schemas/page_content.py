@@ -19,8 +19,8 @@ class PageContentCreate(PageContentBase):
     @validator('page_key')
     def validate_page_key(cls, v):
         allowed_keys = [
-            'homepage', 'about', 'history', 'clients', 'prices', 'contact',
-            'news', 'testimonials', 'faqs'
+            'homepage', 'about', 'history', 'clients', 'pricing', 'contact',
+            'company', 'footer'
         ]
         if v not in allowed_keys:
             raise ValueError(f'page_key must be one of: {allowed_keys}')
@@ -41,6 +41,3 @@ class PageContentResponse(PageContentBase):
     
     class Config:
         from_attributes = True
-
-
-# Los esquemas para ContactMessage están en schemas/company.py
