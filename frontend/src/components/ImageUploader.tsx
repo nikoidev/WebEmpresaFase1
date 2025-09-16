@@ -31,39 +31,89 @@ export default function ImageUploader({
             const img = new Image()
             
             img.onload = () => {
-                // Calcular nuevas dimensiones manteniendo proporción
-                let { width, height } = img
+                // Dimensiones originales
+                const originalWidth = img.width
+                const originalHeight = img.height
                 
-                if (width > maxWidth || height > maxHeight) {
-                    const aspectRatio = width / height
+                // Calcular nuevas dimensiones manteniendo proporción
+                let targetWidth = originalWidth
+                let targetHeight = originalHeight
+                
+                if (targetWidth > maxWidth || targetHeight > maxHeight) {
+                    const aspectRatio = originalWidth / originalHeight
                     
-                    if (width > height) {
-                        width = maxWidth
-                        height = width / aspectRatio
+                    if (targetWidth > targetHeight) {
+                        targetWidth = maxWidth
+                        targetHeight = targetWidth / aspectRatio
                         
-                        if (height > maxHeight) {
-                            height = maxHeight
-                            width = height * aspectRatio
+                        if (targetHeight > maxHeight) {
+                            targetHeight = maxHeight
+                            targetWidth = targetHeight * aspectRatio
                         }
                     } else {
-                        height = maxHeight
-                        width = height * aspectRatio
+                        targetHeight = maxHeight
+                        targetWidth = targetHeight * aspectRatio
                         
-                        if (width > maxWidth) {
-                            width = maxWidth
-                            height = width / aspectRatio
+                        if (targetWidth > maxWidth) {
+                            targetWidth = maxWidth
+                            targetHeight = targetWidth / aspectRatio
                         }
                     }
                 }
                 
-                canvas.width = width
-                canvas.height = height
+                // Redimensionado de alta calidad (múltiples pasos si es necesario)
+                let currentCanvas = canvas
+                let currentCtx = ctx
                 
-                // Dibujar imagen redimensionada
-                ctx?.drawImage(img, 0, 0, width, height)
+                // Si la reducción es muy grande (más de 50%), usar múltiples pasos
+                const reductionRatio = Math.min(targetWidth / originalWidth, targetHeight / originalHeight)
                 
-                // Convertir a base64
-                const dataUrl = canvas.toDataURL('image/jpeg', quality)
+                if (reductionRatio < 0.5) {
+                    // Primer paso: reducir a 50% del original
+                    const intermediateWidth = originalWidth * 0.5
+                    const intermediateHeight = originalHeight * 0.5
+                    
+                    const tempCanvas = document.createElement('canvas')
+                    const tempCtx = tempCanvas.getContext('2d')
+                    
+                    tempCanvas.width = intermediateWidth
+                    tempCanvas.height = intermediateHeight
+                    
+                    if (tempCtx) {
+                        tempCtx.imageSmoothingEnabled = true
+                        tempCtx.imageSmoothingQuality = 'high'
+                        tempCtx.drawImage(img, 0, 0, intermediateWidth, intermediateHeight)
+                    }
+                    
+                    // Segundo paso: del intermedio al tamaño final
+                    currentCanvas.width = targetWidth
+                    currentCanvas.height = targetHeight
+                    
+                    if (currentCtx) {
+                        currentCtx.imageSmoothingEnabled = true
+                        currentCtx.imageSmoothingQuality = 'high'
+                        currentCtx.drawImage(tempCanvas, 0, 0, targetWidth, targetHeight)
+                    }
+                } else {
+                    // Redimensionado directo para cambios menores
+                    currentCanvas.width = targetWidth
+                    currentCanvas.height = targetHeight
+                    
+                    if (currentCtx) {
+                        currentCtx.imageSmoothingEnabled = true
+                        currentCtx.imageSmoothingQuality = 'high'
+                        currentCtx.drawImage(img, 0, 0, targetWidth, targetHeight)
+                    }
+                }
+                
+                // Usar PNG para imágenes pequeñas (mejor calidad sin compresión) o JPEG con alta calidad
+                const shouldUsePNG = targetWidth <= 200 && targetHeight <= 200
+                const finalQuality = Math.max(quality, 0.92) // Mínimo 92% de calidad
+                
+                const dataUrl = shouldUsePNG 
+                    ? currentCanvas.toDataURL('image/png')
+                    : currentCanvas.toDataURL('image/jpeg', finalQuality)
+                    
                 resolve(dataUrl)
             }
             

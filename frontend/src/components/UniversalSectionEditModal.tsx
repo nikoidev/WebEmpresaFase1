@@ -2584,9 +2584,9 @@ export default function UniversalSectionEditModal({
                                                                 newTestimonials[index] = { ...newTestimonials[index], image: imageUrl }
                                                                 updateContent('testimonials', newTestimonials)
                                                             }}
-                                                            maxWidth={120}
-                                                            maxHeight={120}
-                                                            quality={0.9}
+                                                            maxWidth={300}
+                                                            maxHeight={300}
+                                                            quality={0.95}
                                                             className="text-center"
                                                         />
                                                     </div>
