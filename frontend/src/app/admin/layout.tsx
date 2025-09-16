@@ -2,8 +2,6 @@
 
 import { usePathname } from 'next/navigation'
 import AdminLayout from '@/components/layout/AdminLayout'
-import { AuthProvider } from '@/contexts/AuthContext'
-import { InlineEditProvider } from '@/contexts/InlineEditContext'
 
 export default function AdminRootLayout({
     children,
@@ -14,21 +12,13 @@ export default function AdminRootLayout({
     
     // Si es la página de login, no aplicar el layout de admin
     if (pathname === '/admin/login') {
-        return (
-            <AuthProvider>
-                {children}
-            </AuthProvider>
-        )
+        return children
     }
     
     // Para todas las demás páginas de admin, aplicar el layout completo
     return (
-        <AuthProvider>
-            <InlineEditProvider>
-                <AdminLayout>
-                    {children}
-                </AdminLayout>
-            </InlineEditProvider>
-        </AuthProvider>
+        <AdminLayout>
+            {children}
+        </AdminLayout>
     )
 }

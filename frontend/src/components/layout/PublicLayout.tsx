@@ -3,8 +3,8 @@
 import { LogIn, Menu, X, Edit } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { AuthProvider, useAuth } from '@/contexts/AuthContext'
-import { InlineEditProvider, useInlineEdit } from '@/contexts/InlineEditContext'
+import { useAuth } from '@/contexts/AuthContext'
+import { useInlineEdit } from '@/contexts/InlineEditContext'
 import { publicApi } from '@/lib/api'
 import FooterEditor from '@/components/content-editors/FooterEditor'
 
@@ -220,9 +220,7 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
     }
 
     return (
-        <AuthProvider>
-            <InlineEditProvider>
-                <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white">
             {/* Header */}
             <header className="bg-white shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -437,8 +435,6 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                     </div>
                 </div>
             </footer>
-                </div>
-            </InlineEditProvider>
-        </AuthProvider>
+        </div>
     )
 }
