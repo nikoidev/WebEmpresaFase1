@@ -1,0 +1,177 @@
+'use client'
+
+import React, { useState, useRef } from 'react'
+import { Upload, X, Image as ImageIcon } from 'lucide-react'
+
+interface ImageUploaderProps {
+    currentImageUrl?: string
+    onImageChange: (imageUrl: string) => void
+    maxWidth?: number
+    maxHeight?: number
+    quality?: number
+    className?: string
+}
+
+export default function ImageUploader({
+    currentImageUrl,
+    onImageChange,
+    maxWidth = 300,
+    maxHeight = 300,
+    quality = 0.8,
+    className = ""
+}: ImageUploaderProps) {
+    const [isUploading, setIsUploading] = useState(false)
+    const [previewUrl, setPreviewUrl] = useState<string>(currentImageUrl || '')
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const resizeImage = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            const img = new Image()
+            
+            img.onload = () => {
+                // Calcular nuevas dimensiones manteniendo proporción
+                let { width, height } = img
+                
+                if (width > maxWidth || height > maxHeight) {
+                    const aspectRatio = width / height
+                    
+                    if (width > height) {
+                        width = maxWidth
+                        height = width / aspectRatio
+                        
+                        if (height > maxHeight) {
+                            height = maxHeight
+                            width = height * aspectRatio
+                        }
+                    } else {
+                        height = maxHeight
+                        width = height * aspectRatio
+                        
+                        if (width > maxWidth) {
+                            width = maxWidth
+                            height = width / aspectRatio
+                        }
+                    }
+                }
+                
+                canvas.width = width
+                canvas.height = height
+                
+                // Dibujar imagen redimensionada
+                ctx?.drawImage(img, 0, 0, width, height)
+                
+                // Convertir a base64
+                const dataUrl = canvas.toDataURL('image/jpeg', quality)
+                resolve(dataUrl)
+            }
+            
+            img.onerror = reject
+            img.src = URL.createObjectURL(file)
+        })
+    }
+
+    const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        // Validar tipo de archivo
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor selecciona un archivo de imagen válido')
+            return
+        }
+
+        // Validar tamaño de archivo (máximo 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('El archivo es muy grande. Por favor selecciona una imagen menor a 5MB')
+            return
+        }
+
+        setIsUploading(true)
+
+        try {
+            const resizedImageUrl = await resizeImage(file)
+            setPreviewUrl(resizedImageUrl)
+            onImageChange(resizedImageUrl)
+        } catch (error) {
+            console.error('Error al procesar la imagen:', error)
+            alert('Error al procesar la imagen. Por favor intenta con otro archivo.')
+        } finally {
+            setIsUploading(false)
+        }
+    }
+
+    const handleRemoveImage = () => {
+        setPreviewUrl('')
+        onImageChange('')
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ''
+        }
+    }
+
+    return (
+        <div className={`space-y-2 ${className}`}>
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+            />
+            
+            {previewUrl ? (
+                <div className="relative">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 bg-gray-50 mx-auto">
+                        <img
+                            src={previewUrl}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                    <button
+                        onClick={handleRemoveImage}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                        type="button"
+                    >
+                        <X className="h-3 w-3" />
+                    </button>
+                </div>
+            ) : (
+                <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    type="button"
+                    className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors flex flex-col items-center justify-center mx-auto text-gray-500 hover:text-gray-700"
+                >
+                    {isUploading ? (
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+                    ) : (
+                        <>
+                            <ImageIcon className="h-6 w-6 mb-1" />
+                            <span className="text-xs text-center">Subir foto</span>
+                        </>
+                    )}
+                </button>
+            )}
+            
+            {!previewUrl && (
+                <div className="text-center">
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                        type="button"
+                        className="text-sm text-primary-600 hover:text-primary-700 disabled:text-gray-400"
+                    >
+                        {isUploading ? 'Procesando...' : 'Seleccionar imagen'}
+                    </button>
+                </div>
+            )}
+            
+            <div className="text-xs text-gray-500 text-center">
+                <p>Máximo: {maxWidth}x{maxHeight}px</p>
+                <p>Formatos: JPG, PNG, GIF (max 5MB)</p>
+            </div>
+        </div>
+    )
+}

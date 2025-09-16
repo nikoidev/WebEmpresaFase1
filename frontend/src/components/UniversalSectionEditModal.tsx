@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart, Copy, Move, Mail, Phone, MapPin, Clock, Building, Wifi, Calendar, MessageSquare, Smartphone, Send, MessageCircle, Video, Headphones, Users, Globe2, ExternalLink } from 'lucide-react'
 import { adminApi } from '@/lib/api'
+import ImageUploader from './ImageUploader'
 
 // Componente específico para el editor de precios
 const PricingEditor = ({ content, updateContent }: { content: any, updateContent: any }) => {
@@ -682,6 +683,40 @@ export default function UniversalSectionEditModal({
             case 'mission':
                 return (
                     <div className="space-y-6">
+                        {/* Títulos de las secciones */}
+                        <div className="border-b border-gray-200 pb-4">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">Títulos de las Secciones</h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Título de la Sección Misión
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.mission_title || 'Nuestra Misión'}
+                                        onChange={(e) => updateContent('mission_title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Nuestra Misión"
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Título de la Sección Visión
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.vision_title || 'Nuestra Visión'}
+                                        onChange={(e) => updateContent('vision_title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Nuestra Visión"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contenido de la Misión */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Misión
@@ -708,6 +743,7 @@ export default function UniversalSectionEditModal({
                             />
                         </div>
 
+                        {/* Contenido de la Visión */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Visión
@@ -1221,6 +1257,25 @@ export default function UniversalSectionEditModal({
                                         </div>
                                     </div>
                                     
+                                    {/* Campo de imagen */}
+                                    <div className="mb-3">
+                                        <label className="block text-xs font-medium text-gray-700 mb-2">
+                                            Foto del Miembro
+                                        </label>
+                                        <ImageUploader
+                                            currentImageUrl={member.image || ''}
+                                            onImageChange={(imageUrl) => {
+                                                const newTeam = [...team]
+                                                newTeam[index] = { ...newTeam[index], image: imageUrl }
+                                                updateContent('team', newTeam)
+                                            }}
+                                            maxWidth={200}
+                                            maxHeight={200}
+                                            quality={0.8}
+                                            className="text-center"
+                                        />
+                                    </div>
+
                                     <div className="mb-3">
                                         <label className="block text-xs font-medium text-gray-700 mb-1">
                                             Biografía
