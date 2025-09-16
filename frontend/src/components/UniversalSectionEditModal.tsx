@@ -2101,7 +2101,7 @@ export default function UniversalSectionEditModal({
                                         {/* Imagen/Logo */}
                                         <div className="mt-3">
                                             <label className="block text-xs font-medium text-gray-700 mb-2">
-                                                Icono/Logo (máx. 80x80px)
+                                                Icono/Logo (máx. 200x200px)
                                             </label>
                                             <div className="max-w-xs">
                                                 <ImageUploader
@@ -2111,8 +2111,8 @@ export default function UniversalSectionEditModal({
                                                         newTypes[index] = { ...newTypes[index], image: imageUrl }
                                                         updateContent('client_types', newTypes)
                                                     }}
-                                                    maxWidth={80}
-                                                    maxHeight={80}
+                                                    maxWidth={200}
+                                                    maxHeight={200}
                                                     quality={0.9}
                                                     className="text-center"
                                                 />

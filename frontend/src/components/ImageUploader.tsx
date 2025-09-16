@@ -132,7 +132,7 @@ export default function ImageUploader({
             
             {previewUrl ? (
                 <div className="relative">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-gray-300 bg-gray-50 mx-auto">
+                    <div className="rounded-full overflow-hidden mx-auto" style={{width: '200px', height: '200px'}}>
                         <img
                             src={previewUrl}
                             alt="Preview"
@@ -156,7 +156,8 @@ export default function ImageUploader({
                     }}
                     disabled={isUploading}
                     type="button"
-                    className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors flex flex-col items-center justify-center mx-auto text-gray-500 hover:text-gray-700"
+                    className="rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors flex flex-col items-center justify-center mx-auto text-gray-500 hover:text-gray-700"
+                    style={{width: '200px', height: '200px'}}
                 >
                     {isUploading ? (
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
@@ -170,7 +171,7 @@ export default function ImageUploader({
             )}
             
             {!previewUrl && (
-                <div className="text-center">
+                <div className="text-center flex justify-center">
                     <button
                         onClick={(e) => {
                             e.stopPropagation()

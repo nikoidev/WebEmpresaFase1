@@ -130,15 +130,15 @@ export default function ClientesPage() {
                         {content?.client_types?.length > 0 ? (
                             content.client_types.map((type: any, index: number) => (
                                 <div key={index} className="bg-gray-50 p-8 rounded-xl text-center hover:shadow-lg transition-shadow">
-                                    <div className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6 bg-primary-100">
+                                    <div className="w-24 h-24 rounded-lg flex items-center justify-center mx-auto mb-6 bg-primary-100">
                                         {type.image ? (
                                             <img
                                                 src={type.image}
                                                 alt={type.name}
-                                                className="w-12 h-12 object-contain rounded-lg"
+                                                className="w-20 h-20 object-contain rounded-lg"
                                             />
                                         ) : (
-                                            <Building className="h-8 w-8 text-primary-600" />
+                                            <Building className="h-12 w-12 text-primary-600" />
                                         )}
                                     </div>
                                     <h3 className="text-xl font-semibold text-gray-900 mb-4">

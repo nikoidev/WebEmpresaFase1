@@ -231,8 +231,8 @@ export default function ClientTypesModal({
                                             <ImageUploader
                                                 currentImageUrl={type.image}
                                                 onImageChange={(imageUrl) => updateClientType(index, 'image', imageUrl)}
-                                                maxWidth={80}
-                                                maxHeight={80}
+                                                maxWidth={200}
+                                                maxHeight={200}
                                                 quality={0.9}
                                                 className="text-center"
                                             />
