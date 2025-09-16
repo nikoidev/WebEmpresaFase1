@@ -71,16 +71,59 @@ export default function SectionEditModal({
 
     // Actualizar contenido cuando cambie initialContent
     useEffect(() => {
+        console.log('🔄 SectionEditModal useEffect - sectionType:', sectionType)
+        console.log('🔄 SectionEditModal useEffect - initialContent:', initialContent)
+        
         if (initialContent?.content_json) {
-            setContent(initialContent.content_json)
+            let contentData = { ...initialContent.content_json }
+            console.log('📋 SectionEditModal - contentData inicial:', contentData)
+            
+            // Asegurar que existe la estructura para cada sección
+            if (sectionType === 'hero' && !contentData.hero) {
+                console.log('⚠️ No existe contentData.hero, creando desde estructura plana...')
+                contentData.hero = {
+                    title: contentData.hero_title || '',
+                    subtitle: contentData.hero_subtitle || '',
+                    description: contentData.hero_description || '',
+                    button_text: contentData.hero_button_text || '',
+                    button_link: contentData.hero_button_link || '',
+                    image_url: contentData.hero_image || '',
+                    video_url: contentData.hero_video || ''
+                }
+                console.log('✅ contentData.hero creado:', contentData.hero)
+            } else if (sectionType === 'hero') {
+                console.log('✅ contentData.hero ya existe:', contentData.hero)
+            }
+            
+            if (sectionType === 'features' && !contentData.features) {
+                contentData.features = []
+            }
+            
+            if (sectionType === 'cta' && !contentData.call_to_action) {
+                contentData.call_to_action = {
+                    title: '',
+                    description: '',
+                    button_text: '',
+                    button_link: ''
+                }
+            }
+            
+            setContent(contentData)
+            console.log('📋 SectionEditModal - contentData final set:', contentData)
         }
-    }, [initialContent])
+    }, [initialContent, sectionType])
 
     if (!isOpen) return null
 
     const handleSave = async () => {
         setIsSaving(true)
         try {
+            console.log('🔄 SectionEditModal - Iniciando guardado')
+            console.log('📄 Page Key:', pageKey)
+            console.log('🎯 Section Type:', sectionType)
+            console.log('📋 Initial Content:', initialContent)
+            console.log('✏️ Content to save:', content)
+            
             // Crear el contenido actualizado manteniendo la estructura completa
             let updatedContentJson = { ...initialContent.content_json }
             
@@ -89,6 +132,16 @@ export default function SectionEditModal({
                 updatedContentJson.call_to_action = content.call_to_action
             } else if (sectionType === 'hero') {
                 updatedContentJson.hero = content.hero
+                // También actualizar estructura plana para compatibilidad
+                if (content.hero) {
+                    updatedContentJson.hero_title = content.hero.title
+                    updatedContentJson.hero_subtitle = content.hero.subtitle
+                    updatedContentJson.hero_description = content.hero.description
+                    updatedContentJson.hero_button_text = content.hero.button_text
+                    updatedContentJson.hero_button_link = content.hero.button_link
+                    updatedContentJson.hero_image = content.hero.image_url
+                    updatedContentJson.hero_video = content.hero.video_url
+                }
             } else if (sectionType === 'features') {
                 updatedContentJson.features = content.features
                 // También actualizar metadatos de features si existen
@@ -99,17 +152,28 @@ export default function SectionEditModal({
             }
             
             // Actualizar el contenido completo
-            await adminApi.updatePageContent(pageKey, {
+            console.log('📤 Enviando actualización con:', updatedContentJson)
+            console.log('🔍 Datos ANTES de guardar - Hero:', updatedContentJson.hero)
+            console.log('🔍 Datos ANTES de guardar - Hero title:', updatedContentJson.hero?.title)
+            
+            const updatePayload = {
                 title: initialContent.title,
                 content_json: updatedContentJson,
                 meta_title: initialContent.meta_title,
                 meta_description: initialContent.meta_description,
                 meta_keywords: initialContent.meta_keywords,
                 is_active: initialContent.is_active
-            })
+            }
+            console.log('📋 Payload completo a enviar:', updatePayload)
+            
+            const updateResponse = await adminApi.updatePageContent(pageKey, updatePayload)
+            console.log('✅ Respuesta de actualización:', updateResponse)
+            console.log('✅ Respuesta de actualización - data:', updateResponse.data)
             
             // Llamar onSave ANTES de cerrar el modal para recargar contenido
+            console.log('🔄 Llamando onSave...')
             await onSave()
+            console.log('✅ onSave completado')
             onClose()
             
             // Mostrar notificación temporal en lugar de alert

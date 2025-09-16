@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import SectionEditButton from './SectionEditButton'
 import SectionEditModal from './SectionEditModal'
+import HomepageHeroModal from './HomepageHeroModal'
 import HeroSlideshow from './HeroSlideshow'
 import DevFileInfo from './DevFileInfo'
 
@@ -90,16 +91,30 @@ export default function HomePage() {
 
     useEffect(() => {
         loadContent()
+        
+        // Recargar contenido cuando la página vuelve a tener foco
+        // Esto detecta cuando regresas del admin
+        const handleFocus = () => {
+            console.log('🔄 HomePage - Página recuperó foco, recargando contenido...')
+            loadContent()
+        }
+        
+        window.addEventListener('focus', handleFocus)
+        
+        return () => {
+            window.removeEventListener('focus', handleFocus)
+        }
     }, [])
 
     const loadContent = async () => {
         try {
-            console.log('Attempting to load homepage content from:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8002')
+            console.log('🔄 HomePage - Cargando contenido...')
             const response = await publicApi.getPageContent('homepage')
-            console.log('Homepage content loaded successfully:', response.data)
+            console.log('✅ HomePage - Contenido cargado:', response.data)
             setContent(response.data.content_json)
             setNestedContent(response.data.content_json)
-            setFullPageContent(response.data) // Guardar la respuesta completa para edición
+            setFullPageContent(response.data) // ← Esto SÍ se actualiza ahora
+            console.log('📋 HomePage - fullPageContent actualizado:', response.data)
         } catch (error: any) {
             console.error('Error loading homepage content:', error)
             console.error('Error details:', {
@@ -142,8 +157,10 @@ export default function HomePage() {
     }
 
     const handleSectionSave = async () => {
+        console.log('🔄 HomePage - handleSectionSave ejecutándose...')
         // Recargar contenido después de guardar
         await loadContent()
+        console.log('✅ HomePage - Contenido recargado, cerrando modal...')
         setEditingSection(null)
     }
 
@@ -206,20 +223,20 @@ export default function HomePage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div>
                             <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                                {content?.hero?.title || 'Sistema Educativo Virtual Profesional'}
+                                {nestedContent?.hero?.title || content?.hero_title || 'Sistema Educativo Virtual Profesional'}
                             </h1>
                             <p className="text-xl md:text-2xl mb-4 text-primary-100">
-                                {content?.hero?.subtitle || 'Transformamos la educación con tecnología'}
+                                {nestedContent?.hero?.subtitle || content?.hero_subtitle || 'Transformamos la educación con tecnología'}
                             </p>
                             <p className="text-lg mb-8 text-primary-200">
-                                {content?.hero?.description || 'La plataforma educativa más completa para transformar tu institución educativa'}
+                                {nestedContent?.hero?.description || content?.hero_description || 'La plataforma educativa más completa para transformar tu institución educativa'}
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <Link
-                                    href={content?.hero?.button_link || "/precios"}
+                                    href={nestedContent?.hero?.button_link || content?.hero_button_link || "/precios"}
                                     className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
                                 >
-                                    {content?.hero?.button_text || 'Ver Planes'}
+                                    {nestedContent?.hero?.button_text || content?.hero_button_text || 'Ver Planes'}
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                                 <Link
@@ -249,15 +266,15 @@ export default function HomePage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            {content?.features_title || '¿Por qué elegir SEVP?'}
+                            {nestedContent?.features_title || content?.features_title || '¿Por qué elegir SEVP?'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                            {content?.features_description || 'Una plataforma completa diseñada específicamente para las necesidades de instituciones educativas modernas'}
+                            {nestedContent?.features_description || content?.features_description || 'Una plataforma completa diseñada específicamente para las necesidades de instituciones educativas modernas'}
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {content?.features?.map((feature, index) => {
+                        {(nestedContent?.features || content?.features)?.map((feature, index) => {
                             // Mapear iconos
                             const getIcon = (iconName: string) => {
                                 switch (iconName) {
@@ -430,17 +447,17 @@ export default function HomePage() {
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                        {content?.call_to_action?.title || '¿Listo para transformar tu institución educativa?'}
+                        {nestedContent?.call_to_action?.title || content?.call_to_action?.title || '¿Listo para transformar tu institución educativa?'}
                     </h2>
                     <p className="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
-                        {content?.call_to_action?.description || 'Únete a las instituciones que ya están revolucionando la educación con SEVP. Solicita una demo gratuita y descubre todo lo que podemos hacer por ti.'}
+                        {nestedContent?.call_to_action?.description || content?.call_to_action?.description || 'Únete a las instituciones que ya están revolucionando la educación con SEVP. Solicita una demo gratuita y descubre todo lo que podemos hacer por ti.'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Link
-                            href={content?.call_to_action?.button_link || "/contacto"}
+                            href={nestedContent?.call_to_action?.button_link || content?.call_to_action?.button_link || "/contacto"}
                             className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
                         >
-                            {content?.call_to_action?.button_text || 'Solicitar Demo Gratuita'}
+                            {nestedContent?.call_to_action?.button_text || content?.call_to_action?.button_text || 'Solicitar Demo Gratuita'}
                             <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                         <Link
@@ -456,14 +473,26 @@ export default function HomePage() {
 
             {/* Modal de edición por sección */}
             {editingSection && fullPageContent && (
-                <SectionEditModal
-                    isOpen={!!editingSection}
-                    onClose={() => setEditingSection(null)}
-                    sectionType={editingSection}
-                    pageKey="homepage"
-                    initialContent={fullPageContent}
-                    onSave={handleSectionSave}
-                />
+                <>
+                    {editingSection === 'hero' ? (
+                        // Usar modal unificado para Hero
+                        <HomepageHeroModal
+                            isOpen={!!editingSection}
+                            onClose={() => setEditingSection(null)}
+                            onSave={handleSectionSave}
+                        />
+                    ) : (
+                        // Otras secciones
+                        <SectionEditModal
+                            isOpen={!!editingSection}
+                            onClose={() => setEditingSection(null)}
+                            sectionType={editingSection}
+                            pageKey="homepage"
+                            initialContent={fullPageContent}
+                            onSave={handleSectionSave}
+                        />
+                    )}
+                </>
             )}
         </PublicLayout>
     )

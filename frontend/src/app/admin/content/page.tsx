@@ -4,6 +4,7 @@ import { adminApi } from '@/lib/api'
 import DevFileInfo from '@/components/DevFileInfo'
 import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 import SectionEditModal from '@/components/SectionEditModal'
+import HomepageHeroModal from '@/components/HomepageHeroModal'
 import {
     Edit,
     Eye,
@@ -124,60 +125,34 @@ export default function ContentManagementPage() {
         }
     }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        
-        console.log('🔄 Iniciando guardado...')
-        console.log('📝 FormData:', formData)
-        console.log('✏️ EditingPage:', editingPage)
-        
-        try {
-            if (editingPage) {
-                console.log(`🔄 Actualizando página: ${editingPage.page_key}`)
-                console.log('📤 Datos a enviar:', formData)
-                
-                const response = await adminApi.updatePageContent(editingPage.page_key, formData)
-                console.log('✅ Respuesta del servidor:', response)
-                alert('✅ Página actualizada exitosamente')
-            } else {
-                console.log('🔄 Creando nueva página')
-                console.log('📤 Datos a enviar:', formData)
-                
-                const response = await adminApi.createPageContent(formData)
-                console.log('✅ Respuesta del servidor:', response)
-                alert('✅ Página creada exitosamente')
-            }
-
-            setShowModal(false)
-            setEditingPage(null)
-            setFormData({
-                page_key: '',
-                title: '',
-                content_json: {},
-                meta_title: '',
-                meta_description: '',
-                meta_keywords: '',
-                is_active: true
-            })
-            
-            console.log('🔄 Recargando páginas...')
-            fetchPages()
-        } catch (error) {
-            console.error('❌ Error completo:', error)
-            console.error('❌ Error response:', error.response)
-            console.error('❌ Error data:', error.response?.data)
-            alert('❌ Error al guardar la página. Revisa la consola para más detalles.')
-        }
-    }
+    /* 
+    ❌ FUNCIÓN handleSubmit ELIMINADA
+    Esta función causaba conflictos al sobrescribir los cambios guardados 
+    por los modales de sección individuales. Las páginas con sistema de 
+    secciones se editan mediante los modales individuales únicamente.
+    */
 
     const handleSectionEdit = (sectionType: string, sectionName: string) => {
         setEditingSection(sectionType)
         setEditingSectionName(sectionName)
     }
 
-    const handleHomepageSectionEdit = (section: 'hero' | 'features' | 'cta') => {
-        setEditingSection(section)
-        setEditingSectionName(`Sección ${section}`)
+    const handleHomepageSectionEdit = async (section: 'hero' | 'features' | 'cta') => {
+        try {
+            // Asegurar que editingPage tiene los datos más actualizados antes de abrir el modal de sección
+            if (editingPage) {
+                const response = await adminApi.getPageContent(editingPage.page_key)
+                setEditingPage(response.data)
+            }
+            
+            setEditingSection(section)
+            setEditingSectionName(`Sección ${section}`)
+        } catch (error) {
+            console.error('Error loading fresh page data:', error)
+            // Continuar con los datos existentes si hay error
+            setEditingSection(section)
+            setEditingSectionName(`Sección ${section}`)
+        }
     }
 
     const handleUniversalSectionEdit = (sectionType: string, sectionName: string) => {
@@ -190,24 +165,64 @@ export default function ContentManagementPage() {
         try {
             // Recargar contenido después de guardar
             await fetchPages()
+            
+            // También actualizar editingPage con los datos más recientes
+            if (editingPage) {
+                const response = await adminApi.getPageContent(editingPage.page_key)
+                setEditingPage(response.data)
+            }
+            
             setEditingSection(null)
             setEditingSectionName('')
+            
+            // Mostrar notificación de éxito
+            const notification = document.createElement('div')
+            notification.innerHTML = '✅ Sección actualizada exitosamente'
+            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg z-50 shadow-lg'
+            document.body.appendChild(notification)
+            
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification)
+                }
+            }, 3000)
         } finally {
             setIsSaving(false)
         }
     }
 
-    const handleEdit = (page: PageContent) => {
-        setEditingPage(page)
-        setFormData({
-            page_key: page.page_key,
-            title: page.title,
-            content_json: page.content_json,
-            meta_title: page.meta_title,
-            meta_description: page.meta_description,
-            meta_keywords: page.meta_keywords,
-            is_active: page.is_active
-        })
+    const handleEdit = async (page: PageContent) => {
+        try {
+            // Obtener datos frescos de la base de datos antes de editar
+            console.log('🔄 Obteniendo datos frescos para:', page.page_key)
+            const response = await adminApi.getPageContent(page.page_key)
+            const freshPage = response.data
+            
+            setEditingPage(freshPage)
+            setFormData({
+                page_key: freshPage.page_key,
+                title: freshPage.title,
+                content_json: freshPage.content_json,
+                meta_title: freshPage.meta_title,
+                meta_description: freshPage.meta_description,
+                meta_keywords: freshPage.meta_keywords,
+                is_active: freshPage.is_active
+            })
+            console.log('✅ Datos frescos cargados:', freshPage)
+        } catch (error) {
+            console.error('❌ Error obteniendo datos frescos:', error)
+            // Usar datos existentes si hay error
+            setEditingPage(page)
+            setFormData({
+                page_key: page.page_key,
+                title: page.title,
+                content_json: page.content_json,
+                meta_title: page.meta_title,
+                meta_description: page.meta_description,
+                meta_keywords: page.meta_keywords,
+                is_active: page.is_active
+            })
+        }
         setShowModal(true)
     }
 
@@ -729,15 +744,13 @@ export default function ContentManagementPage() {
                                     }}
                                     className="px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
                                 >
-                                    Cancelar
+                                    Cerrar
                                 </button>
-                                <button
-                                    onClick={handleSubmit}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-                                >
-                                    <Save size={16} />
-                                    {editingPage ? 'Actualizar' : 'Crear'}
-                                </button>
+                                {/* 
+                                ❌ BOTÓN "ACTUALIZAR" ELIMINADO 
+                                Las páginas con sistema de secciones se editan mediante los modales individuales
+                                de cada sección, no desde este modal principal.
+                                */}
                             </div>
                         </div>
                     </div>
@@ -747,7 +760,15 @@ export default function ContentManagementPage() {
             {/* Modal de edición por sección - igual que en las páginas públicas */}
             {editingSection && editingPage && (
                 <>
-                    {editingPage.page_key === 'homepage' ? (
+                    {editingPage.page_key === 'homepage' && editingSection === 'hero' ? (
+                        // Usar el mismo modal que HomePage para Hero
+                        <HomepageHeroModal
+                            isOpen={!!editingSection}
+                            onClose={() => setEditingSection(null)}
+                            onSave={handleSectionSave}
+                        />
+                    ) : editingPage.page_key === 'homepage' ? (
+                        // Otras secciones de homepage (features, cta)
                         <SectionEditModal
                             isOpen={!!editingSection}
                             onClose={() => setEditingSection(null)}
