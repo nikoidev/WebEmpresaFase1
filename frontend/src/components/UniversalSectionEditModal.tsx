@@ -2609,31 +2609,168 @@ export default function UniversalSectionEditModal({
                 )
 
             case 'metrics':
+                const metrics = Array.isArray(content.metrics) ? content.metrics : []
+                
                 return (
                     <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Título de Métricas de Éxito
-                            </label>
-                            <input
-                                type="text"
-                                value={content.metrics_title || ''}
-                                onChange={(e) => updateContent('metrics_title', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Métricas de Éxito"
-                            />
+                        {/* Configuración de sección */}
+                        <div className="border-b pb-4">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">Configuración de la Sección</h3>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Título de Métricas de Éxito
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.metrics_title || ''}
+                                        onChange={(e) => updateContent('metrics_title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Resultados que Hablan por Sí Solos"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Descripción de Métricas
+                                    </label>
+                                    <textarea
+                                        rows={3}
+                                        value={content.metrics_description || ''}
+                                        onChange={(e) => updateContent('metrics_description', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Métricas de éxito de nuestros clientes"
+                                    />
+                                </div>
+                            </div>
                         </div>
+
+                        {/* Gestión de métricas */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción de Métricas
-                            </label>
-                            <textarea
-                                rows={3}
-                                value={content.metrics_description || ''}
-                                onChange={(e) => updateContent('metrics_description', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Descripción de las métricas"
-                            />
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-medium text-gray-900">Métricas de Éxito</h3>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        e.preventDefault()
+                                        const newMetrics = [...metrics]
+                                        newMetrics.push({
+                                            value: '',
+                                            label: '',
+                                            description: ''
+                                        })
+                                        updateContent('metrics', newMetrics)
+                                    }}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center"
+                                    type="button"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Agregar Métrica
+                                </button>
+                            </div>
+
+                            {/* Lista de métricas */}
+                            <div className="space-y-4 max-h-96 overflow-y-auto">
+                                {metrics.map((metric: any, index: number) => (
+                                    <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <span className="text-sm font-medium text-gray-600">
+                                                Métrica #{index + 1}
+                                            </span>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    e.preventDefault()
+                                                    const newMetrics = metrics.filter((_: any, i: number) => i !== index)
+                                                    updateContent('metrics', newMetrics)
+                                                }}
+                                                className="text-red-600 hover:text-red-800 transition-colors"
+                                                type="button"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                            {/* Valor */}
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Valor de la Métrica
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={metric?.value || ''}
+                                                    onChange={(e) => {
+                                                        const newMetrics = [...metrics]
+                                                        newMetrics[index] = { ...newMetrics[index], value: e.target.value }
+                                                        updateContent('metrics', newMetrics)
+                                                    }}
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                    placeholder="Ej: 98%, 300%, 24/7"
+                                                />
+                                            </div>
+
+                                            {/* Etiqueta */}
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Etiqueta Principal
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={metric?.label || ''}
+                                                    onChange={(e) => {
+                                                        const newMetrics = [...metrics]
+                                                        newMetrics[index] = { ...newMetrics[index], label: e.target.value }
+                                                        updateContent('metrics', newMetrics)
+                                                    }}
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                    placeholder="Ej: Satisfacción, Soporte"
+                                                />
+                                            </div>
+
+                                            {/* Descripción */}
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Descripción
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={metric?.description || ''}
+                                                    onChange={(e) => {
+                                                        const newMetrics = [...metrics]
+                                                        newMetrics[index] = { ...newMetrics[index], description: e.target.value }
+                                                        updateContent('metrics', newMetrics)
+                                                    }}
+                                                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                    placeholder="Ej: de nuestros clientes"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Vista previa */}
+                                        <div className="mt-3 p-3 bg-white rounded border border-gray-200">
+                                            <div className="text-center">
+                                                <div className="text-2xl font-bold text-primary-600 mb-1">
+                                                    {metric?.value || '0%'}
+                                                </div>
+                                                <p className="text-gray-900 font-semibold text-sm mb-1">
+                                                    {metric?.label || 'Etiqueta'}
+                                                </p>
+                                                <p className="text-xs text-gray-600">
+                                                    {metric?.description || 'descripción'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {metrics.length === 0 && (
+                                    <div className="text-center py-8 text-gray-500">
+                                        <Award className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                                        <p>No hay métricas configuradas</p>
+                                        <p className="text-sm">Haz clic en "Agregar Métrica" para comenzar</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )
