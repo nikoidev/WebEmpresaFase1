@@ -239,7 +239,7 @@ export default function ClientesPage() {
                                             <img
                                                 src={testimonial.image}
                                                 alt={testimonial.name}
-                                                className="w-12 h-12 rounded-full mr-4 object-cover"
+                                                className="w-16 h-16 rounded-full mr-4 object-cover"
                                             />
                                         )}
                                         <div>

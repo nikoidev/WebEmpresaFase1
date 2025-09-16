@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart, Copy, Move, Mail, Phone, MapPin, Clock, Building, Wifi, Calendar, MessageSquare, Smartphone, Send, MessageCircle, Video, Headphones, Users, Globe2, ExternalLink } from 'lucide-react'
+import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart, Copy, Move, Mail, Phone, MapPin, Clock, Building, Wifi, Calendar, MessageSquare, Smartphone, Send, MessageCircle, Video, Headphones, Users, Globe2, ExternalLink, Star } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 import ImageUploader from './ImageUploader'
 import { useInlineEdit } from '@/contexts/InlineEditContext'
@@ -2384,31 +2384,226 @@ export default function UniversalSectionEditModal({
                 )
 
             case 'testimonials':
+                const testimonials = Array.isArray(content.testimonials) ? content.testimonials : []
+                
                 return (
                     <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Título de Testimonios
-                            </label>
-                            <input
-                                type="text"
-                                value={content.testimonials_title || ''}
-                                onChange={(e) => updateContent('testimonials_title', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Testimonios"
-                            />
+                        {/* Configuración de sección */}
+                        <div className="border-b pb-4">
+                            <h3 className="text-lg font-medium text-gray-900 mb-4">Configuración de la Sección</h3>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Título de Testimonios
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.testimonials_title || ''}
+                                        onChange={(e) => updateContent('testimonials_title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Lo que Dicen Nuestros Clientes"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Descripción de Testimonios
+                                    </label>
+                                    <textarea
+                                        rows={3}
+                                        value={content.testimonials_description || ''}
+                                        onChange={(e) => updateContent('testimonials_description', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Testimonios reales de instituciones que han transformado su gestión"
+                                    />
+                                </div>
+                            </div>
                         </div>
+
+                        {/* Gestión de testimonios - Botón agregar */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción de Testimonios
-                            </label>
-                            <textarea
-                                rows={3}
-                                value={content.testimonials_description || ''}
-                                onChange={(e) => updateContent('testimonials_description', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Descripción de testimonios"
-                            />
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-medium text-gray-900">Testimonios</h3>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        e.preventDefault()
+                                        const newTestimonials = [...testimonials]
+                                        newTestimonials.push({
+                                            name: '',
+                                            position: '',
+                                            institution: '',
+                                            content: '',
+                                            rating: 5,
+                                            image: ''
+                                        })
+                                        updateContent('testimonials', newTestimonials)
+                                    }}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center"
+                                    type="button"
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Agregar Testimonio
+                                </button>
+                            </div>
+
+                            {/* Lista de testimonios */}
+                            <div className="space-y-4 max-h-96 overflow-y-auto">
+                                {testimonials.map((testimonial: any, index: number) => (
+                                    <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <span className="text-sm font-medium text-gray-600">
+                                                Testimonio #{index + 1}
+                                            </span>
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    e.preventDefault()
+                                                    const newTestimonials = testimonials.filter((_: any, i: number) => i !== index)
+                                                    updateContent('testimonials', newTestimonials)
+                                                }}
+                                                className="text-red-600 hover:text-red-800 transition-colors"
+                                                type="button"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {/* Información personal */}
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                        Nombre Completo
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={testimonial?.name || ''}
+                                                        onChange={(e) => {
+                                                            const newTestimonials = [...testimonials]
+                                                            newTestimonials[index] = { ...newTestimonials[index], name: e.target.value }
+                                                            updateContent('testimonials', newTestimonials)
+                                                        }}
+                                                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                        placeholder="Ej: María González"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                        Cargo/Posición
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={testimonial?.position || ''}
+                                                        onChange={(e) => {
+                                                            const newTestimonials = [...testimonials]
+                                                            newTestimonials[index] = { ...newTestimonials[index], position: e.target.value }
+                                                            updateContent('testimonials', newTestimonials)
+                                                        }}
+                                                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                        placeholder="Ej: Directora Académica"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                        Institución
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={testimonial?.institution || ''}
+                                                        onChange={(e) => {
+                                                            const newTestimonials = [...testimonials]
+                                                            newTestimonials[index] = { ...newTestimonials[index], institution: e.target.value }
+                                                            updateContent('testimonials', newTestimonials)
+                                                        }}
+                                                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                        placeholder="Ej: Universidad Nacional"
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                        Calificación (1-5 estrellas)
+                                                    </label>
+                                                    <select
+                                                        value={testimonial?.rating || 5}
+                                                        onChange={(e) => {
+                                                            const newTestimonials = [...testimonials]
+                                                            newTestimonials[index] = { ...newTestimonials[index], rating: parseInt(e.target.value) }
+                                                            updateContent('testimonials', newTestimonials)
+                                                        }}
+                                                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                    >
+                                                        <option value={5}>5 estrellas (★★★★★)</option>
+                                                        <option value={4}>4 estrellas (★★★★☆)</option>
+                                                        <option value={3}>3 estrellas (★★★☆☆)</option>
+                                                        <option value={2}>2 estrellas (★★☆☆☆)</option>
+                                                        <option value={1}>1 estrella (★☆☆☆☆)</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            {/* Contenido y foto */}
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                        Testimonio
+                                                    </label>
+                                                    <textarea
+                                                        rows={4}
+                                                        value={testimonial?.content || ''}
+                                                        onChange={(e) => {
+                                                            const newTestimonials = [...testimonials]
+                                                            newTestimonials[index] = { ...newTestimonials[index], content: e.target.value }
+                                                            updateContent('testimonials', newTestimonials)
+                                                        }}
+                                                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                        placeholder="El testimonio completo..."
+                                                    />
+                                                </div>
+
+                                                <div>
+                                                    <label className="block text-xs font-medium text-gray-700 mb-2">
+                                                        Foto del Testimonio
+                                                    </label>
+                                                    <div 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            e.preventDefault()
+                                                        }}
+                                                        onMouseDown={(e) => {
+                                                            e.stopPropagation()
+                                                            e.preventDefault()
+                                                        }}
+                                                    >
+                                                        <ImageUploader
+                                                            currentImageUrl={testimonial?.image || ''}
+                                                            onImageChange={(imageUrl) => {
+                                                                const newTestimonials = [...testimonials]
+                                                                newTestimonials[index] = { ...newTestimonials[index], image: imageUrl }
+                                                                updateContent('testimonials', newTestimonials)
+                                                            }}
+                                                            maxWidth={120}
+                                                            maxHeight={120}
+                                                            quality={0.9}
+                                                            className="text-center"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {testimonials.length === 0 && (
+                                    <div className="text-center py-8 text-gray-500">
+                                        <Star className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                                        <p>No hay testimonios configurados</p>
+                                        <p className="text-sm">Haz clic en "Agregar Testimonio" para comenzar</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )
