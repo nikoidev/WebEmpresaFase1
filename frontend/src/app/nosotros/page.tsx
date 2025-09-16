@@ -79,16 +79,21 @@ export default function NosotrosPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                            {aboutContent?.hero?.title || 'Sobre Nosotros'}
+                            {aboutContent?.hero?.title || aboutContent?.hero_title || 'Sobre Nosotros'}
                         </h1>
                         <p className="text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto">
-                            {aboutContent?.hero?.subtitle || 'Quiénes somos y qué nos motiva'}
+                            {aboutContent?.hero?.subtitle || aboutContent?.hero_subtitle || 'Quiénes somos y qué nos motiva'}
                         </p>
+                        {(aboutContent?.hero?.description || aboutContent?.hero_description) && (
+                            <p className="text-lg text-primary-200 max-w-2xl mx-auto">
+                                {aboutContent?.hero?.description || aboutContent?.hero_description}
+                            </p>
+                        )}
                     </div>
                 </div>
             </section>
 
-            {/* Mission Section */}
+            {/* Mission & Vision Section */}
             <section className="py-24 bg-white relative">
                 <SectionEditButton 
                     sectionName="Misión y Visión"
@@ -96,14 +101,37 @@ export default function NosotrosPage() {
                     position="top-right"
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Mission */}
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
                             Nuestra Misión
                         </h2>
-                        <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-                            {aboutContent?.mission || 'Transformar la educación con tecnología innovadora'}
+                        <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-4">
+                            {aboutContent?.mission || 'Democratizar el acceso a herramientas educativas de calidad profesional.'}
                         </p>
+                        {aboutContent?.mission_description && (
+                            <p className="text-lg text-gray-500 max-w-3xl mx-auto">
+                                {aboutContent.mission_description}
+                            </p>
+                        )}
                     </div>
+
+                    {/* Vision */}
+                    {aboutContent?.vision && (
+                        <div className="text-center">
+                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                                Nuestra Visión
+                            </h2>
+                            <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-4">
+                                {aboutContent.vision}
+                            </p>
+                            {aboutContent?.vision_description && (
+                                <p className="text-lg text-gray-500 max-w-3xl mx-auto">
+                                    {aboutContent.vision_description}
+                                </p>
+                            )}
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -239,24 +267,41 @@ export default function NosotrosPage() {
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                        ¿Quieres conocer más sobre nosotros?
+                        {aboutContent?.cta?.title || '¿Quieres conocer más sobre nosotros?'}
                     </h2>
                     <p className="text-xl text-primary-100 mb-8 max-w-3xl mx-auto">
-                        Contáctanos y descubre cómo podemos ayudar a transformar tu institución educativa
+                        {aboutContent?.cta?.description || 'Contáctanos y descubre cómo podemos ayudar a transformar tu institución educativa'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a
-                            href="/contacto"
-                            className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
-                        >
-                            Contáctanos
-                        </a>
-                        <a
-                            href="/precios"
-                            className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
-                        >
-                            Ver Precios
-                        </a>
+                        {aboutContent?.cta?.buttons?.length > 0 ? (
+                            aboutContent.cta.buttons.map((button: any, index: number) => (
+                                <a
+                                    key={index}
+                                    href={button.link}
+                                    className={button.type === 'solid' 
+                                        ? "bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
+                                        : "border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
+                                    }
+                                >
+                                    {button.text}
+                                </a>
+                            ))
+                        ) : (
+                            <>
+                                <a
+                                    href="/contacto"
+                                    className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
+                                >
+                                    Contáctanos
+                                </a>
+                                <a
+                                    href="/precios"
+                                    className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
+                                >
+                                    Ver Precios
+                                </a>
+                            </>
+                        )}
                     </div>
                 </div>
             </section>
