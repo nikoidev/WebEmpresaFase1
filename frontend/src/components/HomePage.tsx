@@ -91,7 +91,9 @@ export default function HomePage() {
 
     useEffect(() => {
         loadContent()
-        
+    }, [])
+
+    useEffect(() => {
         // Recargar contenido cuando la página vuelve a tener foco
         // Esto detecta cuando regresas del admin
         const handleFocus = () => {
@@ -109,7 +111,7 @@ export default function HomePage() {
         return () => {
             window.removeEventListener('focus', handleFocus)
         }
-    }, [])
+    }, [editingSection])
 
     const loadContent = async () => {
         try {

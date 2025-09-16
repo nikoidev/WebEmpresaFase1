@@ -49,7 +49,9 @@ export default function ClientesPage() {
 
     useEffect(() => {
         loadContent()
-        
+    }, [])
+
+    useEffect(() => {
         // Recargar contenido cuando la página vuelve a tener foco
         // Esto detecta cuando regresas del admin
         const handleFocus = () => {
@@ -67,7 +69,7 @@ export default function ClientesPage() {
         return () => {
             window.removeEventListener('focus', handleFocus)
         }
-    }, [])
+    }, [editingSection]) // ← DEPENDENCIA AÑADIDA!
 
     if (loading) {
         return (
