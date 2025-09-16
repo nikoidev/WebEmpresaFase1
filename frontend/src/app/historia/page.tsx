@@ -250,6 +250,11 @@ export default function HistoriaPage() {
                     <p className="text-xl text-primary-100 mb-8">
                         {content?.future_description || 'Continuamos innovando para crear el futuro de la educación, con nuevas tecnologías y soluciones que transformarán la manera de enseñar y aprender.'}
                     </p>
+                    {content?.future_vision && (
+                        <p className="text-lg text-primary-200 mb-8 max-w-3xl mx-auto">
+                            {content.future_vision}
+                        </p>
+                    )}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
                             href="/nosotros"
