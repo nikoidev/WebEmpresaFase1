@@ -339,16 +339,16 @@ export default function ClientesPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
-                            href="/contacto"
+                            href={content?.cta_primary_link || "/contacto"}
                             className="bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-50 transition-colors inline-flex items-center justify-center"
                         >
-                            Solicitar Demo
+                            {content?.cta_primary_text || 'Solicitar Demo'}
                         </a>
                         <a
-                            href="/precios"
+                            href={content?.cta_secondary_link || "/precios"}
                             className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors inline-flex items-center justify-center"
                         >
-                            Ver Precios
+                            {content?.cta_secondary_text || 'Ver Precios'}
                         </a>
                     </div>
                 </div>

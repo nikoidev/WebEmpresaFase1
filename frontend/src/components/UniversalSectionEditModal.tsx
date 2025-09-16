@@ -1594,88 +1594,166 @@ export default function UniversalSectionEditModal({
                 )
 
             case 'cta':
-                const cta = content.call_to_action || {}
                 return (
                     <div className="space-y-6">
-                        <h3 className="text-lg font-medium text-gray-900">Llamada a la Acción</h3>
-                        
+                        {/* Configuración de sección */}
+                        <div className="border-b pb-4">
+                            <div className="flex items-center mb-4">
+                                <div className="bg-primary-100 p-2 rounded-lg mr-3">
+                                    <Send className="h-6 w-6 text-primary-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-medium text-gray-900">Llamada a la Acción</h3>
+                                    <p className="text-sm text-gray-600">Configura el contenido y botones de tu CTA</p>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Título Principal
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.cta_title || ''}
+                                        onChange={(e) => updateContent('cta_title', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="¿Listo para Unirte a Nuestros Clientes Exitosos?"
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Descripción
+                                    </label>
+                                    <textarea
+                                        rows={3}
+                                        value={content.cta_description || ''}
+                                        onChange={(e) => updateContent('cta_description', e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="Descubre cómo SEVP puede transformar tu institución educativa"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Configuración de botones */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Título Principal
-                            </label>
-                            <input
-                                type="text"
-                                value={cta.title || ''}
-                                onChange={(e) => updateContent('call_to_action.title', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="¿Quieres formar parte de nuestra misión?"
-                            />
-                        </div>
+                            <h4 className="text-lg font-medium text-gray-900 mb-4">Botones de Acción</h4>
                         
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Descripción
-                            </label>
-                            <textarea
-                                rows={3}
-                                value={cta.description || ''}
-                                onChange={(e) => updateContent('call_to_action.description', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                placeholder="Estamos siempre buscando personas talentosas..."
-                            />
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Texto Botón Principal
-                                </label>
-                                <input
-                                    type="text"
-                                    value={cta.primary_button_text || ''}
-                                    onChange={(e) => updateContent('call_to_action.primary_button_text', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="Únete al Equipo"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Botón Principal */}
+                                <div className="bg-gray-50 p-4 rounded-lg border">
+                                    <div className="flex items-center mb-3">
+                                        <div className="bg-white p-2 rounded-lg mr-3 shadow-sm">
+                                            <Send className="h-4 w-4 text-primary-600" />
+                                        </div>
+                                        <h5 className="font-medium text-gray-900">Botón Principal</h5>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                Texto del Botón
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={content.cta_primary_text || ''}
+                                                onChange={(e) => updateContent('cta_primary_text', e.target.value)}
+                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                placeholder="Solicitar Demo"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                Enlace
+                                            </label>
+                                            <input
+                                                type="url"
+                                                value={content.cta_primary_link || ''}
+                                                onChange={(e) => updateContent('cta_primary_link', e.target.value)}
+                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                placeholder="/contacto"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Vista previa botón principal */}
+                                    <div className="mt-3 p-2 bg-white rounded border">
+                                        <div className="text-center">
+                                            <button className="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                                                {content.cta_primary_text || 'Solicitar Demo'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Botón Secundario */}
+                                <div className="bg-gray-50 p-4 rounded-lg border">
+                                    <div className="flex items-center mb-3">
+                                        <div className="bg-white p-2 rounded-lg mr-3 shadow-sm">
+                                            <ExternalLink className="h-4 w-4 text-gray-600" />
+                                        </div>
+                                        <h5 className="font-medium text-gray-900">Botón Secundario</h5>
+                                    </div>
+                                    
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                Texto del Botón
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={content.cta_secondary_text || ''}
+                                                onChange={(e) => updateContent('cta_secondary_text', e.target.value)}
+                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                placeholder="Ver Precios"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                Enlace
+                                            </label>
+                                            <input
+                                                type="url"
+                                                value={content.cta_secondary_link || ''}
+                                                onChange={(e) => updateContent('cta_secondary_link', e.target.value)}
+                                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                placeholder="/precios"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Vista previa botón secundario */}
+                                    <div className="mt-3 p-2 bg-white rounded border">
+                                        <div className="text-center">
+                                            <button className="border-2 border-gray-400 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold">
+                                                {content.cta_secondary_text || 'Ver Precios'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Enlace Botón Principal
-                                </label>
-                                <input
-                                    type="url"
-                                    value={cta.primary_button_link || ''}
-                                    onChange={(e) => updateContent('call_to_action.primary_button_link', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="/contacto"
-                                />
-                            </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Texto Botón Secundario
-                                </label>
-                                <input
-                                    type="text"
-                                    value={cta.secondary_button_text || ''}
-                                    onChange={(e) => updateContent('call_to_action.secondary_button_text', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="Contáctanos"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Enlace Botón Secundario
-                                </label>
-                                <input
-                                    type="url"
-                                    value={cta.secondary_button_link || ''}
-                                    onChange={(e) => updateContent('call_to_action.secondary_button_link', e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="/contacto"
-                                />
+
+                            {/* Vista previa completa */}
+                            <div className="mt-6">
+                                <h5 className="text-sm font-medium text-gray-700 mb-3">Vista Previa de la Sección</h5>
+                                <div className="bg-primary-600 p-6 rounded-lg text-center">
+                                    <h3 className="text-xl font-bold text-white mb-3">
+                                        {content.cta_title || '¿Listo para Unirte a Nuestros Clientes Exitosos?'}
+                                    </h3>
+                                    <p className="text-primary-100 mb-4">
+                                        {content.cta_description || 'Descubre cómo SEVP puede transformar tu institución educativa'}
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                                        <button className="bg-white text-primary-600 px-6 py-2 rounded-lg font-semibold text-sm">
+                                            {content.cta_primary_text || 'Solicitar Demo'}
+                                        </button>
+                                        <button className="border-2 border-white text-white px-6 py-2 rounded-lg font-semibold text-sm">
+                                            {content.cta_secondary_text || 'Ver Precios'}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
