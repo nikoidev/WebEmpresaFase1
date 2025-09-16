@@ -1,0 +1,55 @@
+{
+  "page_key": "history",
+  "title": "Historia de SEVP",
+  "content_json": {
+    "hero_title": "Nuestra Historia",
+    "hero_subtitle": "Un viaje de innovación y crecimiento",
+    "hero_description": "Descubre cómo SEVP ha evolucionado para convertirse en líder en soluciones educativas tecnológicas",
+    "intro_title": "Cómo Comenzó Todo",
+    "intro_description": "SEVP nació de la visión de transformar la educación mediante la tecnología, creando soluciones innovadoras que empoderan a las instituciones educativas para alcanzar su máximo potencial.",
+    "timeline_title": "Hitos Importantes",
+    "timeline_description": "Los momentos clave en nuestro crecimiento",
+    "milestones": [
+      {
+        "year": "2019",
+        "title": "Fundación de SEVP",
+        "description": "Inicio de nuestra misión de democratizar la educación tecnológica"
+      },
+      {
+        "year": "2020",
+        "title": "Expansión Digital",
+        "description": "Adaptación rápida a la educación remota y herramientas virtuales"
+      },
+      {
+        "year": "2023",
+        "title": "Tecnología IA",
+        "description": "Integración de inteligencia artificial en nuestras plataformas"
+      }
+    ],
+    "impact_title": "Nuestro Impacto",
+    "impact_description": "Números que reflejan nuestro crecimiento y alcance global",
+    "stats": [
+      {
+        "number": "500+",
+        "label": "Instituciones"
+      },
+      {
+        "number": "100K+",
+        "label": "Estudiantes"
+      },
+      {
+        "number": "15",
+        "label": "Países"
+      },
+      {
+        "number": "99.9%",
+        "label": "Uptime"
+      }
+    ],
+    "future_title": "Hacia el Futuro",
+    "future_description": "Continuamos innovando para crear el futuro de la educación, con nuevas tecnologías y soluciones que transformarán la manera de enseñar y aprender."
+  },
+  "meta_title": "Historia de SEVP - Nuestro Viaje de Innovación",
+  "meta_description": "Conoce la historia de SEVP, desde nuestros inicios hasta convertirnos en líderes en soluciones educativas tecnológicas.",
+  "is_active": true
+}

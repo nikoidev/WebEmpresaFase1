@@ -632,6 +632,23 @@ export default function UniversalSectionEditModal({
         updateContent('stats', stats)
     }
 
+    // Funciones específicas para la sección impact
+    const updateImpactStat = (index: number, field: string, value: string) => {
+        const stats = [...(content.stats || [])]
+        stats[index] = { ...stats[index], [field]: value }
+        updateContent('stats', stats)
+    }
+
+    const removeImpactStat = (index: number) => {
+        const stats = content.stats?.filter((_: any, i: number) => i !== index) || []
+        updateContent('stats', stats)
+    }
+
+    const addImpactStat = () => {
+        const newStats = [...(content.stats || []), { number: '', label: '', description: '' }]
+        updateContent('stats', newStats)
+    }
+
     const renderSectionEditor = () => {
         const sectionData = content[sectionType] || {}
 
@@ -1819,7 +1836,7 @@ export default function UniversalSectionEditModal({
                             <div key={index} className="border p-4 rounded-md space-y-3 bg-gray-50">
                                 <div className="flex justify-between items-center">
                                     <h5 className="font-medium text-gray-900">Estadística #{index + 1}</h5>
-                                    <button onClick={() => removeStat(index)} className="text-red-600 hover:text-red-800">
+                                    <button onClick={() => removeImpactStat(index)} className="text-red-600 hover:text-red-800">
                                         <Trash2 className="h-5 w-5" />
                                     </button>
                                 </div>
@@ -1828,7 +1845,7 @@ export default function UniversalSectionEditModal({
                                     <input
                                         type="text"
                                         value={stat.number || ''}
-                                        onChange={(e) => updateStat(index, 'number', e.target.value)}
+                                        onChange={(e) => updateImpactStat(index, 'number', e.target.value)}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         placeholder="100+"
                                     />
@@ -1838,7 +1855,7 @@ export default function UniversalSectionEditModal({
                                     <input
                                         type="text"
                                         value={stat.label || ''}
-                                        onChange={(e) => updateStat(index, 'label', e.target.value)}
+                                        onChange={(e) => updateImpactStat(index, 'label', e.target.value)}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         placeholder="Instituciones Educativas"
                                     />
@@ -1847,7 +1864,7 @@ export default function UniversalSectionEditModal({
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
                                     <textarea
                                         value={stat.description || ''}
-                                        onChange={(e) => updateStat(index, 'description', e.target.value)}
+                                        onChange={(e) => updateImpactStat(index, 'description', e.target.value)}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         rows={2}
                                         placeholder="Descripción de la estadística"
@@ -1855,7 +1872,7 @@ export default function UniversalSectionEditModal({
                                 </div>
                             </div>
                         ))}
-                        <button onClick={addStat} className="w-full bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2">
+                        <button onClick={addImpactStat} className="w-full bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center justify-center gap-2">
                             <Plus className="h-5 w-5" /> Agregar Estadística
                         </button>
                     </div>

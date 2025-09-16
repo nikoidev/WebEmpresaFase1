@@ -26,10 +26,9 @@ export default function HistoriaPage() {
             console.error('❌ Error loading history content:', error)
             // Usar contenido por defecto si falla
             setContent({
-                hero: {
-                    title: 'Nuestra Historia',
-                    subtitle: 'Un viaje de innovación y crecimiento'
-                }
+                hero_title: 'Nuestra Historia',
+                hero_subtitle: 'Un viaje de innovación y crecimiento',
+                hero_description: ''
             })
         } finally {
             setLoading(false)
@@ -50,6 +49,19 @@ export default function HistoriaPage() {
 
     useEffect(() => {
         loadContent()
+        
+        // Recargar contenido cuando la página vuelve a tener foco
+        // Esto detecta cuando regresas del admin
+        const handleFocus = () => {
+            console.log('🔄 Historia - Página recuperó foco, recargando contenido...')
+            loadContent()
+        }
+        
+        window.addEventListener('focus', handleFocus)
+        
+        return () => {
+            window.removeEventListener('focus', handleFocus)
+        }
     }, [])
 
     if (loading) {
@@ -76,11 +88,16 @@ export default function HistoriaPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                            {content?.hero?.title || 'Nuestra Historia'}
+                            {content?.hero_title || 'Nuestra Historia'}
                         </h1>
                         <p className="text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto">
-                            {content?.hero?.subtitle || 'Un viaje de innovación y crecimiento'}
+                            {content?.hero_subtitle || 'Un viaje de innovación y crecimiento'}
                         </p>
+                        {content?.hero_description && (
+                            <p className="text-lg text-primary-200 max-w-2xl mx-auto">
+                                {content.hero_description}
+                            </p>
+                        )}
                     </div>
                 </div>
             </section>
@@ -94,10 +111,10 @@ export default function HistoriaPage() {
                 />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                        Cómo Comenzó Todo
+                        {content?.intro_title || 'Cómo Comenzó Todo'}
                     </h2>
                     <p className="text-xl text-gray-600 leading-relaxed">
-                        {content?.intro?.description || 'SEVP nació de la visión de transformar la educación mediante la tecnología, creando soluciones innovadoras que empoderan a las instituciones educativas para alcanzar su máximo potencial.'}
+                        {content?.intro_description || 'SEVP nació de la visión de transformar la educación mediante la tecnología, creando soluciones innovadoras que empoderan a las instituciones educativas para alcanzar su máximo potencial.'}
                     </p>
                 </div>
             </section>
@@ -112,16 +129,16 @@ export default function HistoriaPage() {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Hitos Importantes
+                            {content?.timeline_title || 'Hitos Importantes'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Los momentos clave en nuestro crecimiento
+                            {content?.timeline_description || 'Los momentos clave en nuestro crecimiento'}
                         </p>
                     </div>
 
-                    {content?.timeline?.length > 0 ? (
+                    {content?.milestones?.length > 0 ? (
                         <div className="space-y-12">
-                            {content.timeline.map((milestone: any, index: number) => (
+                            {content.milestones.map((milestone: any, index: number) => (
                                 <div key={index} className="flex items-center">
                                     <div className="flex-shrink-0 w-24 text-center">
                                         <div className="bg-primary-600 text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -161,16 +178,16 @@ export default function HistoriaPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Nuestro Impacto
+                            {content?.impact_title || 'Nuestro Impacto'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Números que reflejan nuestro crecimiento
+                            {content?.impact_description || 'Números que reflejan nuestro crecimiento'}
                         </p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {content?.impact?.length > 0 ? (
-                            content.impact.map((stat: any, index: number) => (
+                        {content?.stats?.length > 0 ? (
+                            content.stats.map((stat: any, index: number) => (
                                 <div key={index} className="text-center">
                                     <div className="bg-primary-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
                                         <TrendingUp className="h-8 w-8 text-primary-600" />
@@ -228,10 +245,10 @@ export default function HistoriaPage() {
                 />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                        Hacia el Futuro
+                        {content?.future_title || 'Hacia el Futuro'}
                     </h2>
                     <p className="text-xl text-primary-100 mb-8">
-                        {content?.future?.description || 'Continuamos innovando para crear el futuro de la educación, con nuevas tecnologías y soluciones que transformarán la manera de enseñar y aprender.'}
+                        {content?.future_description || 'Continuamos innovando para crear el futuro de la educación, con nuevas tecnologías y soluciones que transformarán la manera de enseñar y aprender.'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
