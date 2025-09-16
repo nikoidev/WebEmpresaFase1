@@ -26,10 +26,8 @@ export default function PreciosPage() {
             console.error('❌ Error loading pricing content:', error)
             // Usar contenido por defecto si falla
             setContent({
-                hero: {
-                    title: 'Planes y Precios',
-                    subtitle: 'Elige el plan perfecto para tu institución educativa'
-                }
+                hero_title: 'Planes y Precios',
+                hero_subtitle: 'Elige el plan perfecto para tu institución educativa'
             })
         } finally {
             setLoading(false)
@@ -51,6 +49,26 @@ export default function PreciosPage() {
     useEffect(() => {
         loadContent()
     }, [])
+
+    useEffect(() => {
+        // Recargar contenido cuando la página vuelve a tener foco
+        // Esto detecta cuando regresas del admin
+        const handleFocus = () => {
+            // NO recargar si hay un modal abierto (evita cerrar modals accidentalmente)
+            if (editingSection) {
+                console.log('🚨 Modal abierto - EVITANDO recarga por focus')
+                return
+            }
+            console.log('🔄 Precios - Página recuperó foco, recargando contenido...')
+            loadContent()
+        }
+        
+        window.addEventListener('focus', handleFocus)
+        
+        return () => {
+            window.removeEventListener('focus', handleFocus)
+        }
+    }, [editingSection])
 
     if (loading) {
         return (
@@ -76,10 +94,10 @@ export default function PreciosPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                            {content?.hero?.title || 'Planes y Precios'}
+                            {content?.hero_title || 'Planes y Precios'}
                         </h1>
                         <p className="text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto">
-                            {content?.hero?.subtitle || 'Elige el plan perfecto para tu institución educativa'}
+                            {content?.hero_subtitle || 'Elige el plan perfecto para tu institución educativa'}
                         </p>
                     </div>
                 </div>
@@ -95,10 +113,10 @@ export default function PreciosPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Planes Disponibles
+                            {content?.pricing_title || 'Planes Disponibles'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Soluciones escalables para instituciones de todos los tamaños
+                            {content?.pricing_description || 'Soluciones escalables para instituciones de todos los tamaños'}
                         </p>
                     </div>
 
@@ -207,16 +225,16 @@ export default function PreciosPage() {
                 />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                        ¿Necesitas algo más personalizado?
+                        {content?.enterprise_title || '¿Necesitas algo más personalizado?'}
                     </h2>
                     <p className="text-xl text-gray-600 mb-8">
-                        Contáctanos para soluciones empresariales a medida
+                        {content?.enterprise_description || 'Contáctanos para soluciones empresariales a medida'}
                     </p>
                     <a
-                        href="/contacto"
+                        href={content?.enterprise_button_link || "/contacto"}
                         className="bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-flex items-center justify-center"
                     >
-                        Solicitar Cotización
+                        {content?.enterprise_button_text || 'Solicitar Cotización'}
                     </a>
                 </div>
             </section>
@@ -231,16 +249,16 @@ export default function PreciosPage() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Preguntas Frecuentes
+                            {content?.faq_title || 'Preguntas Frecuentes'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Respuestas sobre nuestros planes y precios
+                            {content?.faq_description || 'Respuestas sobre nuestros planes y precios'}
                         </p>
                     </div>
 
-                    {content?.faq?.length > 0 ? (
+                    {content?.faqs?.length > 0 ? (
                         <div className="space-y-6">
-                            {content.faq.map((item: any, index: number) => (
+                            {content.faqs.map((item: any, index: number) => (
                                 <div key={index} className="bg-white p-6 rounded-lg shadow-sm">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                         {item.question}

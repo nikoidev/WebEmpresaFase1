@@ -142,8 +142,39 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                     💰 Editor de Planes y Precios
                 </h3>
                 <p className="text-blue-700 text-sm">
-                    Configura los planes de servicio, precios y características.
+                    Configura título, descripción, planes de servicio, precios y características.
                 </p>
+            </div>
+
+            {/* Configuración de sección */}
+            <div className="border-b pb-4">
+                <h4 className="text-lg font-medium text-gray-900 mb-4">Configuración de la Sección</h4>
+                <div className="grid grid-cols-1 gap-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Título de la Sección
+                        </label>
+                        <input
+                            type="text"
+                            value={content.pricing_title || ''}
+                            onChange={(e) => updateContent('pricing_title', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            placeholder="Planes Disponibles"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Descripción de la Sección
+                        </label>
+                        <textarea
+                            rows={3}
+                            value={content.pricing_description || ''}
+                            onChange={(e) => updateContent('pricing_description', e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            placeholder="Soluciones escalables para instituciones de todos los tamaños"
+                        />
+                    </div>
+                </div>
             </div>
 
             {/* Configuración de etiquetas */}
