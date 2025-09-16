@@ -73,6 +73,8 @@ export default function ImageUploader({
     }
 
     const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.stopPropagation() // Evitar que el evento se propague al modal padre
+        event.preventDefault() // Prevenir el comportamiento por defecto
         const file = event.target.files?.[0]
         if (!file) return
 
@@ -102,7 +104,11 @@ export default function ImageUploader({
         }
     }
 
-    const handleRemoveImage = () => {
+    const handleRemoveImage = (event?: React.MouseEvent) => {
+        if (event) {
+            event.stopPropagation() // Evitar que el evento se propague al modal padre
+            event.preventDefault() // Prevenir el comportamiento por defecto
+        }
         setPreviewUrl('')
         onImageChange('')
         if (fileInputRef.current) {
@@ -111,7 +117,11 @@ export default function ImageUploader({
     }
 
     return (
-        <div className={`space-y-2 ${className}`}>
+        <div 
+            className={`space-y-2 ${className}`}
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+        >
             <input
                 ref={fileInputRef}
                 type="file"
@@ -130,7 +140,7 @@ export default function ImageUploader({
                         />
                     </div>
                     <button
-                        onClick={handleRemoveImage}
+                        onClick={(e) => handleRemoveImage(e)}
                         className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
                         type="button"
                     >
@@ -139,7 +149,11 @@ export default function ImageUploader({
                 </div>
             ) : (
                 <button
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        e.preventDefault()
+                        fileInputRef.current?.click()
+                    }}
                     disabled={isUploading}
                     type="button"
                     className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 transition-colors flex flex-col items-center justify-center mx-auto text-gray-500 hover:text-gray-700"
@@ -158,7 +172,11 @@ export default function ImageUploader({
             {!previewUrl && (
                 <div className="text-center">
                     <button
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            fileInputRef.current?.click()
+                        }}
                         disabled={isUploading}
                         type="button"
                         className="text-sm text-primary-600 hover:text-primary-700 disabled:text-gray-400"

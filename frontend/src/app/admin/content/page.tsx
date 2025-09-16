@@ -5,6 +5,7 @@ import DevFileInfo from '@/components/DevFileInfo'
 import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 import SectionEditModal from '@/components/SectionEditModal'
 import HomepageHeroModal from '@/components/HomepageHeroModal'
+import ClientTypesModal from '@/components/ClientTypesModal'
 import {
     Edit,
     Eye,
@@ -776,6 +777,16 @@ export default function ContentManagementPage() {
                             pageKey={editingPage.page_key}
                             initialContent={editingPage}
                             onSave={handleSectionSave}
+                        />
+                    ) : editingPage.page_key === 'clients' && editingSection === 'client_types' ? (
+                        // Modal dedicado para tipos de clientes
+                        <ClientTypesModal
+                            isOpen={!!editingSection}
+                            onClose={() => setEditingSection(null)}
+                            pageKey={editingPage.page_key}
+                            initialContent={editingPage}
+                            onSave={handleSectionSave}
+                            isSaving={isSaving}
                         />
                     ) : (
                         <UniversalSectionEditModal

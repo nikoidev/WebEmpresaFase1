@@ -7,12 +7,15 @@ interface InlineEditContextType {
     isEditMode: boolean
     toggleEditMode: () => void
     canEdit: boolean
+    hasActiveModal: boolean
+    setActiveModal: (active: boolean) => void
 }
 
 const InlineEditContext = createContext<InlineEditContextType | undefined>(undefined)
 
 export function InlineEditProvider({ children }: { children: React.ReactNode }) {
     const [isEditMode, setIsEditMode] = useState(false)
+    const [hasActiveModal, setHasActiveModal] = useState(false)
     const { user, isAuthenticated } = useAuth()
 
     // Solo admins pueden editar
@@ -24,29 +27,36 @@ export function InlineEditProvider({ children }: { children: React.ReactNode }) 
         }
     }
 
+    const setActiveModal = (active: boolean) => {
+        setHasActiveModal(active)
+    }
+
     // Atajos de teclado para edición
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
-            // Ctrl/Cmd + E para toggle edit mode
-            if ((e.ctrlKey || e.metaKey) && e.key === 'e' && canEdit) {
+            // Ctrl/Cmd + E para toggle edit mode (solo si no hay modales)
+            if ((e.ctrlKey || e.metaKey) && e.key === 'e' && canEdit && !hasActiveModal) {
                 e.preventDefault()
                 toggleEditMode()
             }
-            // Escape para salir del edit mode
-            if (e.key === 'Escape' && isEditMode) {
+            
+            // Escape para salir del edit mode (solo si no hay modales)
+            if (e.key === 'Escape' && isEditMode && !hasActiveModal) {
                 setIsEditMode(false)
             }
         }
 
         window.addEventListener('keydown', handleKeyPress)
         return () => window.removeEventListener('keydown', handleKeyPress)
-    }, [canEdit, isEditMode])
+    }, [canEdit, isEditMode, hasActiveModal])
 
     return (
         <InlineEditContext.Provider value={{
             isEditMode,
             toggleEditMode,
-            canEdit
+            canEdit,
+            hasActiveModal,
+            setActiveModal
         }}>
             {children}
         </InlineEditContext.Provider>

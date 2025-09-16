@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { X, Plus, Trash2, User, BookOpen, Award, Globe, Heart, Copy, Move, Mail, Phone, MapPin, Clock, Building, Wifi, Calendar, MessageSquare, Smartphone, Send, MessageCircle, Video, Headphones, Users, Globe2, ExternalLink } from 'lucide-react'
 import { adminApi } from '@/lib/api'
 import ImageUploader from './ImageUploader'
+import { useInlineEdit } from '@/contexts/InlineEditContext'
 
 // Componente específico para el editor de precios
 const PricingEditor = ({ content, updateContent }: { content: any, updateContent: any }) => {
@@ -470,8 +471,15 @@ export default function UniversalSectionEditModal({
 }: UniversalSectionEditModalProps) {
     
     const [content, setContent] = useState<any>({})
+    const { setActiveModal } = useInlineEdit()
 
     // Actualizar contenido cuando cambie initialContent
+    // Registrar modal cuando se abre/cierra
+    useEffect(() => {
+        setActiveModal(isOpen)
+        return () => setActiveModal(false)
+    }, [isOpen, setActiveModal])
+
     useEffect(() => {
         if (initialContent?.content_json) {
             setContent(initialContent.content_json)
@@ -1974,61 +1982,156 @@ export default function UniversalSectionEditModal({
 
             // Editores para página Clientes
             case 'client_types':
-                // Limpiar datos antiguos y usar estructura nueva
-                const clientTypes = Array.isArray(content.clients) && content.clients.length > 0 && content.clients[0].title 
-                    ? content.clients 
-                    : [
-                        {
-                            title: 'Universidades',
-                            description: 'Instituciones de educación superior que han digitalizado completamente sus procesos académicos.',
-                            icon: 'GraduationCap',
-                            count: '250+',
-                            color: 'bg-blue-500',
-                            examples: ['Universidad Nacional', 'Instituto Tecnológico', 'Universidad Privada del Norte']
-                        },
-                        {
-                            title: 'Colegios',
-                            description: 'Centros educativos de primaria y secundaria que ofrecen experiencias de aprendizaje innovadoras.',
-                            icon: 'School',
-                            count: '800+',
-                            color: 'bg-green-500',
-                            examples: ['Colegio San Patricio', 'Instituto María Auxiliadora', 'Colegio Internacional']
-                        },
-                        {
-                            title: 'Centros de Capacitación',
-                            description: 'Institutos especializados en formación profesional y capacitación empresarial.',
-                            icon: 'Building',
-                            count: '300+',
-                            color: 'bg-purple-500',
-                            examples: ['Centro TECSUP', 'Instituto CIBERTEC', 'Academia de Liderazgo']
-                        },
-                        {
-                            title: 'Organizaciones',
-                            description: 'Empresas y ONGs que utilizan nuestra plataforma para capacitación interna.',
-                            icon: 'Users',
-                            count: '150+',
-                            color: 'bg-orange-500',
-                            examples: ['Fundación Educativa', 'Corporativo Global', 'ONG Desarrollo Social']
-                        }
-                    ]
-                
-                const addClientType = () => {
-                    const newClientType = {
-                        title: '',
-                        description: '',
-                        icon: 'Users',
-                        count: '0+',
-                        color: 'bg-blue-500',
-                        examples: []
-                    }
-                    updateContent('clients', [...clientTypes, newClientType])
-                }
-                
-                const updateClientType = (index: number, field: string, value: any) => {
-                    const updatedTypes = [...clientTypes]
-                    updatedTypes[index] = { ...updatedTypes[index], [field]: value }
-                    updateContent('clients', updatedTypes)
-                }
+                return (
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Título de la Sección
+                            </label>
+                            <input
+                                type="text"
+                                value={content.client_types_title || ''}
+                                onChange={(e) => updateContent('client_types_title', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Tipos de Instituciones"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Descripción de la Sección
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={content.client_types_description || ''}
+                                onChange={(e) => updateContent('client_types_description', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Trabajamos con diferentes tipos de instituciones educativas"
+                            />
+                        </div>
+                        
+                        <div className="border-t pt-4">
+                            <div className="flex items-center justify-between mb-4">
+                                <h4 className="text-lg font-semibold text-gray-800">Tipos de Clientes</h4>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newTypes = [...(content.client_types || []), { name: '', description: '', count: '', image: '' }]
+                                        updateContent('client_types', newTypes)
+                                    }}
+                                    className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2 text-sm"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Agregar Tipo
+                                </button>
+                            </div>
+
+                            <div className="space-y-4 max-h-96 overflow-y-auto">
+                                {(content.client_types || []).map((type: any, index: number) => (
+                                    <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h5 className="font-medium text-gray-900 text-sm">
+                                                Tipo de Cliente #{index + 1}
+                                            </h5>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const newTypes = content.client_types?.filter((_: any, i: number) => i !== index) || []
+                                                    updateContent('client_types', newTypes)
+                                                }}
+                                                className="text-red-600 hover:text-red-800 transition-colors"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {/* Nombre y Cantidad */}
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Nombre
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={type.name || ''}
+                                                    onChange={(e) => {
+                                                        const newTypes = [...(content.client_types || [])]
+                                                        newTypes[index] = { ...newTypes[index], name: e.target.value }
+                                                        updateContent('client_types', newTypes)
+                                                    }}
+                                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                    placeholder="Universidades"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                    Cantidad
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    value={type.count || ''}
+                                                    onChange={(e) => {
+                                                        const newTypes = [...(content.client_types || [])]
+                                                        newTypes[index] = { ...newTypes[index], count: e.target.value }
+                                                        updateContent('client_types', newTypes)
+                                                    }}
+                                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                    placeholder="150"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Descripción */}
+                                        <div className="mt-3">
+                                            <label className="block text-xs font-medium text-gray-700 mb-1">
+                                                Descripción
+                                            </label>
+                                            <textarea
+                                                rows={2}
+                                                value={type.description || ''}
+                                                onChange={(e) => {
+                                                    const newTypes = [...(content.client_types || [])]
+                                                    newTypes[index] = { ...newTypes[index], description: e.target.value }
+                                                    updateContent('client_types', newTypes)
+                                                }}
+                                                className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                                placeholder="Instituciones de educación superior que buscan modernizar..."
+                                            />
+                                        </div>
+
+                                        {/* Imagen/Logo */}
+                                        <div className="mt-3">
+                                            <label className="block text-xs font-medium text-gray-700 mb-2">
+                                                Icono/Logo (máx. 80x80px)
+                                            </label>
+                                            <div className="max-w-xs">
+                                                <ImageUploader
+                                                    currentImageUrl={type.image || ''}
+                                                    onImageChange={(imageUrl) => {
+                                                        const newTypes = [...(content.client_types || [])]
+                                                        newTypes[index] = { ...newTypes[index], image: imageUrl }
+                                                        updateContent('client_types', newTypes)
+                                                    }}
+                                                    maxWidth={80}
+                                                    maxHeight={80}
+                                                    quality={0.9}
+                                                    className="text-center"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {(content.client_types || []).length === 0 && (
+                                    <div className="text-center py-8 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                                        <Building className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                                        <p className="text-sm">No hay tipos de clientes configurados</p>
+                                        <p className="text-xs">Haz clic en "Agregar Tipo" para comenzar</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )
                 
                 const removeClientType = (index: number) => {
                     const updatedTypes = clientTypes.filter((_, i) => i !== index)
@@ -2685,8 +2788,19 @@ export default function UniversalSectionEditModal({
     }
 
     return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-            <div className="w-full max-w-4xl max-h-[90vh] shadow-lg rounded-md bg-white flex flex-col">
+        <div 
+            className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-[9999] flex items-center justify-center p-4"
+            onClick={(e) => {
+                // Solo cerrar si el click es exactamente en el overlay, no en el contenido
+                if (e.target === e.currentTarget) {
+                    onClose()
+                }
+            }}
+        >
+            <div 
+                className="w-full max-w-4xl max-h-[90vh] shadow-lg rounded-md bg-white flex flex-col"
+                onClick={(e) => e.stopPropagation()} // Evitar que clicks internos cierren el modal
+            >
                 {/* Header */}
                 <div className="flex justify-between items-center p-6 border-b flex-shrink-0">
                     <h3 className="text-xl font-bold text-gray-900">

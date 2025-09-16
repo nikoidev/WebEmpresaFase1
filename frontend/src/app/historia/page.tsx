@@ -53,6 +53,11 @@ export default function HistoriaPage() {
         // Recargar contenido cuando la página vuelve a tener foco
         // Esto detecta cuando regresas del admin
         const handleFocus = () => {
+            // NO recargar si hay un modal abierto (evita cerrar modals accidentalmente)
+            if (editingSection) {
+                console.log('🚨 Modal abierto - EVITANDO recarga por focus')
+                return
+            }
             console.log('🔄 Historia - Página recuperó foco, recargando contenido...')
             loadContent()
         }
@@ -282,6 +287,7 @@ export default function HistoriaPage() {
                     pageKey="history"
                     initialContent={fullPageContent}
                     onSave={handleSectionSave}
+                    isSaving={false}
                 />
             )}
         </PublicLayout>

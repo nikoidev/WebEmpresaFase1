@@ -26,10 +26,9 @@ export default function ClientesPage() {
             console.error('❌ Error loading clients content:', error)
             // Usar contenido por defecto si falla
             setContent({
-                hero: {
-                    title: 'Nuestros Clientes',
-                    subtitle: 'Instituciones que confían en nosotros'
-                }
+                hero_title: 'Nuestros Clientes',
+                hero_subtitle: 'Instituciones que confían en nosotros',
+                hero_description: ''
             })
         } finally {
             setLoading(false)
@@ -50,6 +49,24 @@ export default function ClientesPage() {
 
     useEffect(() => {
         loadContent()
+        
+        // Recargar contenido cuando la página vuelve a tener foco
+        // Esto detecta cuando regresas del admin
+        const handleFocus = () => {
+            // NO recargar si hay un modal abierto (evita cerrar modals accidentalmente)
+            if (editingSection) {
+                console.log('🚨 Modal abierto - EVITANDO recarga por focus')
+                return
+            }
+            console.log('🔄 Clientes - Página recuperó foco, recargando contenido...')
+            loadContent()
+        }
+        
+        window.addEventListener('focus', handleFocus)
+        
+        return () => {
+            window.removeEventListener('focus', handleFocus)
+        }
     }, [])
 
     if (loading) {
@@ -76,11 +93,16 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                            {content?.hero?.title || 'Nuestros Clientes'}
+                            {content?.hero_title || 'Nuestros Clientes'}
                         </h1>
                         <p className="text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto">
-                            {content?.hero?.subtitle || 'Instituciones que confían en nosotros'}
+                            {content?.hero_subtitle || 'Instituciones que confían en nosotros'}
                         </p>
+                        {content?.hero_description && (
+                            <p className="text-lg text-primary-200 max-w-2xl mx-auto">
+                                {content.hero_description}
+                            </p>
+                        )}
                     </div>
                 </div>
             </section>
@@ -95,10 +117,10 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Tipos de Instituciones
+                            {content?.client_types_title || 'Tipos de Instituciones'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Trabajamos con diferentes tipos de instituciones educativas
+                            {content?.client_types_description || 'Trabajamos con diferentes tipos de instituciones educativas'}
                         </p>
                     </div>
 
@@ -106,8 +128,16 @@ export default function ClientesPage() {
                         {content?.client_types?.length > 0 ? (
                             content.client_types.map((type: any, index: number) => (
                                 <div key={index} className="bg-gray-50 p-8 rounded-xl text-center hover:shadow-lg transition-shadow">
-                                    <div className="bg-primary-100 w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6">
-                                        <Building className="h-8 w-8 text-primary-600" />
+                                    <div className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6 bg-primary-100">
+                                        {type.image ? (
+                                            <img
+                                                src={type.image}
+                                                alt={type.name}
+                                                className="w-12 h-12 object-contain rounded-lg"
+                                            />
+                                        ) : (
+                                            <Building className="h-8 w-8 text-primary-600" />
+                                        )}
                                     </div>
                                     <h3 className="text-xl font-semibold text-gray-900 mb-4">
                                         {type.name}
@@ -180,10 +210,10 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Lo que Dicen Nuestros Clientes
+                            {content?.testimonials_title || 'Lo que Dicen Nuestros Clientes'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Testimonios reales de instituciones que han transformado su gestión
+                            {content?.testimonials_description || 'Testimonios reales de instituciones que han transformado su gestión'}
                         </p>
                     </div>
 
@@ -241,10 +271,10 @@ export default function ClientesPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Resultados que Hablan por Sí Solos
+                            {content?.metrics_title || 'Resultados que Hablan por Sí Solos'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Métricas de éxito de nuestros clientes
+                            {content?.metrics_description || 'Métricas de éxito de nuestros clientes'}
                         </p>
                     </div>
 
@@ -300,10 +330,10 @@ export default function ClientesPage() {
                 />
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-                        ¿Listo para Unirte a Nuestros Clientes Exitosos?
+                        {content?.cta_title || '¿Listo para Unirte a Nuestros Clientes Exitosos?'}
                     </h2>
                     <p className="text-xl text-primary-100 mb-8">
-                        Descubre cómo SEVP puede transformar tu institución educativa
+                        {content?.cta_description || 'Descubre cómo SEVP puede transformar tu institución educativa'}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <a
@@ -332,6 +362,7 @@ export default function ClientesPage() {
                     pageKey="clients"
                     initialContent={fullPageContent}
                     onSave={handleSectionSave}
+                    isSaving={false}
                 />
             )}
         </PublicLayout>

@@ -316,6 +316,7 @@ export default function NosotrosPage() {
                     pageKey="about"
                     initialContent={fullPageContent}
                     onSave={handleSectionSave}
+                    isSaving={false}
                 />
             )}
         </PublicLayout>

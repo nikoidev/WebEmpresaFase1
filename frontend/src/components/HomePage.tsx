@@ -95,6 +95,11 @@ export default function HomePage() {
         // Recargar contenido cuando la página vuelve a tener foco
         // Esto detecta cuando regresas del admin
         const handleFocus = () => {
+            // NO recargar si hay un modal abierto (evita cerrar modals accidentalmente)
+            if (editingSection) {
+                console.log('🚨 Modal abierto - EVITANDO recarga por focus')
+                return
+            }
             console.log('🔄 HomePage - Página recuperó foco, recargando contenido...')
             loadContent()
         }

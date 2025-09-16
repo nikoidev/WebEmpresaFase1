@@ -279,6 +279,7 @@ export default function ContactoPage() {
                     pageKey="contact"
                     initialContent={fullPageContent}
                     onSave={handleSectionSave}
+                    isSaving={false}
                 />
             )}
         </PublicLayout>

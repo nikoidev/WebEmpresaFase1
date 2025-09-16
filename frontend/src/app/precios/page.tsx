@@ -269,6 +269,7 @@ export default function PreciosPage() {
                     pageKey="pricing"
                     initialContent={fullPageContent}
                     onSave={handleSectionSave}
+                    isSaving={false}
                 />
             )}
         </PublicLayout>
