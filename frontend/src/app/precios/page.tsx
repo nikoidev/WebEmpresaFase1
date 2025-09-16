@@ -14,6 +14,8 @@ export default function PreciosPage() {
     const [editingSection, setEditingSection] = useState<string | null>(null)
     const [editingSectionName, setEditingSectionName] = useState<string>('')
     const [fullPageContent, setFullPageContent] = useState<any>(null)
+    const [plans, setPlans] = useState<any[]>([])
+    const [loadingPlans, setLoadingPlans] = useState(true)
 
     const loadContent = async () => {
         try {
@@ -34,6 +36,20 @@ export default function PreciosPage() {
         }
     }
 
+    const loadPlans = async () => {
+        try {
+            console.log('🔄 Cargando planes de servicio...')
+            const response = await publicApi.getServicePlans()
+            console.log('✅ Planes cargados:', response.data)
+            setPlans(response.data)
+        } catch (error) {
+            console.error('❌ Error loading plans:', error)
+            setPlans([])
+        } finally {
+            setLoadingPlans(false)
+        }
+    }
+
     const handleSectionEdit = (sectionType: string, sectionName: string) => {
         setEditingSection(sectionType)
         setEditingSectionName(sectionName)
@@ -42,12 +58,17 @@ export default function PreciosPage() {
     const handleSectionSave = async () => {
         // Recargar contenido después de guardar
         await loadContent()
+        // Si se editó la sección de pricing, también recargar planes
+        if (editingSection === 'pricing') {
+            await loadPlans()
+        }
         setEditingSection(null)
         setEditingSectionName('')
     }
 
     useEffect(() => {
         loadContent()
+        loadPlans()
     }, [])
 
     useEffect(() => {
@@ -120,99 +141,87 @@ export default function PreciosPage() {
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Plan Básico */}
-                        <div className="bg-white p-8 rounded-xl shadow-lg">
-                            <div className="text-center mb-8">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-2">Básico</h3>
-                                <div className="text-4xl font-bold text-primary-600 mb-2">$99</div>
-                                <p className="text-gray-600">por mes</p>
-                            </div>
-                            <ul className="space-y-4 mb-8">
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Hasta 100 estudiantes</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>5 cursos activos</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Soporte por email</span>
-                                </li>
-                            </ul>
-                            <button className="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
-                                Comenzar
-                            </button>
+                    {loadingPlans ? (
+                        <div className="flex justify-center">
+                            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600"></div>
                         </div>
-
-                        {/* Plan Profesional */}
-                        <div className="bg-white p-8 rounded-xl shadow-lg border-2 border-primary-600 relative">
-                            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                                <span className="bg-primary-600 text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center">
-                                    <Star className="h-4 w-4 mr-1" />
-                                    Popular
-                                </span>
-                            </div>
-                            <div className="text-center mb-8">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-2">Profesional</h3>
-                                <div className="text-4xl font-bold text-primary-600 mb-2">$299</div>
-                                <p className="text-gray-600">por mes</p>
-                            </div>
-                            <ul className="space-y-4 mb-8">
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Hasta 500 estudiantes</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Cursos ilimitados</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Soporte prioritario</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Reportes avanzados</span>
-                                </li>
-                            </ul>
-                            <button className="w-full bg-primary-600 text-white py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors">
-                                Comenzar
-                            </button>
+                    ) : plans.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            {plans
+                                .filter(plan => plan.is_active)
+                                .sort((a, b) => a.display_order - b.display_order)
+                                .map((plan) => (
+                                <div 
+                                    key={plan.id} 
+                                    className={`bg-white p-8 rounded-xl shadow-lg relative ${
+                                        plan.is_popular ? 'border-2 border-primary-600' : ''
+                                    }`}
+                                    style={{
+                                        borderColor: plan.is_popular ? plan.color_primary : undefined
+                                    }}
+                                >
+                                    {plan.is_popular && (
+                                        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                                            <span 
+                                                className="text-white px-4 py-2 rounded-full text-sm font-semibold flex items-center"
+                                                style={{ backgroundColor: plan.color_primary }}
+                                            >
+                                                <Star className="h-4 w-4 mr-1" />
+                                                Popular
+                                            </span>
+                                        </div>
+                                    )}
+                                    <div className="text-center mb-8">
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
+                                        <div 
+                                            className="text-4xl font-bold mb-2"
+                                            style={{ color: plan.color_primary }}
+                                        >
+                                            ${plan.price_monthly}
+                                        </div>
+                                        <p className="text-gray-600">
+                                            {content?.pricing_monthly_label || 'por mes'}
+                                        </p>
+                                        {plan.price_yearly && (
+                                            <p className="text-sm text-gray-500 mt-2">
+                                                ${plan.price_yearly} {content?.pricing_yearly_label || 'anual'} 
+                                                {plan.monthly_savings && (
+                                                    <span className="text-green-600 ml-1">
+                                                        (Ahorra ${plan.monthly_savings}/mes)
+                                                    </span>
+                                                )}
+                                            </p>
+                                        )}
+                                    </div>
+                                    <p className="text-gray-600 mb-6 text-center">{plan.description}</p>
+                                    <ul className="space-y-4 mb-8">
+                                        {plan.features?.map((feature: string, index: number) => (
+                                            <li key={index} className="flex items-center">
+                                                <Check className="h-5 w-5 text-green-500 mr-3" />
+                                                <span>{feature}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <button 
+                                        className={`w-full py-3 rounded-lg font-semibold transition-colors ${
+                                            plan.is_popular 
+                                                ? 'text-white hover:opacity-90' 
+                                                : 'bg-gray-600 text-white hover:bg-gray-700'
+                                        }`}
+                                        style={{
+                                            backgroundColor: plan.is_popular ? plan.color_primary : undefined
+                                        }}
+                                    >
+                                        {plan.is_popular ? 'Comenzar' : 'Contactar'}
+                                    </button>
+                                </div>
+                            ))}
                         </div>
-
-                        {/* Plan Empresarial */}
-                        <div className="bg-white p-8 rounded-xl shadow-lg">
-                            <div className="text-center mb-8">
-                                <h3 className="text-2xl font-bold text-gray-900 mb-2">Empresarial</h3>
-                                <div className="text-4xl font-bold text-primary-600 mb-2">$599</div>
-                                <p className="text-gray-600">por mes</p>
-                            </div>
-                            <ul className="space-y-4 mb-8">
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Estudiantes ilimitados</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Funciones premium</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Soporte 24/7</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <Check className="h-5 w-5 text-green-500 mr-3" />
-                                    <span>Integración personalizada</span>
-                                </li>
-                            </ul>
-                            <button className="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
-                                Contactar
-                            </button>
+                    ) : (
+                        <div className="text-center py-12">
+                            <p className="text-gray-600">No hay planes disponibles en este momento.</p>
                         </div>
-                    </div>
+                    )}
                 </div>
             </section>
 
