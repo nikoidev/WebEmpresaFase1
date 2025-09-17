@@ -1,10 +1,10 @@
 # ==============================================
 # GITIGNORE PARA WEB EMPRESA
-# Django Backend + Next.js Frontend
+# FastAPI Backend + Next.js Frontend
 # ==============================================
 
 # ====================
-# PYTHON/DJANGO
+# PYTHON/FASTAPI
 # ====================
 
 # Byte-compiled / optimized / DLL files
@@ -58,7 +58,7 @@ coverage.xml
 .pytest_cache/
 cover/
 
-# Django stuff:
+# FastAPI stuff:
 *.log
 local_settings.py
 db.sqlite3
@@ -422,6 +422,18 @@ static_collected/
 # Backups de código
 *.orig
 *.rej
+
+# ====================
+# FASTAPI
+# ====================
+
+# Virtual environments (FastAPI)
+*_env/
+*fastapi_env/
+webempresa_fastapi_env/
+
+# Alembic
+alembic/versions/__pycache__/
 
 # ====================
 # ESPECÍFICO DEL PROYECTO

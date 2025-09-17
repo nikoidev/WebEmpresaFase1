@@ -26,7 +26,7 @@ class Permission(enum.Enum):
     MANAGE_USERS = "manage_users"  # Gestionar usuarios
 
 class User(Base):
-    """Modelo de usuario equivalente al User de Django"""
+    """Modelo de usuario con autenticación y permisos"""
     __tablename__ = "auth_user"
     
     id = Column(Integer, primary_key=True, index=True)
