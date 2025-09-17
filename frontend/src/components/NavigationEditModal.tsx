@@ -204,13 +204,6 @@ export default function NavigationEditModal({
             setHasChanges(false)
             await onSave()
             onClose()
-            
-            // Mostrar notificación de éxito
-            alert(`✅ Menú de navegación guardado exitosamente
-            
-📊 ${validItems.length} enlaces configurados
-🏢 Marca: "${brandData.companyName}" (${brandData.logoLetter})
-🔄 Los cambios se aplicarán inmediatamente en el sitio web`)
         } catch (error) {
             console.error('❌ Error guardando navegación:', error)
             alert('❌ Error al guardar el menú de navegación. Revisa la consola para más detalles.')
@@ -662,6 +655,7 @@ export default function NavigationEditModal({
                     </div>
                 </div>
             </div>
+            
         </div>
     )
 }
