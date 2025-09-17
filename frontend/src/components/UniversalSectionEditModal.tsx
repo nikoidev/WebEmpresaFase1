@@ -39,15 +39,19 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
     
     const updatePlan = async (planId: number, field: string, value: any) => {
         try {
+            console.log(`🔄 Actualizando plan ${planId}: ${field} = ${value}`)
             await adminApi.plans.update(planId, { [field]: value })
+            console.log(`✅ Plan ${planId} actualizado exitosamente`)
             
             // Si se está marcando como popular, desmarcar todos los otros
             if (field === 'is_popular' && value === true) {
+                console.log('🔄 Marcando como popular, desmarcando otros...')
                 // Actualizar en el backend: desmarcar todos los otros planes
                 const otherPlans = plans.filter(plan => plan.id !== planId && plan.is_popular)
                 for (const otherPlan of otherPlans) {
                     try {
                         await adminApi.plans.update(otherPlan.id, { is_popular: false })
+                        console.log(`✅ Plan ${otherPlan.id} desmarcado como popular`)
                     } catch (error) {
                         console.error(`Error removing popular from plan ${otherPlan.id}:`, error)
                     }
@@ -55,12 +59,15 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
             }
             
             // Recargar todos los planes para mantener consistencia con la página pública
+            console.log('🔄 Recargando planes en modal...')
             const response = await adminApi.plans.list()
             const activePlans = response.data?.filter((plan: any) => plan.is_active) || []
             setPlans(activePlans)
+            console.log('✅ Planes recargados en modal:', activePlans.length)
             
         } catch (error) {
-            console.error('Error updating plan:', error)
+            console.error('❌ Error updating plan:', error)
+            alert('Error al actualizar el plan. Por favor intenta de nuevo.')
         }
     }
 
@@ -184,36 +191,38 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                             placeholder="Soluciones escalables para instituciones de todos los tamaños"
                         />
                     </div>
+                    
+                    {/* Etiquetas de facturación */}
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                🗓️ Etiqueta Mensual
+                            </label>
+                            <input
+                                type="text"
+                                value={content.pricing_monthly_label || 'MENSUAL'}
+                                onChange={(e) => updateContent('pricing_monthly_label', e.target.value)}
+                                placeholder="MENSUAL"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                        </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                📅 Etiqueta Anual
+                            </label>
+                            <input
+                                type="text"
+                                value={content.pricing_yearly_label || 'ANUAL'}
+                                onChange={(e) => updateContent('pricing_yearly_label', e.target.value)}
+                                placeholder="ANUAL"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Configuración de etiquetas */}
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Etiqueta Mensual
-                    </label>
-                    <input
-                        type="text"
-                        value={content.pricing_monthly_label || ''}
-                        onChange={(e) => updateContent('pricing_monthly_label', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        placeholder="Mensual"
-                    />
-                </div>
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Etiqueta Anual
-                    </label>
-                    <input
-                        type="text"
-                        value={content.pricing_yearly_label || ''}
-                        onChange={(e) => updateContent('pricing_yearly_label', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        placeholder="Anual"
-                    />
-                </div>
-            </div>
 
             {/* Editor de planes */}
             <div className="border-t pt-6">
@@ -429,6 +438,102 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                                             className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         />
                                     </div>
+                                </div>
+                                
+                                {/* Gestión de Características */}
+                                <div className="mt-6 pt-4 border-t border-gray-200">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h6 className="text-md font-semibold text-gray-800">✨ Características del Plan</h6>
+                                        <button
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                                console.log(`🔄 Agregando característica al plan ${plan.id} (${plan.name})`)
+                                                const currentFeatures = Array.isArray(plan.features) ? plan.features : []
+                                                const newFeatures = [...currentFeatures, 'Nueva característica']
+                                                updatePlan(plan.id, 'features', newFeatures)
+                                            }}
+                                            className="inline-flex items-center px-3 py-1 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 transition-colors"
+                                        >
+                                            <Plus className="h-4 w-4 mr-1" />
+                                            Agregar Característica
+                                        </button>
+                                    </div>
+                                    
+                                    {/* Lista de características */}
+                                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                                        {(plan.features || []).map((feature: string, featureIndex: number) => (
+                                            <div key={`${plan.id}-feature-${featureIndex}`} className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg">
+                                                <div className="flex-1">
+                                                    <input
+                                                        type="text"
+                                                        value={feature}
+                                                        onChange={(e) => {
+                                                            console.log(`🔄 Editando característica ${featureIndex} del plan ${plan.id} (${plan.name})`)
+                                                            const currentFeatures = Array.isArray(plan.features) ? [...plan.features] : []
+                                                            currentFeatures[featureIndex] = e.target.value
+                                                            updatePlan(plan.id, 'features', currentFeatures)
+                                                        }}
+                                                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                                        placeholder="Describe la característica..."
+                                                    />
+                                                </div>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.preventDefault()
+                                                        e.stopPropagation()
+                                                        console.log(`🔄 Eliminando característica ${featureIndex} del plan ${plan.id} (${plan.name})`)
+                                                        const currentFeatures = Array.isArray(plan.features) ? [...plan.features] : []
+                                                        const newFeatures = currentFeatures.filter((_: any, i: number) => i !== featureIndex)
+                                                        updatePlan(plan.id, 'features', newFeatures)
+                                                    }}
+                                                    className="p-1 text-red-600 hover:text-red-800 hover:bg-red-100 rounded transition-colors"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        
+                                        {(!plan.features || plan.features.length === 0) && (
+                                            <div className="text-center py-4 text-gray-500 text-sm">
+                                                <p>No hay características configuradas</p>
+                                                <p className="text-xs mt-1">Haz clic en "Agregar Característica" para comenzar</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {/* Acciones del Plan */}
+                                <div className="mt-6 pt-4 border-t border-gray-200 flex justify-end space-x-2">
+                                    <button
+                                        onClick={() => duplicatePlan(plan)}
+                                        className="inline-flex items-center px-3 py-2 border border-blue-300 rounded-md text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors"
+                                    >
+                                        <Copy className="h-4 w-4 mr-1" />
+                                        Duplicar Plan
+                                    </button>
+                                    
+                                    <button
+                                        onClick={async () => {
+                                            if (confirm(`¿Estás seguro de que quieres eliminar el plan "${plan.name}"?`)) {
+                                                try {
+                                                    await adminApi.plans.delete(plan.id)
+                                                    console.log(`✅ Plan ${plan.id} eliminado exitosamente`)
+                                                    // Recargar planes
+                                                    const response = await adminApi.plans.list()
+                                                    const activePlans = response.data?.filter((p: any) => p.is_active) || []
+                                                    setPlans(activePlans)
+                                                } catch (error) {
+                                                    console.error('Error deleting plan:', error)
+                                                    alert('❌ Error al eliminar el plan')
+                                                }
+                                            }
+                                        }}
+                                        className="inline-flex items-center px-3 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors"
+                                    >
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                        Eliminar Plan
+                                    </button>
                                 </div>
                             </div>
                         ))}

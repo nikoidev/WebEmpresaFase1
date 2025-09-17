@@ -40,8 +40,22 @@ export default function PreciosPage() {
     const loadPlans = async () => {
         try {
             console.log('🔄 Cargando planes de servicio...')
+            
+            // Primero intentar usar el admin API para tener datos más frescos
+            try {
+                const { adminApi } = await import('@/lib/api')
+                const adminResponse = await adminApi.plans.list()
+                const activePlans = adminResponse.data?.filter((plan: any) => plan.is_active) || []
+                console.log('✅ Planes cargados desde admin API:', activePlans)
+                setPlans(activePlans)
+                return
+            } catch (adminError) {
+                console.log('⚠️ Admin API no disponible, usando API público...')
+            }
+            
+            // Fallback al API público
             const response = await publicApi.getServicePlans()
-            console.log('✅ Planes cargados:', response.data)
+            console.log('✅ Planes cargados desde API público:', response.data)
             setPlans(response.data)
         } catch (error) {
             console.error('❌ Error loading plans:', error)
@@ -61,7 +75,12 @@ export default function PreciosPage() {
         await loadContent()
         // Si se editó la sección de pricing, también recargar planes
         if (editingSection === 'pricing') {
-            await loadPlans()
+            console.log('🔄 Recargando planes después de editar pricing...')
+            // Esperar un poco para asegurar que los cambios se propaguen
+            setTimeout(async () => {
+                await loadPlans()
+                console.log('✅ Planes recargados después de edición')
+            }, 500)
         }
         setEditingSection(null)
         setEditingSectionName('')
@@ -515,7 +534,16 @@ export default function PreciosPage() {
             {editingSection && fullPageContent && (
                 <UniversalSectionEditModal
                     isOpen={!!editingSection}
-                    onClose={() => setEditingSection(null)}
+                    onClose={() => {
+                        console.log('🔄 Cerrando modal, recargando datos...')
+                        setEditingSection(null)
+                        // Recargar planes si se editó la sección de pricing
+                        if (editingSection === 'pricing') {
+                            setTimeout(() => {
+                                loadPlans()
+                            }, 200)
+                        }
+                    }}
                     sectionType={editingSection}
                     sectionName={editingSectionName}
                     pageKey="pricing"
