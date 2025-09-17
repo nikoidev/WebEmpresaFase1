@@ -20,7 +20,7 @@ class PageContentCreate(PageContentBase):
     def validate_page_key(cls, v):
         allowed_keys = [
             'homepage', 'about', 'history', 'clients', 'pricing', 'contact',
-            'footer'
+            'footer', 'navigation'
         ]
         if v not in allowed_keys:
             raise ValueError(f'page_key must be one of: {allowed_keys}')

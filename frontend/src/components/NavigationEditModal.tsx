@@ -55,6 +55,10 @@ export default function NavigationEditModal({
     const [isSaving, setIsSaving] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [hasChanges, setHasChanges] = useState(false)
+    const [brandData, setBrandData] = useState({
+        logoLetter: 'S',
+        companyName: 'SEVP'
+    })
 
     // Lista de iconos disponibles
     const availableIcons = [
@@ -99,8 +103,18 @@ export default function NavigationEditModal({
                     id: item.id || `nav-${index}`
                 }))
                 setNavigationItems(items)
+                
+                // Cargar datos de marca si existen
+                if (response.data?.content_json?.brand) {
+                    setBrandData({
+                        logoLetter: response.data.content_json.brand.logoLetter || 'S',
+                        companyName: response.data.content_json.brand.companyName || 'SEVP'
+                    })
+                }
+                
                 setHasChanges(false)
                 console.log('✅ Elementos de navegación cargados:', items)
+                console.log('✅ Datos de marca cargados:', response.data?.content_json?.brand)
             } else {
                 console.log('⚠️ No se encontraron elementos, usando valores por defecto')
                 // Valores por defecto si no existe contenido
@@ -148,22 +162,43 @@ export default function NavigationEditModal({
                 return
             }
 
-            const payload = {
-                title: 'Menú de Navegación',
-                content_json: {
-                    navigation_items: validItems.map(item => ({
-                        name: item.name.trim(),
-                        href: item.href.trim(),
-                        icon: item.icon || 'Home'
-                    }))
-                },
-                meta_title: 'Menú de Navegación',
-                meta_description: 'Configuración del menú principal de navegación',
-                meta_keywords: 'navegación, menú, enlaces',
-                is_active: true
-            }
+                const payload = {
+                    title: 'Menú de Navegación',
+                    content_json: {
+                        navigation_items: validItems.map(item => ({
+                            name: item.name.trim(),
+                            href: item.href.trim(),
+                            icon: item.icon || 'Home'
+                        })),
+                        brand: {
+                            logoLetter: brandData.logoLetter.trim(),
+                            companyName: brandData.companyName.trim()
+                        }
+                    },
+                    meta_title: 'Menú de Navegación',
+                    meta_description: 'Configuración del menú principal de navegación',
+                    meta_keywords: 'navegación, menú, enlaces',
+                    is_active: true
+                }
 
-            await adminApi.updatePageContent('navigation', payload)
+            // Intentar actualizar primero, si falla crear nuevo contenido
+            try {
+                await adminApi.updatePageContent('navigation', payload)
+                console.log('✅ Contenido de navegación actualizado')
+            } catch (updateError: any) {
+                if (updateError.response?.status === 404) {
+                    console.log('⚠️ Contenido no existe, creando nuevo...')
+                    // Si no existe, crear nuevo contenido
+                    const createPayload = {
+                        page_key: 'navigation',
+                        ...payload
+                    }
+                    await adminApi.createPageContent(createPayload)
+                    console.log('✅ Contenido de navegación creado')
+                } else {
+                    throw updateError
+                }
+            }
             
             console.log('✅ Navegación guardada exitosamente')
             setHasChanges(false)
@@ -174,6 +209,7 @@ export default function NavigationEditModal({
             alert(`✅ Menú de navegación guardado exitosamente
             
 📊 ${validItems.length} enlaces configurados
+🏢 Marca: "${brandData.companyName}" (${brandData.logoLetter})
 🔄 Los cambios se aplicarán inmediatamente en el sitio web`)
         } catch (error) {
             console.error('❌ Error guardando navegación:', error)
@@ -244,6 +280,12 @@ export default function NavigationEditModal({
         return iconData?.icon || Home
     }
 
+    const updateBrandData = (field: 'logoLetter' | 'companyName', value: string) => {
+        setBrandData(prev => ({ ...prev, [field]: value }))
+        setHasChanges(true)
+        console.log(`📝 Marca actualizada - ${field}:`, value)
+    }
+
     if (!isOpen) return null
 
     return (
@@ -279,6 +321,61 @@ export default function NavigationEditModal({
                         </div>
                     ) : (
                         <>
+                            {/* Configuración de marca */}
+                            <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-blue-900">
+                                            🏢 Marca y Logo
+                                        </h3>
+                                        <p className="text-blue-700 text-sm">
+                                            Configura el logo y nombre que aparece en la barra de navegación
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center space-x-3 bg-white p-3 rounded-lg border border-blue-200 shadow-sm">
+                                        <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                                            <span className="text-white font-bold text-xl">
+                                                {brandData.logoLetter}
+                                            </span>
+                                        </div>
+                                        <span className="text-xl font-bold text-gray-900">
+                                            {brandData.companyName}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-blue-800 mb-2">
+                                            📝 Letra del Logo
+                                        </label>
+                                        <input
+                                            type="text"
+                                            maxLength={3}
+                                            value={brandData.logoLetter}
+                                            onChange={(e) => updateBrandData('logoLetter', e.target.value.toUpperCase())}
+                                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-bold text-lg bg-white"
+                                            placeholder="S"
+                                        />
+                                        <p className="text-xs text-blue-600 mt-1">Máximo 3 caracteres (se convierte a mayúsculas)</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <label className="block text-sm font-medium text-blue-800 mb-2">
+                                            🏢 Nombre de la Empresa
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={brandData.companyName}
+                                            onChange={(e) => updateBrandData('companyName', e.target.value)}
+                                            className="w-full px-3 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold bg-white"
+                                            placeholder="SEVP"
+                                        />
+                                        <p className="text-xs text-blue-600 mt-1">Aparece al lado del logo en la navegación</p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Header con estadísticas */}
                             <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg border border-indigo-200">
                                 <div className="flex items-center justify-between">

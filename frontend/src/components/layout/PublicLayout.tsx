@@ -229,6 +229,20 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
             if (response.data?.content_json?.navigation_items) {
                 setNavigation(response.data.content_json.navigation_items)
             }
+            
+            // También cargar datos de marca si existen
+            if (response.data?.content_json?.brand) {
+                const brand = response.data.content_json.brand
+                setFooterContent(prev => ({
+                    ...prev,
+                    company: {
+                        ...prev?.company,
+                        name: brand.companyName || prev?.company?.name || 'SEVP',
+                        logo_letter: brand.logoLetter || prev?.company?.logo_letter || 'S'
+                    }
+                }))
+                console.log('✅ Datos de marca actualizados desde navegación:', brand)
+            }
         } catch (error) {
             console.error('Error loading navigation content:', error)
             // Usar navegación por defecto si no se puede cargar
@@ -245,9 +259,13 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                         <div className="flex items-center">
                             <Link href="/" className="flex items-center">
                                 <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
-                                    <span className="text-white font-bold text-xl">S</span>
+                                    <span className="text-white font-bold text-xl">
+                                        {footerContent?.company?.logo_letter || 'S'}
+                                    </span>
                                 </div>
-                                <span className="text-xl font-bold text-gray-900">SEVP</span>
+                                <span className="text-xl font-bold text-gray-900">
+                                    {footerContent?.company?.name || 'SEVP'}
+                                </span>
                             </Link>
                         </div>
 
