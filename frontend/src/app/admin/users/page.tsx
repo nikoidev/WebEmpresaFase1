@@ -51,7 +51,7 @@ export default function UsersManagementPage() {
         first_name: '',
         last_name: '',
         password: '',
-        role: 'user',
+        role: 'viewer',
         is_staff: false,
         is_superuser: false
     })
@@ -86,18 +86,28 @@ export default function UsersManagementPage() {
         e.preventDefault()
         
         try {
-            const submitData = {
-                ...formData,
-                username: formData.email // Establecer username como email
-            }
-
             if (editingUser) {
-                // Si no hay password, no lo incluimos en la actualización
-                if (!formData.password) {
-                    delete submitData.password
-                }
+                // Para actualizaciones, omitir password si está vacío
+                const submitData = !formData.password 
+                    ? { 
+                        email: formData.email,
+                        first_name: formData.first_name,
+                        last_name: formData.last_name,
+                        role: formData.role,
+                        is_staff: formData.is_staff,
+                        is_superuser: formData.is_superuser,
+                        username: formData.email
+                      }
+                    : {
+                        ...formData,
+                        username: formData.email
+                      }
                 await adminApi.updateUser(editingUser.id, submitData)
             } else {
+                const submitData = {
+                    ...formData,
+                    username: formData.email
+                }
                 await adminApi.createUser(submitData)
             }
             
@@ -154,7 +164,7 @@ export default function UsersManagementPage() {
             first_name: '',
             last_name: '',
             password: '',
-            role: 'user',
+            role: 'viewer',
             is_staff: false,
             is_superuser: false
         })

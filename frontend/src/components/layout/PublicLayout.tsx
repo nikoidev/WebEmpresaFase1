@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useInlineEdit } from '@/contexts/InlineEditContext'
 import { publicApi } from '@/lib/api'
-import FooterEditor from '@/components/content-editors/FooterEditor'
+import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 
 interface SocialNetwork {
     name: string
@@ -151,14 +151,14 @@ function FooterEditButton() {
             </div>
 
             {showModal && (
-                <FooterEditor
+                <UniversalSectionEditModal
+                    sectionType="footer"
                     onClose={() => setShowModal(false)}
                     onSave={() => {
                         setShowModal(false)
                         // Recargar la página para mostrar los cambios
                         window.location.reload()
                     }}
-                    isStandalone={true}
                 />
             )}
         </>

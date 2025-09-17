@@ -119,7 +119,7 @@ export default function ContentManagementPage() {
             console.log('✅ Páginas cargadas exitosamente')
         } catch (error) {
             console.error('❌ Error cargando páginas:', error)
-            console.error('❌ Error response:', error.response)
+            console.error('❌ Error response:', (error as any).response)
             setPages([])
         } finally {
             setLoading(false)
@@ -773,7 +773,7 @@ export default function ContentManagementPage() {
                         <SectionEditModal
                             isOpen={!!editingSection}
                             onClose={() => setEditingSection(null)}
-                            sectionType={editingSection}
+                            sectionType={(editingSection || 'hero') as 'hero' | 'features' | 'cta'}
                             pageKey={editingPage.page_key}
                             initialContent={editingPage}
                             onSave={handleSectionSave}

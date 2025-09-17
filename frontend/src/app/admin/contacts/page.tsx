@@ -45,9 +45,9 @@ export default function ContactsManagementPage() {
     const handleMarkAsResponded = async (id: number) => {
         try {
             await adminApi.contacts.update(id, {
-                is_responded: true,
+                status: 'responded',
                 responded_at: new Date().toISOString(),
-                response: responseText || 'Mensaje atendido'
+                admin_response: responseText || 'Mensaje atendido'
             })
             fetchMessages()
             setShowModal(false)
@@ -77,20 +77,36 @@ export default function ContactsManagementPage() {
 
         const matchesStatus = 
             statusFilter === 'all' ||
-            (statusFilter === 'pending' && !message.is_responded) ||
-            (statusFilter === 'responded' && message.is_responded)
+            (statusFilter === 'pending' && message.status === 'new') ||
+            (statusFilter === 'responded' && message.status === 'responded')
 
         return matchesSearch && matchesStatus
     })
 
-    const getStatusColor = (isResponded: boolean) => {
-        return isResponded 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-yellow-100 text-yellow-800'
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'responded':
+                return 'bg-green-100 text-green-800'
+            case 'in_progress':
+                return 'bg-blue-100 text-blue-800'
+            case 'closed':
+                return 'bg-gray-100 text-gray-800'
+            default: // 'new'
+                return 'bg-yellow-100 text-yellow-800'
+        }
     }
 
-    const getStatusText = (isResponded: boolean) => {
-        return isResponded ? 'Respondido' : 'Pendiente'
+    const getStatusText = (status: string) => {
+        switch (status) {
+            case 'responded':
+                return 'Respondido'
+            case 'in_progress':
+                return 'En Proceso'
+            case 'closed':
+                return 'Cerrado'
+            default: // 'new'
+                return 'Pendiente'
+        }
     }
 
     const formatDate = (dateString: string) => {
@@ -145,7 +161,7 @@ export default function ContactsManagementPage() {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-600">Pendientes</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {messages.filter(m => !m.is_responded).length}
+                                {messages.filter(m => m.status === 'new').length}
                             </p>
                         </div>
                     </div>
@@ -159,7 +175,7 @@ export default function ContactsManagementPage() {
                         <div className="ml-4">
                             <p className="text-sm font-medium text-gray-600">Respondidos</p>
                             <p className="text-2xl font-bold text-gray-900">
-                                {messages.filter(m => m.is_responded).length}
+                                {messages.filter(m => m.status === 'responded').length}
                             </p>
                         </div>
                     </div>
@@ -267,8 +283,8 @@ export default function ContactsManagementPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(message.is_responded)}`}>
-                                                {getStatusText(message.is_responded)}
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(message.status)}`}>
+                                                {getStatusText(message.status)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -289,7 +305,7 @@ export default function ContactsManagementPage() {
                                                 >
                                                     <Eye className="h-4 w-4" />
                                                 </button>
-                                                {!message.is_responded && (
+                                                {message.status === 'new' && (
                                                     <button
                                                         onClick={() => {
                                                             setSelectedMessage(message)
@@ -386,8 +402,8 @@ export default function ContactsManagementPage() {
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Estado
                                         </label>
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedMessage.is_responded)}`}>
-                                            {getStatusText(selectedMessage.is_responded)}
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedMessage.status)}`}>
+                                            {getStatusText(selectedMessage.status)}
                                         </span>
                                     </div>
                                     <div>
@@ -398,19 +414,19 @@ export default function ContactsManagementPage() {
                                     </div>
                                 </div>
 
-                                {selectedMessage.is_responded && selectedMessage.responded_at && (
+                                {selectedMessage.status === 'responded' && selectedMessage.responded_at && (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Respondido el
                                         </label>
                                         <p className="text-sm text-gray-900">{formatDate(selectedMessage.responded_at)}</p>
-                                        {selectedMessage.response && (
+                                        {selectedMessage.admin_response && (
                                             <div className="mt-2">
                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                                     Respuesta
                                                 </label>
                                                 <div className="bg-blue-50 rounded-lg p-4">
-                                                    <p className="text-sm text-gray-900">{selectedMessage.response}</p>
+                                                    <p className="text-sm text-gray-900">{selectedMessage.admin_response}</p>
                                                 </div>
                                             </div>
                                         )}
@@ -419,7 +435,7 @@ export default function ContactsManagementPage() {
                             </div>
 
                             {/* Response Section */}
-                            {!selectedMessage.is_responded && (
+                            {selectedMessage.status === 'new' && (
                                 <div className="border-t border-gray-200 pt-6">
                                     <h3 className="text-lg font-medium text-gray-900 mb-4">Marcar como Respondido</h3>
                                     <div className="space-y-4">
