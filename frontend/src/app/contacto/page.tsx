@@ -28,6 +28,9 @@ export default function ContactoPage() {
             setContent({
                 hero_title: 'Contáctanos',
                 hero_subtitle: 'Estamos aquí para ayudarte',
+                form_title: 'Envíanos un Mensaje',
+                form_description: 'Completa el formulario y nos pondremos en contacto contigo',
+                form_button_text: 'Enviar Mensaje',
                 contact_items: [
                     {
                         id: 'email',
@@ -181,10 +184,10 @@ export default function ContactoPage() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Envíanos un Mensaje
+                            {content?.form_title || 'Envíanos un Mensaje'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Completa el formulario y nos pondremos en contacto contigo
+                            {content?.form_description || 'Completa el formulario y nos pondremos en contacto contigo'}
                         </p>
                     </div>
 
@@ -241,7 +244,7 @@ export default function ContactoPage() {
                                     className="bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-flex items-center justify-center"
                                 >
                                     <MessageSquare className="mr-2 h-5 w-5" />
-                                    Enviar Mensaje
+                                    {content?.form_button_text || 'Enviar Mensaje'}
                                 </button>
                             </div>
                         </form>
