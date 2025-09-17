@@ -480,19 +480,83 @@ export default function PreciosPage() {
                     onEdit={() => handleSectionEdit('enterprise', 'Sección Empresarial')}
                     position="top-right"
                 />
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                        {content?.enterprise_title || '¿Necesitas algo más personalizado?'}
-                    </h2>
-                    <p className="text-xl text-gray-600 mb-8">
-                        {content?.enterprise_description || 'Contáctanos para soluciones empresariales a medida'}
-                    </p>
-                    <a
-                        href={content?.enterprise_button_link || "/contacto"}
-                        className="bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-flex items-center justify-center"
-                    >
-                        {content?.enterprise_button_text || 'Solicitar Cotización'}
-                    </a>
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Header */}
+                    <div className="text-center mb-16">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                            {content?.enterprise_title || '¿Necesitas algo más personalizado?'}
+                        </h2>
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            {content?.enterprise_description || 'Contáctanos para soluciones empresariales a medida'}
+                        </p>
+                    </div>
+
+                    {/* Características destacadas */}
+                    {(content?.enterprise_feature1_text || content?.enterprise_feature2_text || content?.enterprise_feature3_text) && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                            {/* Característica 1 */}
+                            {content?.enterprise_feature1_text && (
+                                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                                    <div className="text-3xl font-bold text-primary-600 mb-2">
+                                        {content.enterprise_feature1_number || '24/7'}
+                                    </div>
+                                    <p className="text-gray-800 font-semibold">
+                                        {content.enterprise_feature1_text}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Característica 2 */}
+                            {content?.enterprise_feature2_text && (
+                                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                                    <div className="text-3xl font-bold text-primary-600 mb-2">
+                                        {content.enterprise_feature2_number || '100%'}
+                                    </div>
+                                    <p className="text-gray-800 font-semibold">
+                                        {content.enterprise_feature2_text}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Característica 3 */}
+                            {content?.enterprise_feature3_text && (
+                                <div className="text-center p-6 bg-gray-50 rounded-lg">
+                                    <div className="text-3xl font-bold text-primary-600 mb-2">
+                                        {content.enterprise_feature3_number || 'SLA'}
+                                    </div>
+                                    <p className="text-gray-800 font-semibold">
+                                        {content.enterprise_feature3_text}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Botones de acción */}
+                    <div className="text-center">
+                        <div className="flex flex-col sm:flex-row justify-center gap-4">
+                            {/* Botón principal */}
+                            {content?.enterprise_button_primary && (
+                                <button className="bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-flex items-center justify-center">
+                                    {content.enterprise_button_primary}
+                                </button>
+                            )}
+
+                            {/* Botón secundario */}
+                            {content?.enterprise_button_secondary && (
+                                <button className="border-2 border-primary-600 text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors inline-flex items-center justify-center">
+                                    {content.enterprise_button_secondary}
+                                </button>
+                            )}
+
+                            {/* Fallback si no hay botones configurados */}
+                            {!content?.enterprise_button_primary && !content?.enterprise_button_secondary && (
+                                <button className="bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-flex items-center justify-center">
+                                    Solicitar Cotización
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </section>
 
