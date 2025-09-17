@@ -26,10 +26,8 @@ export default function ContactoPage() {
             console.error('❌ Error loading contact content:', error)
             // Usar contenido por defecto si falla
             setContent({
-                hero: {
-                    title: 'Contáctanos',
-                    subtitle: 'Estamos aquí para ayudarte'
-                },
+                hero_title: 'Contáctanos',
+                hero_subtitle: 'Estamos aquí para ayudarte',
                 contact_items: [
                     {
                         id: 'email',
@@ -68,6 +66,26 @@ export default function ContactoPage() {
         loadContent()
     }, [])
 
+    useEffect(() => {
+        // Recargar contenido cuando la página vuelve a tener foco
+        // Esto detecta cuando regresas del admin
+        const handleFocus = () => {
+            // NO recargar si hay un modal abierto (evita cerrar modals accidentalmente)
+            if (editingSection) {
+                console.log('🚨 Modal abierto - EVITANDO recarga por focus')
+                return
+            }
+            console.log('🔄 Contacto - Página recuperó foco, recargando contenido...')
+            loadContent()
+        }
+        
+        window.addEventListener('focus', handleFocus)
+        
+        return () => {
+            window.removeEventListener('focus', handleFocus)
+        }
+    }, [editingSection])
+
     if (loading) {
         return (
             <PublicLayout>
@@ -103,10 +121,10 @@ export default function ContactoPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
                     <div className="text-center">
                         <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-6">
-                            {content?.hero?.title || 'Contáctanos'}
+                            {content?.hero_title || 'Contáctanos'}
                         </h1>
                         <p className="text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto">
-                            {content?.hero?.subtitle || 'Estamos aquí para ayudarte'}
+                            {content?.hero_subtitle || 'Estamos aquí para ayudarte'}
                         </p>
                     </div>
                 </div>
