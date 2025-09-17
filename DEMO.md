@@ -1,6 +1,14 @@
-# 🎬 Demo Rápida - Web Empresa
+# 🎬 Demo Rápida - Web Empresa (Fase 1)
 
-¡Experimenta **Web Empresa** en acción! Esta guía te llevará paso a paso por las funcionalidades principales.
+¡Experimenta **Web Empresa Fase 1** en acción! Esta guía te llevará paso a paso por el **Sistema de Gestión de Contenido** completamente implementado.
+
+## 🚀 **Sobre Esta Demo**
+
+Esta demo cubre la **Fase 1 del proyecto**: Sistema completo de gestión de contenido empresarial. 
+
+**Próximas fases:**
+- 🔮 **Fase 2**: Control de Clientes CRM
+- 🌐 **Fase 3**: Control Centralizado Multi-Proyecto en AWS
 
 ---
 
@@ -270,26 +278,41 @@ docker-compose -f docker-compose.webempresa.yml logs -f
 
 ## 🚀 Siguientes Pasos Después de la Demo
 
-### 📈 **Para Usar en Producción**
+### 📈 **Para Usar Fase 1 en Producción**
 1. **Configurar dominio propio**
 2. **Setup de producción** (ver README.md)
 3. **Personalizar contenido** para tu empresa
 4. **Configurar SSL** y seguridad
 5. **SEO optimization**
 
+### 🔮 **Para Participar en Fase 2 (CRM)**
+1. **Seguir el proyecto** en GitHub para actualizaciones
+2. **Unirse a la comunidad** para feedback de CRM
+3. **Reportar necesidades** de funcionalidades CRM
+4. **Contribuir ideas** para gestión de clientes
+5. **Beta testing** cuando esté disponible
+
+### 🌐 **Para Fase 3 (AWS Multi-Proyecto)**
+1. **Compartir casos de uso** de múltiples proyectos
+2. **Feedback sobre infraestructura** AWS necesaria
+3. **Sugerir integraciones** con servicios cloud
+4. **Participar en diseño** de arquitectura distribuida
+
 ### 🛠️ **Para Desarrollar**
 1. **Leer [CONTRIBUTING.md](CONTRIBUTING.md)**
-2. **Explorar el código** fuente
+2. **Explorar el código** fuente de Fase 1
 3. **Ejecutar tests** localmente
 4. **Hacer tu primer PR**
 5. **Unirse a la comunidad**
+6. **Contribuir al roadmap** de Fases 2 y 3
 
-### 🎨 **Para Personalizar**
+### 🎨 **Para Personalizar Fase 1**
 1. **Estudiar [docs/FEATURES.md](docs/FEATURES.md)**
 2. **Customizar colores** y estilos
 3. **Agregar nuevas secciones**
 4. **Integrar con servicios externos**
 5. **Crear themes personalizados**
+6. **Preparar para integración** con CRM (Fase 2)
 
 ---
 

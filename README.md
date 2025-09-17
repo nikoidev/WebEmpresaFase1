@@ -572,4 +572,37 @@ Este proyecto está licenciado bajo la **Licencia MIT** - ver el archivo [LICENS
 
 *Desarrollado con ❤️ para la comunidad de desarrolladores*
 
+---
+
+## 🚀 Roadmap del Proyecto
+
+### ✅ **Fase 1: Sistema de Gestión de Contenido** (COMPLETADA)
+- Sistema completo de gestión de contenido empresarial
+- Panel de administración avanzado
+- Editor universal por secciones
+- Gestión de planes y precios
+- Sistema de usuarios y roles
+- Formularios de contacto
+- API REST completa
+
+### 🔮 **Fase 2: Control de Clientes CRM** (PRÓXIMAMENTE)
+- **Sistema CRM integrado** para gestión de clientes
+- **Base de datos de clientes** con información completa
+- **Pipeline de ventas** con estados de seguimiento
+- **Gestión de leads** desde formularios de contacto
+- **Historial de interacciones** con cada cliente
+- **Dashboard de métricas** de ventas y conversión
+- **Automatización de emails** y notificaciones
+- **Reportes avanzados** de CRM y analytics
+
+### 🌐 **Fase 3: Control Centralizado Multi-Proyecto** (FUTURO)
+- **Plataforma centralizada** en AWS para múltiples proyectos
+- **Gestión multi-tenant** de diferentes empresas/proyectos
+- **Dashboard consolidado** con métricas de todos los proyectos
+- **APIs unificadas** para integración entre proyectos
+- **Monitoreo distribuido** de infraestructura AWS
+- **Despliegue automatizado** con CI/CD pipeline
+- **Escalabilidad automática** basada en demanda
+- **Backup y recuperación** centralizada
+
 </div>
