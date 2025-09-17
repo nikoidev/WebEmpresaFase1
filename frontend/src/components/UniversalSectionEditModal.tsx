@@ -1078,7 +1078,7 @@ export default function UniversalSectionEditModal({
                 }
 
                 const removeContactItem = (index: number) => {
-                    const newItems = contactItems.filter((_, i) => i !== index)
+                    const newItems = contactItems.filter((_: any, i: number) => i !== index)
                     updateContent('contact_items', newItems)
                 }
 
@@ -1112,7 +1112,7 @@ export default function UniversalSectionEditModal({
                             </div>
 
                             <div className="space-y-4">
-                                {contactItems.map((item, index) => {
+                                {contactItems.map((item: any, index: number) => {
                                     const IconComponent = getIconComponent(item.icon)
                                     return (
                                         <div key={item.id || index} className="bg-gray-50 rounded-lg p-4 border">
@@ -2422,8 +2422,25 @@ export default function UniversalSectionEditModal({
                 )
                 
                 const removeClientType = (index: number) => {
-                    const updatedTypes = clientTypes.filter((_, i) => i !== index)
+                    const updatedTypes = (content.clients || []).filter((_: any, i: number) => i !== index)
                     updateContent('clients', updatedTypes)
+                }
+
+                const addClientType = () => {
+                    const currentClients = content.clients || []
+                    const newClientType = {
+                        title: 'Nuevo Tipo de Cliente',
+                        icon: 'Building',
+                        color: 'bg-blue-500',
+                        examples: ['Ejemplo 1', 'Ejemplo 2', 'Ejemplo 3']
+                    }
+                    updateContent('clients', [...currentClients, newClientType])
+                }
+
+                const updateClientType = (index: number, field: string, value: any) => {
+                    const currentClients = [...(content.clients || [])]
+                    currentClients[index] = { ...currentClients[index], [field]: value }
+                    updateContent('clients', currentClients)
                 }
 
                 const resetToDefaults = () => {
@@ -2547,7 +2564,7 @@ export default function UniversalSectionEditModal({
                             </div>
 
                             <div className="space-y-6">
-                                {clientTypes.map((clientType: any, index: number) => (
+                                {(content.clients || []).map((clientType: any, index: number) => (
                                     <div key={index} className="bg-gray-50 p-6 rounded-lg border">
                                         <div className="flex justify-between items-start mb-4">
                                             <h4 className="text-md font-semibold text-gray-800">Tipo {index + 1}</h4>
@@ -2661,7 +2678,7 @@ export default function UniversalSectionEditModal({
                                     </div>
                                 ))}
 
-                                {clientTypes.length === 0 && (
+                                {(!content.clients || content.clients.length === 0) && (
                                     <div className="text-center py-8 text-gray-500">
                                         No hay tipos de clientes configurados. Haz clic en "Agregar Tipo" para comenzar.
                                     </div>
@@ -3242,7 +3259,7 @@ export default function UniversalSectionEditModal({
                 }
 
                 const removeFaq = (index: number) => {
-                    const newFaqs = faqs.filter((_, i) => i !== index)
+                    const newFaqs = faqs.filter((_: any, i: number) => i !== index)
                     updateContent('faqs', newFaqs)
                 }
 
@@ -3299,7 +3316,7 @@ export default function UniversalSectionEditModal({
                             </div>
 
                             <div className="space-y-4">
-                                {faqs.map((faq, index) => (
+                                {faqs.map((faq: any, index: number) => (
                                     <div key={index} className="bg-gray-50 rounded-lg p-4 border">
                                         <div className="flex items-center justify-between mb-3">
                                             <h5 className="font-medium text-gray-900">FAQ #{index + 1}</h5>

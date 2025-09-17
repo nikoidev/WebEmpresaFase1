@@ -6,6 +6,7 @@ import UniversalSectionEditModal from '@/components/UniversalSectionEditModal'
 import SectionEditModal from '@/components/SectionEditModal'
 import HomepageHeroModal from '@/components/HomepageHeroModal'
 import ClientTypesModal from '@/components/ClientTypesModal'
+import NavigationEditModal from '@/components/NavigationEditModal'
 import {
     Edit,
     Eye,
@@ -29,7 +30,8 @@ import {
     Map,
     Calendar,
     Award,
-    Target
+    Target,
+    Menu
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -65,6 +67,7 @@ export default function ContentManagementPage() {
     })
     const [pageDisplayName, setPageDisplayName] = useState('')
     const [selectedIcon, setSelectedIcon] = useState('Home')
+    const [showNavigationModal, setShowNavigationModal] = useState(false)
 
     const pageTypes = [
         {
@@ -115,6 +118,13 @@ export default function ContentManagementPage() {
             description: 'Configuración del pie de página',
             icon: Layout,
             color: 'bg-gray-500'
+        },
+        {
+            key: 'navigation',
+            name: 'Menú de Navegación',
+            description: 'Configuración del menú principal de navegación',
+            icon: Menu,
+            color: 'bg-indigo-500'
         }
     ]
 
@@ -137,7 +147,8 @@ export default function ContentManagementPage() {
         { name: 'Calendar', icon: Calendar, label: 'Calendario' },
         { name: 'Award', icon: Award, label: 'Premio' },
         { name: 'Target', icon: Target, label: 'Objetivo' },
-        { name: 'FileText', icon: FileText, label: 'Documento' }
+        { name: 'FileText', icon: FileText, label: 'Documento' },
+        { name: 'Menu', icon: Menu, label: 'Menú' }
     ]
 
     useEffect(() => {
@@ -430,6 +441,17 @@ ${formData.is_active ? '✅ Página activa' : '❌ Página inactiva'}`)
                         legal_links: []
                     }
                 }
+            case 'navigation':
+                return {
+                    navigation_items: [
+                        { name: 'Inicio', href: '/', icon: 'Home' },
+                        { name: 'Nosotros', href: '/nosotros', icon: 'Users' },
+                        { name: 'Historia', href: '/historia', icon: 'History' },
+                        { name: 'Clientes', href: '/clientes', icon: 'Globe' },
+                        { name: 'Precios', href: '/precios', icon: 'DollarSign' },
+                        { name: 'Contacto', href: '/contacto', icon: 'Mail' }
+                    ]
+                }
             default:
                 return {}
         }
@@ -523,6 +545,30 @@ ${formData.is_active ? '✅ Página activa' : '❌ Página inactiva'}`)
     }
 
     const renderEditor = () => {
+        // Caso especial para navegación
+        if (formData.page_key === 'navigation') {
+            return (
+                <div className="p-6 text-center">
+                    <div className="max-w-md mx-auto">
+                        <Menu className="h-16 w-16 text-indigo-600 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            Configuración del Menú de Navegación
+                        </h3>
+                        <p className="text-gray-600 mb-6">
+                            Configura los enlaces y iconos del menú principal de navegación de tu sitio web.
+                        </p>
+                        <button
+                            onClick={() => setShowNavigationModal(true)}
+                            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <Menu className="h-4 w-4 mr-2" />
+                            Editar Menú de Navegación
+                        </button>
+                    </div>
+                </div>
+            )
+        }
+
         const sections = getSectionsForPage(formData.page_key)
         
         if (sections.length === 0) {
@@ -692,7 +738,16 @@ ${formData.is_active ? '✅ Página activa' : '❌ Página inactiva'}`)
                                         <IconComponent className="h-5 w-5 text-white" />
                                     </div>
                                     <div className="flex gap-1">
-                                        {existingPage ? (
+                                        {pageType.key === 'navigation' ? (
+                                            // Caso especial para navegación - siempre abrir modal CRUD
+                                            <button
+                                                onClick={() => setShowNavigationModal(true)}
+                                                className="p-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-md transition-colors shadow-sm"
+                                                title="Configurar navegación"
+                                            >
+                                                <Menu size={18} />
+                                            </button>
+                                        ) : existingPage ? (
                                             <>
                                                 <button
                                                     onClick={() => handleEdit(existingPage)}
@@ -724,7 +779,17 @@ ${formData.is_active ? '✅ Página activa' : '❌ Página inactiva'}`)
                                 </div>
                                 <h4 className="font-semibold text-gray-900 mb-1">{pageType.name}</h4>
                                 <p className="text-sm text-gray-600 mb-3">{pageType.description}</p>
-                                {existingPage ? (
+                                {pageType.key === 'navigation' ? (
+                                    // Estado especial para navegación
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                            📋 CRUD Disponible
+                                        </span>
+                                        <span className="text-xs text-gray-500">
+                                            Clic para configurar
+                                        </span>
+                                    </div>
+                                ) : existingPage ? (
                                     <div className="flex items-center gap-2">
                                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                                             existingPage.is_active 
@@ -943,6 +1008,16 @@ ${formData.is_active ? '✅ Página activa' : '❌ Página inactiva'}`)
                     )}
                 </>
             )}
+
+            {/* Modal de Navegación */}
+            <NavigationEditModal
+                isOpen={showNavigationModal}
+                onClose={() => setShowNavigationModal(false)}
+                onSave={async () => {
+                    await fetchPages()
+                    setShowNavigationModal(false)
+                }}
+            />
         </div>
     )
 }

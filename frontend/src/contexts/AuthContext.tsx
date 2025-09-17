@@ -44,10 +44,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('Response type:', typeof response)
             console.log('Response keys:', Object.keys(response))
             console.log('response.data:', response.data)
-            console.log('response.access_token:', response.access_token)
+            console.log('response.access_token:', (response as any).access_token)
             
             // Intentar ambas formas
-            const access_token = response.data?.access_token || response.access_token
+            const access_token = response.data?.access_token || (response as any).access_token
             
             if (!access_token) {
                 throw new Error('No se recibió token de acceso del servidor')

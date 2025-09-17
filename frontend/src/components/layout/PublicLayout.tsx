@@ -152,11 +152,15 @@ function FooterEditButton() {
 
             {showModal && (
                 <UniversalSectionEditModal
+                    isOpen={showModal}
                     sectionType="footer"
+                    sectionName="Footer"
+                    pageKey="footer"
+                    initialContent={null}
                     onClose={() => setShowModal(false)}
-                    onSave={() => {
+                    onSave={async () => {
                         setShowModal(false)
-                        // Recargar la página para mostrar los cambios
+                        // Recargar la página para mostrar los cambios  
                         window.location.reload()
                     }}
                 />
@@ -168,18 +172,18 @@ function FooterEditButton() {
 export default function PublicLayout({ children }: PublicLayoutProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [footerContent, setFooterContent] = useState<FooterContent | null>(null)
-
-    const navigation = [
-        { name: 'Inicio', href: '/' },
-        { name: 'Nosotros', href: '/nosotros' },
-        { name: 'Historia', href: '/historia' },
-        { name: 'Clientes', href: '/clientes' },
-        { name: 'Precios', href: '/precios' },
-        { name: 'Contacto', href: '/contacto' },
-    ]
+    const [navigation, setNavigation] = useState([
+        { name: 'Inicio', href: '/', icon: 'Home' },
+        { name: 'Nosotros', href: '/nosotros', icon: 'Users' },
+        { name: 'Historia', href: '/historia', icon: 'History' },
+        { name: 'Clientes', href: '/clientes', icon: 'Globe' },
+        { name: 'Precios', href: '/precios', icon: 'DollarSign' },
+        { name: 'Contacto', href: '/contacto', icon: 'Mail' },
+    ])
 
     useEffect(() => {
         loadFooterContent()
+        loadNavigationContent()
     }, [])
 
     const loadFooterContent = async () => {
@@ -216,6 +220,18 @@ export default function PublicLayout({ children }: PublicLayoutProps) {
                     terms_of_service: '/terminos'
                 }
             })
+        }
+    }
+
+    const loadNavigationContent = async () => {
+        try {
+            const response = await publicApi.getPageContent('navigation')
+            if (response.data?.content_json?.navigation_items) {
+                setNavigation(response.data.content_json.navigation_items)
+            }
+        } catch (error) {
+            console.error('Error loading navigation content:', error)
+            // Usar navegación por defecto si no se puede cargar
         }
     }
 

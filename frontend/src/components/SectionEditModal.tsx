@@ -477,7 +477,7 @@ export default function SectionEditModal({
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => {
-                                                                        const newSlideshow = content.hero.slideshow.filter((_, i) => i !== index)
+                                                                        const newSlideshow = content.hero.slideshow.filter((_: any, i: number) => i !== index)
                                                                         setContent({ 
                                                                             ...content, 
                                                                             hero: { 
