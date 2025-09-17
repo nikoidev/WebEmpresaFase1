@@ -19,7 +19,17 @@ import {
     Users,
     DollarSign,
     HelpCircle as Help,
-    Layout
+    Layout,
+    Settings,
+    Star,
+    Heart,
+    BookOpen,
+    Building,
+    Phone,
+    Map,
+    Calendar,
+    Award,
+    Target
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -53,6 +63,8 @@ export default function ContentManagementPage() {
         meta_keywords: '',
         is_active: true
     })
+    const [pageDisplayName, setPageDisplayName] = useState('')
+    const [selectedIcon, setSelectedIcon] = useState('Home')
 
     const pageTypes = [
         {
@@ -106,6 +118,28 @@ export default function ContentManagementPage() {
         }
     ]
 
+    // Lista de iconos disponibles
+    const availableIcons = [
+        { name: 'Home', icon: Home, label: 'Casa' },
+        { name: 'Users', icon: Users, label: 'Usuarios' },
+        { name: 'History', icon: History, label: 'Historia' },
+        { name: 'Globe', icon: Globe, label: 'Globo' },
+        { name: 'DollarSign', icon: DollarSign, label: 'Dinero' },
+        { name: 'Mail', icon: Mail, label: 'Correo' },
+        { name: 'Layout', icon: Layout, label: 'Layout' },
+        { name: 'Settings', icon: Settings, label: 'Configuración' },
+        { name: 'Star', icon: Star, label: 'Estrella' },
+        { name: 'Heart', icon: Heart, label: 'Corazón' },
+        { name: 'BookOpen', icon: BookOpen, label: 'Libro' },
+        { name: 'Building', icon: Building, label: 'Edificio' },
+        { name: 'Phone', icon: Phone, label: 'Teléfono' },
+        { name: 'Map', icon: Map, label: 'Mapa' },
+        { name: 'Calendar', icon: Calendar, label: 'Calendario' },
+        { name: 'Award', icon: Award, label: 'Premio' },
+        { name: 'Target', icon: Target, label: 'Objetivo' },
+        { name: 'FileText', icon: FileText, label: 'Documento' }
+    ]
+
     useEffect(() => {
         fetchPages()
     }, [])
@@ -126,12 +160,45 @@ export default function ContentManagementPage() {
         }
     }
 
-    /* 
-    ❌ FUNCIÓN handleSubmit ELIMINADA
-    Esta función causaba conflictos al sobrescribir los cambios guardados 
-    por los modales de sección individuales. Las páginas con sistema de 
-    secciones se editan mediante los modales individuales únicamente.
-    */
+    // Función para guardar solo metadatos básicos (título, meta, activa, etc.)
+    const handleSaveBasicData = async () => {
+        if (!editingPage) return
+        
+        setIsSaving(true)
+        try {
+            const updatePayload = {
+                title: formData.title,
+                meta_title: formData.meta_title,
+                meta_description: formData.meta_description,
+                meta_keywords: formData.meta_keywords,
+                is_active: formData.is_active,
+                content_json: editingPage.content_json // Preservar contenido existente
+            }
+
+            await adminApi.updatePageContent(editingPage.page_key, updatePayload)
+            
+            await fetchPages() // Recargar lista
+            
+            console.log('📝 Configuración actualizada:')
+            console.log('- Nombre visualización:', pageDisplayName)
+            console.log('- Icono seleccionado:', selectedIcon)
+            console.log('- Título página:', formData.title)
+            console.log('- Meta título:', formData.meta_title)
+            console.log('- Página activa:', formData.is_active)
+            
+            alert(`✅ Datos básicos guardados exitosamente
+            
+📄 Título: "${formData.title}"
+🏷️ Nombre: "${pageDisplayName}"
+🎯 Icono: ${availableIcons.find(i => i.name === selectedIcon)?.label || selectedIcon}
+${formData.is_active ? '✅ Página activa' : '❌ Página inactiva'}`)
+        } catch (error) {
+            console.error('❌ Error guardando datos básicos:', error)
+            alert('❌ Error al guardar los datos básicos')
+        } finally {
+            setIsSaving(false)
+        }
+    }
 
     const handleSectionEdit = (sectionType: string, sectionName: string) => {
         setEditingSection(sectionType)
@@ -209,6 +276,11 @@ export default function ContentManagementPage() {
                 meta_keywords: freshPage.meta_keywords,
                 is_active: freshPage.is_active
             })
+            
+            // Inicializar campos adicionales
+            const pageType = pageTypes.find(p => p.key === freshPage.page_key)
+            setPageDisplayName(pageType?.name || '')
+            setSelectedIcon(pageType?.icon.name || 'Home')
             console.log('✅ Datos frescos cargados:', freshPage)
         } catch (error) {
             console.error('❌ Error obteniendo datos frescos:', error)
@@ -223,6 +295,11 @@ export default function ContentManagementPage() {
                 meta_keywords: page.meta_keywords,
                 is_active: page.is_active
             })
+            
+            // Inicializar campos adicionales
+            const pageType = pageTypes.find(p => p.key === page.page_key)
+            setPageDisplayName(pageType?.name || '')
+            setSelectedIcon(pageType?.icon.name || 'Home')
         }
         setShowModal(true)
     }
@@ -239,6 +316,10 @@ export default function ContentManagementPage() {
             meta_keywords: '',
             is_active: true
         })
+        
+        // Inicializar campos adicionales
+        setPageDisplayName(pageType?.name || '')
+        setSelectedIcon(pageType?.icon.name || 'Home')
         setShowModal(true)
     }
 
@@ -690,33 +771,82 @@ export default function ContentManagementPage() {
                             </div>
 
                             {/* Configuración básica */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Título de la Página
-                                    </label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.title}
-                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                                    />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                {/* Columna izquierda - Información básica */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Título de la Página
+                                        </label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.title}
+                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Meta Título (SEO)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.meta_title}
+                                            onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                            placeholder="Título para SEO"
+                                        />
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Meta Título (SEO)
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={formData.meta_title}
-                                        onChange={(e) => setFormData({ ...formData, meta_title: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
-                                        placeholder="Título para SEO"
-                                    />
+
+                                {/* Columna derecha - Configuración avanzada */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Nombre de Visualización
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={pageDisplayName}
+                                            onChange={(e) => setPageDisplayName(e.target.value)}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                            placeholder="Nombre que aparece en menús"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Icono de la Página
+                                        </label>
+                                        <div className="flex items-center space-x-3">
+                                            <div className="flex-1">
+                                                <select
+                                                    value={selectedIcon}
+                                                    onChange={(e) => setSelectedIcon(e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                                                >
+                                                    {availableIcons.map((iconOption) => (
+                                                        <option key={iconOption.name} value={iconOption.name}>
+                                                            {iconOption.label}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                                                {(() => {
+                                                    const IconComponent = availableIcons.find(i => i.name === selectedIcon)?.icon || Home
+                                                    return <IconComponent className="h-5 w-5 text-gray-600" />
+                                                })()}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center">
-                                    <label className="flex items-center mt-6">
+                            </div>
+
+                            {/* Fila inferior - Controles */}
+                            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+                                <div className="flex items-center space-x-4">
+                                    <label className="flex items-center">
                                         <input
                                             type="checkbox"
                                             checked={formData.is_active}
@@ -726,6 +856,17 @@ export default function ContentManagementPage() {
                                         <span className="text-sm font-medium text-gray-700">Página Activa</span>
                                     </label>
                                 </div>
+                                
+                                {editingPage && (
+                                    <button
+                                        onClick={handleSaveBasicData}
+                                        disabled={isSaving}
+                                        className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
+                                    >
+                                        <Save className="h-4 w-4 mr-2" />
+                                        {isSaving ? 'Guardando...' : 'Guardar'}
+                                    </button>
+                                )}
                             </div>
                         </div>
 
