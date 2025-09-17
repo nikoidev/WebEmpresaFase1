@@ -220,6 +220,70 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                             />
                         </div>
                     </div>
+                    
+                    {/* Configuración de prueba gratuita */}
+                    <div className="pt-4 border-t border-gray-200">
+                        <div className="flex items-center justify-between mb-4">
+                            <h5 className="text-md font-semibold text-gray-800">🎁 Prueba Gratuita</h5>
+                            <label className="inline-flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={content.pricing_show_trial !== false}
+                                    onChange={(e) => updateContent('pricing_show_trial', e.target.checked)}
+                                    className="sr-only"
+                                />
+                                <div className={`relative w-10 h-6 transition-colors rounded-full ${
+                                    content.pricing_show_trial !== false ? 'bg-green-500' : 'bg-gray-300'
+                                }`}>
+                                    <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                                        content.pricing_show_trial !== false ? 'translate-x-4' : 'translate-x-0'
+                                    }`}></div>
+                                </div>
+                                <span className="ml-2 text-sm font-medium text-gray-700">
+                                    {content.pricing_show_trial !== false ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </label>
+                        </div>
+                        
+                        {/* Campos de configuración - solo si está activado */}
+                        {content.pricing_show_trial !== false && (
+                            <div className="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        🎁 Texto de Prueba Gratuita
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.pricing_trial_text || 'Prueba GRATIS por 14 días'}
+                                        onChange={(e) => updateContent('pricing_trial_text', e.target.value)}
+                                        placeholder="Prueba GRATIS por 14 días"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    />
+                                </div>
+                                
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        📋 Términos y Condiciones
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={content.pricing_trial_terms || 'Sin compromisos • Cancelación fácil'}
+                                        onChange={(e) => updateContent('pricing_trial_terms', e.target.value)}
+                                        placeholder="Sin compromisos • Cancelación fácil"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Mensaje cuando está desactivado */}
+                        {content.pricing_show_trial === false && (
+                            <div className="text-center py-4 text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                                <p className="text-sm">La sección de prueba gratuita está desactivada</p>
+                                <p className="text-xs mt-1">Activa el toggle para mostrar esta información en las tarjetas</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

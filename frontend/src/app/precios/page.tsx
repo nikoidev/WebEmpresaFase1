@@ -431,15 +431,17 @@ export default function PreciosPage() {
                                                             {plan.is_popular ? '🚀 EMPEZAR AHORA' : '📞 MÁS INFO'}
                                                         </button>
 
-                                                        {/* Trial info */}
-                                                        <div className="text-center p-1.5 bg-blue-50 rounded-lg border border-blue-200">
-                                                            <p className="text-xs text-blue-800 font-semibold">
-                                                                🎁 Prueba GRATIS por 14 días
-                                                            </p>
-                                                            <p className="text-xs text-blue-600">
-                                                                Sin compromisos • Cancelación fácil
-                                                            </p>
-                                                        </div>
+                                                        {/* Trial info - solo si está activado */}
+                                                        {content?.pricing_show_trial !== false && (
+                                                            <div className="text-center p-1.5 bg-blue-50 rounded-lg border border-blue-200">
+                                                                <p className="text-xs text-blue-800 font-semibold">
+                                                                    🎁 {content?.pricing_trial_text || 'Prueba GRATIS por 14 días'}
+                                                                </p>
+                                                                <p className="text-xs text-blue-600">
+                                                                    {content?.pricing_trial_terms || 'Sin compromisos • Cancelación fácil'}
+                                                                </p>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
