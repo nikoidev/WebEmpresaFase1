@@ -31,6 +31,18 @@ export default function ContactoPage() {
                 form_title: 'Envíanos un Mensaje',
                 form_description: 'Completa el formulario y nos pondremos en contacto contigo',
                 form_button_text: 'Enviar Mensaje',
+                faq_title: 'Preguntas Frecuentes',
+                faq_description: 'Respuestas a las consultas más comunes',
+                faqs: [
+                    {
+                        question: '¿Cómo puedo contactarlos?',
+                        answer: 'Puedes contactarnos a través del formulario, email o teléfono.'
+                    },
+                    {
+                        question: '¿Cuál es el tiempo de respuesta?',
+                        answer: 'Respondemos todas las consultas en un plazo máximo de 24 horas.'
+                    }
+                ],
                 contact_items: [
                     {
                         id: 'email',
@@ -262,16 +274,16 @@ export default function ContactoPage() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-12">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                            Preguntas Frecuentes
+                            {content?.faq_title || 'Preguntas Frecuentes'}
                         </h2>
                         <p className="text-xl text-gray-600">
-                            Respuestas a las consultas más comunes
+                            {content?.faq_description || 'Respuestas a las consultas más comunes'}
                         </p>
                     </div>
 
-                    {content?.faq?.length > 0 ? (
+                    {content?.faqs?.length > 0 ? (
                         <div className="space-y-6">
-                            {content.faq.map((item: any, index: number) => (
+                            {content.faqs.map((item: any, index: number) => (
                                 <div key={index} className="bg-gray-50 p-6 rounded-lg">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                         {item.question}
