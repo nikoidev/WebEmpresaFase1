@@ -210,7 +210,7 @@ export default function PreciosPage() {
                                         }`}
                                         style={{ minWidth: '120px' }}
                                     >
-                                        <span className="tracking-wider">MENSUAL</span>
+                                        <span className="tracking-wider">{content?.pricing_monthly_label || 'MENSUAL'}</span>
                                     </button>
                                     
                                     {/* Yearly button */}
@@ -223,7 +223,7 @@ export default function PreciosPage() {
                                         }`}
                                         style={{ minWidth: '140px' }}
                                     >
-                                        <span className="tracking-wider mr-3">ANUAL</span>
+                                        <span className="tracking-wider mr-3">{content?.pricing_yearly_label || 'ANUAL'}</span>
                                         
                                         {/* Savings badge */}
                                         <div className="relative">
@@ -366,7 +366,9 @@ export default function PreciosPage() {
                                                                 </div>
                                                                 <div className="mb-2">
                                                                     <span className="text-gray-700 font-bold text-xs tracking-wider bg-white px-2 py-1 rounded-full border border-gray-200">
-                                                                        {billingPeriod === 'yearly' ? '🗓️ ANUAL' : '📅 MENSUAL'}
+                                                                        {billingPeriod === 'yearly' 
+                                                                            ? `🗓️ ${content?.pricing_yearly_label || 'ANUAL'}` 
+                                                                            : `📅 ${content?.pricing_monthly_label || 'MENSUAL'}`}
                                                                     </span>
                                                                 </div>
                                                             </div>
