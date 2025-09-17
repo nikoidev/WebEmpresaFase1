@@ -11,14 +11,25 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
     const [plans, setPlans] = useState<any[]>([])
     const [loadingPlans, setLoadingPlans] = useState(true)
     
-    // Cargar planes cuando se abre el modal
+    // Cargar planes cuando se abre el modal (usar la misma fuente que la página pública)
     useEffect(() => {
         const loadPlans = async () => {
             try {
+                // Primero intentar cargar planes del admin (para tener acceso completo)
                 const response = await adminApi.plans.list()
-                setPlans(response.data)
+                // Filtrar solo los planes activos para mostrar lo mismo que la página pública
+                const activePlans = response.data?.filter((plan: any) => plan.is_active) || []
+                setPlans(activePlans)
             } catch (error) {
                 console.error('Error loading plans:', error)
+                // Si falla el admin API, intentar usar el público
+                try {
+                    const publicResponse = await import('@/lib/api').then(api => api.publicApi.getServicePlans())
+                    setPlans(publicResponse.data || [])
+                } catch (publicError) {
+                    console.error('Error loading public plans:', publicError)
+                    setPlans([])
+                }
             } finally {
                 setLoadingPlans(false)
             }
@@ -32,12 +43,6 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
             
             // Si se está marcando como popular, desmarcar todos los otros
             if (field === 'is_popular' && value === true) {
-                // Actualizar estado local: quitar popular de todos y asignar solo al seleccionado
-                setPlans(prev => prev.map(plan => ({
-                    ...plan,
-                    is_popular: plan.id === planId
-                })))
-                
                 // Actualizar en el backend: desmarcar todos los otros planes
                 const otherPlans = plans.filter(plan => plan.id !== planId && plan.is_popular)
                 for (const otherPlan of otherPlans) {
@@ -47,12 +52,13 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                         console.error(`Error removing popular from plan ${otherPlan.id}:`, error)
                     }
                 }
-            } else {
-                // Actualizar estado local normalmente para otros campos
-                setPlans(prev => prev.map(plan => 
-                    plan.id === planId ? { ...plan, [field]: value } : plan
-                ))
             }
+            
+            // Recargar todos los planes para mantener consistencia con la página pública
+            const response = await adminApi.plans.list()
+            const activePlans = response.data?.filter((plan: any) => plan.is_active) || []
+            setPlans(activePlans)
+            
         } catch (error) {
             console.error('Error updating plan:', error)
         }
@@ -79,8 +85,12 @@ const PricingEditor = ({ content, updateContent }: { content: any, updateContent
                 display_order: plans.length + 1
             }
             
-            const response = await adminApi.plans.create(newPlan)
-            setPlans(prev => [...prev, response.data])
+            await adminApi.plans.create(newPlan)
+            
+            // Recargar todos los planes para mantener consistencia
+            const response = await adminApi.plans.list()
+            const activePlans = response.data?.filter((plan: any) => plan.is_active) || []
+            setPlans(activePlans)
             console.log('✅ Plan creado exitosamente')
         } catch (error) {
             console.error('Error creating plan:', error)
