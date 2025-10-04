@@ -10,12 +10,13 @@ def create_initial_content():
     """Crea contenido inicial para las páginas del CMS"""
     db = SessionLocal()
     try:
-        # Verificar si ya existe contenido
-        existing_content = db.query(PageContent).count()
+        # Obtener páginas existentes
+        existing_pages = db.query(PageContent).all()
+        existing_keys = {page.page_key for page in existing_pages}
         
-        if existing_content > 0:
-            print(f"[INFO] Ya existe contenido en la base de datos ({existing_content} páginas)")
-            return
+        if existing_keys:
+            print(f"[INFO] Páginas existentes encontradas: {', '.join(existing_keys)}")
+            print("[INFO] Solo se crearán las páginas que falten")
         
         # Contenido para Homepage
         homepage = PageContent(
@@ -113,9 +114,9 @@ def create_initial_content():
             is_active=True
         )
         
-        # Contenido para Nosotros
+        # Contenido para Nosotros (About)
         nosotros = PageContent(
-            page_key="nosotros",
+            page_key="about",
             title="Sobre Nosotros",
             content_json={
                 "hero": {
@@ -194,17 +195,35 @@ def create_initial_content():
             is_active=True
         )
         
-        # Agregar todo a la base de datos
-        db.add_all([homepage, footer, navigation, nosotros, historia])
-        db.commit()
+        # Crear lista de páginas a insertar
+        pages_to_create = {
+            'homepage': homepage,
+            'footer': footer,
+            'navigation': navigation,
+            'about': nosotros,
+            'historia': historia
+        }
         
-        print("[OK] Contenido inicial creado exitosamente:")
-        print("   - Homepage")
-        print("   - Footer")
-        print("   - Navigation")
-        print("   - Nosotros")
-        print("   - Historia")
-        print("\n[INFO] Ahora puedes acceder al frontend y ver el contenido")
+        # Filtrar solo las páginas que no existen
+        new_pages = []
+        created_names = []
+        
+        for key, page in pages_to_create.items():
+            if key not in existing_keys:
+                new_pages.append(page)
+                created_names.append(key)
+        
+        if new_pages:
+            # Agregar solo las páginas nuevas
+            db.add_all(new_pages)
+            db.commit()
+            
+            print(f"[OK] {len(new_pages)} páginas creadas exitosamente:")
+            for name in created_names:
+                print(f"   - {name}")
+            print("\n[INFO] Ahora puedes acceder al frontend y ver el contenido")
+        else:
+            print("[INFO] Todas las páginas ya existen. No se creó contenido nuevo.")
         
     except Exception as e:
         print(f"[ERROR] Error creando contenido inicial: {e}")

@@ -104,32 +104,22 @@ export default function NosotrosPage() {
                     {/* Mission */}
                     <div className="text-center mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                            {aboutContent?.mission_title || 'Nuestra Misión'}
+                            {aboutContent?.mission?.title || 'Nuestra Misión'}
                         </h2>
                         <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-4">
-                            {aboutContent?.mission || 'Democratizar el acceso a herramientas educativas de calidad profesional.'}
+                            {aboutContent?.mission?.content || 'Democratizar el acceso a herramientas educativas de calidad profesional.'}
                         </p>
-                        {aboutContent?.mission_description && (
-                            <p className="text-lg text-gray-500 max-w-3xl mx-auto">
-                                {aboutContent.mission_description}
-                            </p>
-                        )}
                     </div>
 
                     {/* Vision */}
                     {aboutContent?.vision && (
                         <div className="text-center">
                             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                                {aboutContent?.vision_title || 'Nuestra Visión'}
+                                {aboutContent?.vision?.title || 'Nuestra Visión'}
                             </h2>
                             <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-4">
-                                {aboutContent.vision}
+                                {aboutContent.vision.content}
                             </p>
-                            {aboutContent?.vision_description && (
-                                <p className="text-lg text-gray-500 max-w-3xl mx-auto">
-                                    {aboutContent.vision_description}
-                                </p>
-                            )}
                         </div>
                     )}
                 </div>

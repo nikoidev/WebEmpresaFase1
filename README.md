@@ -123,9 +123,10 @@
 ### 📋 Prerrequisitos
 
 - **Node.js** 18+ ([Descargar](https://nodejs.org/))
-- **Python** 3.11+ ([Descargar](https://www.python.org/))
-- **PostgreSQL** 13+ ([Descargar](https://www.postgresql.org/))
+- **Python** 3.13+ ([Descargar](https://www.python.org/))
+- **Docker Desktop** ([Descargar](https://www.docker.com/products/docker-desktop))
 - **Git** ([Descargar](https://git-scm.com/))
+- **VS Code** (recomendado) ([Descargar](https://code.visualstudio.com/))
 
 ### 🔥 Instalación en 5 Minutos
 
@@ -135,13 +136,15 @@ git clone https://github.com/tu-usuario/webempresa.git
 cd webempresa
 ```
 
-#### 2️⃣ **Configurar Base de Datos**
-```sql
-# Conectar a PostgreSQL y ejecutar:
-CREATE DATABASE webempresa_db;
-CREATE USER webempresa_user WITH PASSWORD 'tu_password_seguro';
-GRANT ALL PRIVILEGES ON DATABASE webempresa_db TO webempresa_user;
+#### 2️⃣ **Iniciar Contenedores Docker**
+```bash
+# Inicia PostgreSQL y pgAdmin
+docker-compose -f docker-compose.webempresa.yml up -d
 ```
+
+Esto iniciará:
+- **PostgreSQL** en puerto `5436`
+- **pgAdmin** en puerto `5054` (http://localhost:5054)
 
 #### 3️⃣ **Configurar Backend**
 ```bash
@@ -158,18 +161,18 @@ source webempresa_fastapi_env/bin/activate
 # Instalar dependencias
 pip install -r requirements.txt
 
-# Configurar variables de entorno
-cp env.example .env
-# ✏️ Editar .env con tus configuraciones (ver sección configuración)
+# Crear archivo .env (copiar desde env.example y ajustar si es necesario)
+# Por defecto ya está configurado para funcionar
 
 # Ejecutar migraciones
 alembic upgrade head
 
-# Crear usuario administrador
+# Crear usuario administrador y datos iniciales
 python create_admin.py
+python seed_content.py
 
 # Iniciar servidor backend
-python main.py
+python -m uvicorn main:app --reload --port 8000
 ```
 
 #### 4️⃣ **Configurar Frontend**
@@ -188,43 +191,70 @@ npm run dev
 
 - **🌐 Sitio Público**: http://localhost:3001
 - **🔐 Panel Admin**: http://localhost:3001/admin/login
-- **📚 API Docs**: http://localhost:8002/docs
+- **📚 API Docs**: http://localhost:8000/docs
+- **🛠️ pgAdmin**: http://localhost:5054
 
-**Credenciales de prueba:**
-- Usuario: `admin`
+**Credenciales de Admin:**
+- Usuario: `admin@sevp.com`
 - Contraseña: `admin123`
+
+**Credenciales de pgAdmin:**
+- Email: `admin@webempresa.com`
+- Contraseña: `webempresa_admin_2024`
 
 > ⚠️ **Importante**: Cambiar estas credenciales antes de producción
 
+### 🚀 Modo Producción con VS Code
+
+Si usas VS Code, puedes ejecutar todo con **F5**:
+
+1. Abre el proyecto en VS Code
+2. Presiona **F5**
+3. Selecciona:
+   - **🌐 Full Stack - Development** (modo desarrollo con hot-reload)
+   - **🏭 Full Stack - Production** (modo producción optimizado)
+
+O usa tasks con `Ctrl + Shift + P` → "Tasks: Run Task" → selecciona el modo deseado.
+
 ---
 
-## 🐳 Instalación con Docker
+## 🐳 Configuración con Docker
 
-### 🎯 Opción Rápida - Solo Base de Datos
+### 🎯 Contenedores Incluidos
+
+El proyecto usa Docker para los servicios de base de datos:
+
 ```bash
-# Iniciar PostgreSQL y Redis en contenedores
+# Iniciar contenedores
 docker-compose -f docker-compose.webempresa.yml up -d
 
-# Configurar backend y frontend normalmente
-# (La BD estará en localhost:5433)
+# Ver estado
+docker ps --filter "name=webempresa"
+
+# Ver logs
+docker-compose -f docker-compose.webempresa.yml logs -f
+
+# Detener contenedores
+docker-compose -f docker-compose.webempresa.yml down
+
+# Detener y eliminar datos (⚠️ cuidado, borra todo)
+docker-compose -f docker-compose.webempresa.yml down -v
 ```
 
-### 🏗️ Instalación Completa con Docker
-```bash
-# Construir y ejecutar todo el stack
-docker-compose up --build
+**Servicios en Docker:**
+- `webempresa_postgres` - PostgreSQL 15 (puerto 5436)
+- `webempresa_pgadmin` - pgAdmin 4 (puerto 5054)
 
-# Acceder a:
-# Frontend: http://localhost:3001  
-# Backend: http://localhost:8002
-# PostgreSQL: localhost:5433
-```
+**Configuración de PostgreSQL:**
+- Base de datos: `webempresa_db`
+- Usuario: `webempresa_user`
+- Contraseña: `webempresa_pass_2024`
+- Puerto: `5436`
 
-**Archivos incluidos:**
-- `docker-compose.webempresa.yml` - Base de datos y Redis
-- `Dockerfile.frontend` - Contenedor del frontend  
-- `Dockerfile.backend` - Contenedor del backend
-- `.dockerignore` - Archivos excluidos
+**Configuración de pgAdmin:**
+- URL: http://localhost:5054
+- Email: `admin@webempresa.com`
+- Contraseña: `webempresa_admin_2024`
 
 ---
 
@@ -239,23 +269,24 @@ ENVIRONMENT=development
 DEVELOPMENT_MODE=true
 
 # Base de datos  
-DATABASE_URL=postgresql://postgres:postgres@localhost:5433/webempresa_db
+DATABASE_URL=postgresql://webempresa_user:webempresa_pass_2024@localhost:5436/webempresa_db
 
 # Seguridad
-SECRET_KEY=tu-clave-super-secreta-de-32-caracteres-min
+SECRET_KEY=webempresa-secret-key-change-in-production-2024
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 
 # CORS
-ALLOWED_ORIGINS=http://localhost:3001
+ALLOWED_ORIGINS=http://localhost:3001,https://yourdomain.com
 ```
 
-#### Frontend (.env.local)
-```env
-# API Backend
-NEXT_PUBLIC_API_URL=http://localhost:8002
+> **Nota**: El archivo `.env` ya viene preconfigurado. Solo necesitas copiarlo desde `env.example` si no existe.
 
-# Entorno
-NODE_ENV=development
+#### Frontend 
+El frontend usa configuración en `next.config.js` con valores por defecto correctos. No necesitas crear archivos `.env` adicionales para desarrollo.
+
+```javascript
+// next.config.js (ya configurado)
+NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 ```
 
 ### 🌐 URLs y Puertos
@@ -263,9 +294,9 @@ NODE_ENV=development
 | **Servicio** | **URL** | **Puerto** | **Descripción** |
 |--------------|---------|------------|-----------------|
 | Frontend | http://localhost:3001 | 3001 | Sitio web público |
-| Backend API | http://localhost:8002 | 8002 | API REST |
-| PostgreSQL | localhost | 5433 | Base de datos |
-| Redis | localhost | 6380 | Cache (opcional) |
+| Backend API | http://localhost:8000 | 8000 | API REST |
+| PostgreSQL | localhost | 5436 | Base de datos |
+| pgAdmin | http://localhost:5054 | 5054 | Admin de BD |
 
 ---
 
@@ -288,14 +319,16 @@ npm run type-check       # Verificar tipos TypeScript
 ### ⚡ Backend (FastAPI)
 ```bash
 # Servidor
-python main.py           # Iniciar servidor (puerto 8002)
+python -m uvicorn main:app --reload --port 8000  # Desarrollo (puerto 8000)
+python -m uvicorn main:app --host 0.0.0.0 --port 8000  # Producción
 
 # Base de datos
 alembic upgrade head     # Aplicar migraciones
 alembic revision --autogenerate -m "descripcion"  # Crear migración
 
-# Administración
+# Datos iniciales
 python create_admin.py   # Crear usuario administrador
+python seed_content.py   # Crear contenido inicial del CMS
 ```
 
 ### 🐳 Docker
