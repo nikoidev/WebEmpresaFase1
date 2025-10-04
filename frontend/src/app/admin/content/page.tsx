@@ -31,7 +31,9 @@ import {
     Calendar,
     Award,
     Target,
-    Menu
+    Menu,
+    RefreshCw,
+    Zap
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
@@ -56,6 +58,7 @@ export default function ContentManagementPage() {
     const [editingSection, setEditingSection] = useState<string | null>(null)
     const [editingSectionName, setEditingSectionName] = useState<string>('')
     const [isSaving, setIsSaving] = useState(false)
+    const [isSeeding, setIsSeeding] = useState(false)
     const [formData, setFormData] = useState({
         page_key: '',
         title: '',
@@ -168,6 +171,37 @@ export default function ContentManagementPage() {
             setPages([])
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handleSeedMissingPages = async () => {
+        if (!confirm('¿Deseas crear automáticamente todas las páginas faltantes del CMS?\n\nEsto creará las páginas que aún no existen con contenido inicial predefinido.')) {
+            return
+        }
+
+        setIsSeeding(true)
+        try {
+            console.log('🌱 Iniciando proceso de seeding...')
+            const response = await adminApi.seedMissingPages()
+            console.log('✅ Respuesta del servidor:', response.data)
+            
+            const { message, created_pages, missing_count, total_pages } = response.data
+            
+            if (created_pages && created_pages.length > 0) {
+                const createdList = created_pages.map((p: any) => `  • ${p.title} (${p.page_key})`).join('\n')
+                alert(`✅ ${message}\n\n📄 Páginas creadas:\n${createdList}\n\n📊 Total: ${created_pages.length} de ${total_pages} páginas`)
+            } else {
+                alert(`ℹ️ ${message}\n\nTodas las páginas necesarias ya están configuradas.`)
+            }
+            
+            // Recargar la lista de páginas
+            await fetchPages()
+        } catch (error: any) {
+            console.error('❌ Error al crear páginas:', error)
+            const errorMessage = error.response?.data?.detail || error.message || 'Error desconocido'
+            alert(`❌ Error al crear las páginas faltantes:\n\n${errorMessage}`)
+        } finally {
+            setIsSeeding(false)
         }
     }
 
@@ -716,11 +750,37 @@ ${formData.is_active ? '✅ Página activa' : '❌ Página inactiva'}`)
             <DevFileInfo filePath="frontend/src/app/admin/content/page.tsx" />
             
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold text-gray-900">Gestión de Contenido</h1>
-                <p className="mt-2 text-gray-600">
-                    Administra el contenido de todas las páginas públicas de tu sitio web
-                </p>
+            <div className="flex items-start justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Gestión de Contenido</h1>
+                    <p className="mt-2 text-gray-600">
+                        Administra el contenido de todas las páginas públicas de tu sitio web
+                    </p>
+                </div>
+                
+                {/* Botón para crear páginas faltantes */}
+                <button
+                    onClick={handleSeedMissingPages}
+                    disabled={isSeeding}
+                    className={`inline-flex items-center px-5 py-3 rounded-lg font-semibold text-white shadow-lg transition-all transform hover:scale-105 ${
+                        isSeeding 
+                            ? 'bg-gray-400 cursor-not-allowed' 
+                            : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 hover:shadow-xl'
+                    }`}
+                    title="Detectar y crear automáticamente las páginas que faltan"
+                >
+                    {isSeeding ? (
+                        <>
+                            <RefreshCw className="h-5 w-5 mr-2 animate-spin" />
+                            Creando...
+                        </>
+                    ) : (
+                        <>
+                            <Zap className="h-5 w-5 mr-2" />
+                            Crear Páginas Faltantes
+                        </>
+                    )}
+                </button>
             </div>
 
             {/* Available Page Types */}

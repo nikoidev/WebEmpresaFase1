@@ -8,10 +8,10 @@ import sys
 # Agregar el directorio padre al path para importar modelos
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from config import settings
-from database import Base
+from core.config import settings
+from core.database import Base
 # Importar todos los modelos para que estén disponibles para Alembic
-from models import *
+from models import user, contact, page_content, plans
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

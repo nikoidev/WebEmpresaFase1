@@ -39,7 +39,7 @@ def create_admin_user():
             db.commit()
             db.refresh(admin)
             
-            print("✅ Usuario administrador creado:")
+            print("[OK] Usuario administrador creado:")
             print(f"   Username/Email: admin@sevp.com")
             print(f"   Password: admin123")
             print(f"   Nota: Usar email para hacer login")
@@ -52,10 +52,10 @@ def create_admin_user():
             admin.is_superuser = True
             admin.is_staff = True
             db.commit()
-            print("✅ Usuario administrador actualizado: username=email, rol=SUPER_ADMIN")
+            print("[OK] Usuario administrador actualizado: username=email, rol=SUPER_ADMIN")
             
     except Exception as e:
-        print(f"❌ Error creando admin: {e}")
+        print(f"[ERROR] Error creando admin: {e}")
         db.rollback()
     finally:
         db.close()

@@ -6,32 +6,64 @@ services:
     container_name: webempresa_postgres
     environment:
       POSTGRES_DB: webempresa_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: webempresa_user
+      POSTGRES_PASSWORD: webempresa_pass_2024
     ports:
-      - "5433:5432"
+      - "5436:5432"
     volumes:
       - webempresa_postgres_data:/var/lib/postgresql/data
       - ./init-webempresa-db.sql:/docker-entrypoint-initdb.d/init-webempresa-db.sql
     networks:
       - webempresa_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U webempresa_user -d webempresa_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  webempresa_pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: webempresa_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@webempresa.com
+      PGADMIN_DEFAULT_PASSWORD: webempresa_admin_2024
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5054:80"
+    volumes:
+      - webempresa_pgadmin_data:/var/lib/pgadmin
+    networks:
+      - webempresa_network
+    restart: unless-stopped
+    depends_on:
+      - webempresa_postgres
 
   webempresa_redis:
     image: redis:7-alpine
     container_name: webempresa_redis
     ports:
-      - "6380:6379"
+      - "6382:6379"
     volumes:
       - webempresa_redis_data:/data
     networks:
       - webempresa_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   webempresa_postgres_data:
+    name: webempresa_postgres_data
+  webempresa_pgadmin_data:
+    name: webempresa_pgadmin_data
   webempresa_redis_data:
+    name: webempresa_redis_data
 
 networks:
   webempresa_network:
+    name: webempresa_network
     driver: bridge
