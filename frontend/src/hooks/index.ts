@@ -4,6 +4,4 @@
 
 export { useApi } from './useApi'
 export { useLocalStorage } from './useLocalStorage'
-
-// Re-exportar hooks existentes
-export { default as useCompanyStats } from './useCompanyStats'
+export { useCompanyStats } from './useCompanyStats'

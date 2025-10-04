@@ -19,7 +19,7 @@ export function InlineEditProvider({ children }: { children: React.ReactNode }) 
     const { user, isAuthenticated } = useAuth()
 
     // Solo admins pueden editar
-    const canEdit = isAuthenticated && user?.is_admin
+    const canEdit = isAuthenticated && (user?.is_admin ?? false)
 
     const toggleEditMode = () => {
         if (canEdit) {

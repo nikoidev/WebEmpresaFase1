@@ -30,8 +30,8 @@ async def lifespan(app: FastAPI):
     try:
         print("🔄 Starting FastAPI Backend...")
         print(f"🐍 Python Environment: {sys.executable}")
-        print(f"🌐 Server URL: http://localhost:8002")
-        print(f"📖 API Documentation: http://localhost:8002/docs")
+        print(f"🌐 Server URL: http://localhost:8000")
+        print(f"📖 API Documentation: http://localhost:8000/docs")
         print(f"🗄️ Database URL: {settings.DATABASE_URL}")
         
         # Test database connection
